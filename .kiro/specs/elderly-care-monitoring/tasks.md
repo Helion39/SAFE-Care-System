@@ -200,11 +200,12 @@ This implementation plan focuses on transforming the current SAFE Care System in
     - Create Incident model for emergency tracking and resolution
 
 
+
     - Create Assignment model for caregiver-resident relationships
     - Implement data validation schemas and middleware
     - _Requirements: 1.2, 2.1, 2.2, 3.1, 6.2_
 
-  - [ ] 10.4 Implement authentication and authorization
+  - [x] 10.4 Implement authentication and authorization
     - Set up JWT-based authentication system
     - Create user registration and login endpoints
     - Implement role-based access control middleware
@@ -213,14 +214,28 @@ This implementation plan focuses on transforming the current SAFE Care System in
     - Implement logout and session invalidation
     - _Requirements: 6.1, 6.2_
 
+  - [ ] 10.4.1 Fix authentication security and add admin user management
+    - Secure the registration endpoint (make it admin-only or remove public access)
+    - Create admin-only endpoint for creating caregiver accounts (POST /api/users/create-caregiver)
+    - Add proper user creation workflow where admin creates caregiver credentials
+    - Implement secure caregiver account management (create, update, deactivate)
+    - Add validation for admin-created user accounts with proper password policies
+    - Ensure caregivers can only login with admin-created credentials
+    - Add bulk user creation functionality for multiple caregivers
+    - _Requirements: 6.1, 6.2, 1.2_
+
   - [ ] 10.5 Create resident management API endpoints
-    - POST /api/residents - Create new resident (Admin only)
-    - GET /api/residents - List all residents with pagination and filtering
-    - GET /api/residents/:id - Get specific resident details
-    - PUT /api/residents/:id - Update resident information (Admin only)
-    - DELETE /api/residents/:id - Delete resident (Admin only)
-    - Implement input validation and error handling for all endpoints
-    - _Requirements: 1.2, 6.2, 6.3_
+    - POST /api/residents - Create new resident with Room, Age, Medical Conditions (Admin only)
+    - GET /api/residents - List all residents with pagination, filtering, and search
+    - GET /api/residents/:id - Get specific resident details with assigned caregiver info
+    - PUT /api/residents/:id - Update resident information including Room, Age, Medical Conditions (Admin only)
+    - DELETE /api/residents/:id - Delete resident with proper cascade handling (Admin only)
+    - GET /api/residents/search - Advanced search by room, name, medical conditions
+    - GET /api/residents/unassigned - Get residents without assigned caregivers
+    - Implement comprehensive input validation for all resident fields
+    - Add proper error handling and meaningful error messages
+    - Ensure resident room numbers are unique and properly validated
+    - _Requirements: 1.2, 6.2, 6.3, 2.1_
 
   - [ ] 10.6 Create vitals tracking API endpoints
     - POST /api/vitals - Record new vital signs (Caregiver only)
@@ -372,10 +387,19 @@ This implementation plan focuses on transforming the current SAFE Care System in
 ### Security Implementation
 - **Authentication**: JWT tokens with refresh token rotation
 - **Authorization**: Role-based access control middleware
+- **User Management**: Admin-only user creation for secure caregiver account management
 - **Data Protection**: Input sanitization and SQL injection prevention
 - **HTTPS**: SSL/TLS encryption for all communications
 - **Rate Limiting**: Prevent API abuse and DDoS attacks
 - **Audit Trail**: Log all data modifications and user actions
+
+### User Management Workflow
+- **Admin Creates Caregivers**: Admins create caregiver accounts with username/password
+- **Caregiver Login**: Caregivers login with admin-created credentials only
+- **No Self-Registration**: Public registration is disabled for security
+- **Admin Manages Residents**: Admins add residents with Room, Age, Medical Conditions
+- **Assignment Control**: Admins assign caregivers to specific residents
+- **Role-Based Access**: Strict separation between admin and caregiver capabilities
 
 ### Component Design System
 - Create consistent color palette and typography scale
