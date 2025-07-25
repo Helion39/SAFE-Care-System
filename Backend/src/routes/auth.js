@@ -14,9 +14,11 @@ const { validate, userSchemas } = require('../middleware/validation');
 const router = express.Router();
 
 // Public routes
-router.post('/register', validate(userSchemas.register), register);
 router.post('/login', validate(userSchemas.login), login);
 router.post('/refresh', refreshToken);
+
+// Admin-only registration (secured)
+router.post('/register', protect, authorize('admin'), validate(userSchemas.register), register);
 
 // Protected routes
 router.use(protect); // All routes after this middleware are protected

@@ -33,6 +33,27 @@ const userSchemas = {
   login: Joi.object({
     email: Joi.string().email().required(),
     password: Joi.string().required()
+  }),
+
+  createCaregiver: Joi.object({
+    name: Joi.string().min(2).max(50).required(),
+    email: Joi.string().email().required(),
+    password: Joi.string().min(6).optional(),
+    temporaryPassword: Joi.string().min(6).optional()
+  }),
+
+  bulkCreateCaregivers: Joi.object({
+    caregivers: Joi.array().items(
+      Joi.object({
+        name: Joi.string().min(2).max(50).required(),
+        email: Joi.string().email().required(),
+        password: Joi.string().min(6).optional()
+      })
+    ).min(1).max(50).required()
+  }),
+
+  resetPassword: Joi.object({
+    newPassword: Joi.string().min(6).required()
   })
 };
 

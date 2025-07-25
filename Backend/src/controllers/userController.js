@@ -1,5 +1,170 @@
 const User = require('../models/User');
 const logger = require('../utils/logger');
+const bcrypt = require('bcryptjs');
+
+// @desc    Create new caregiver account (Admin only)
+// @route   POST /api/users/create-caregiver
+// @access  Private/Admin
+const createCaregiver = async (req, res, next) => {
+  try {
+    const { name, email, password, temporaryPassword } = req.body;
+
+    // Check if user exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        error: 'User already exists with this email'
+      });
+    }
+
+    // Create caregiver account
+    const user = await User.create({
+      name,
+      email,
+      password: password || temporaryPassword || 'TempPass123!', // Default temp password
+      role: 'caregiver',
+      isActive: true
+    });
+
+    logger.info(`New caregiver account created by admin: ${email}`);
+
+    res.status(201).json({
+      success: true,
+      data: {
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          isActive: user.isActive,
+          createdAt: user.createdAt
+        }
+      },
+      message: 'Caregiver account created successfully'
+    });
+  } catch (error) {
+    logger.error('Create caregiver error:', error);
+    next(error);
+  }
+};
+
+// @desc    Create multiple caregiver accounts (Bulk creation)
+// @route   POST /api/users/bulk-create-caregivers
+// @access  Private/Admin
+const bulkCreateCaregivers = async (req, res, next) => {
+  try {
+    const { caregivers } = req.body; // Array of caregiver objects
+
+    if (!Array.isArray(caregivers) || caregivers.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'Please provide an array of caregivers'
+      });
+    }
+
+    const results = {
+      created: [],
+      failed: []
+    };
+
+    for (const caregiverData of caregivers) {
+      try {
+        const { name, email, password } = caregiverData;
+
+        // Check if user exists
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+          results.failed.push({
+            email,
+            error: 'User already exists with this email'
+          });
+          continue;
+        }
+
+        // Create caregiver account
+        const user = await User.create({
+          name,
+          email,
+          password: password || 'TempPass123!',
+          role: 'caregiver',
+          isActive: true
+        });
+
+        results.created.push({
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role
+        });
+
+        logger.info(`Bulk caregiver account created: ${email}`);
+      } catch (error) {
+        results.failed.push({
+          email: caregiverData.email,
+          error: error.message
+        });
+      }
+    }
+
+    res.status(201).json({
+      success: true,
+      data: results,
+      message: `Created ${results.created.length} caregivers, ${results.failed.length} failed`
+    });
+  } catch (error) {
+    logger.error('Bulk create caregivers error:', error);
+    next(error);
+  }
+};
+
+// @desc    Reset caregiver password (Admin only)
+// @route   PUT /api/users/:id/reset-password
+// @access  Private/Admin
+const resetCaregiverPassword = async (req, res, next) => {
+  try {
+    const { newPassword } = req.body;
+    const userId = req.params.id;
+
+    if (!newPassword) {
+      return res.status(400).json({
+        success: false,
+        error: 'Please provide a new password'
+      });
+    }
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found'
+      });
+    }
+
+    if (user.role !== 'caregiver') {
+      return res.status(400).json({
+        success: false,
+        error: 'Can only reset passwords for caregivers'
+      });
+    }
+
+    // Hash new password
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(newPassword, salt);
+    await user.save();
+
+    logger.info(`Password reset for caregiver: ${user.email} by admin: ${req.user.email}`);
+
+    res.status(200).json({
+      success: true,
+      message: 'Password reset successfully'
+    });
+  } catch (error) {
+    logger.error('Reset password error:', error);
+    next(error);
+  }
+};
 
 // @desc    Get all users
 // @route   GET /api/users
@@ -234,6 +399,9 @@ const getUserStats = async (req, res, next) => {
 };
 
 module.exports = {
+  createCaregiver,
+  bulkCreateCaregivers,
+  resetCaregiverPassword,
   getUsers,
   getUser,
   updateUser,

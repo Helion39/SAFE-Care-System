@@ -1,5 +1,8 @@
 const express = require('express');
 const {
+  createCaregiver,
+  bulkCreateCaregivers,
+  resetCaregiverPassword,
   getUsers,
   getUser,
   updateUser,
@@ -26,9 +29,18 @@ router.route('/')
 router.route('/stats')
   .get(getUserStats);
 
+router.route('/create-caregiver')
+  .post(createCaregiver);
+
+router.route('/bulk-create-caregivers')
+  .post(bulkCreateCaregivers);
+
 router.route('/:id')
   .get(getUser)
   .put(updateUser)
   .delete(deleteUser);
+
+router.route('/:id/reset-password')
+  .put(resetCaregiverPassword);
 
 module.exports = router;

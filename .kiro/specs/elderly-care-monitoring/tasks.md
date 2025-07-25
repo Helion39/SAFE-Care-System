@@ -215,6 +215,8 @@ This implementation plan focuses on transforming the current SAFE Care System in
     - _Requirements: 6.1, 6.2_
 
   - [ ] 10.4.1 Fix authentication security and add admin user management
+
+
     - Secure the registration endpoint (make it admin-only or remove public access)
     - Create admin-only endpoint for creating caregiver accounts (POST /api/users/create-caregiver)
     - Add proper user creation workflow where admin creates caregiver credentials
