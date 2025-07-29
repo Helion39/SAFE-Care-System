@@ -10,6 +10,9 @@ require('dotenv').config();
 
 const { connectDB, setupIndexes } = require('./src/config/database');
 const logger = require('./src/utils/logger');
+const SocketManager = require('./src/utils/socketManager');
+const Scheduler = require('./src/utils/scheduler');
+const seedData = require('./src/utils/seedData');
 const errorHandler = require('./src/middleware/errorHandler');
 const authRoutes = require('./src/routes/auth');
 const userRoutes = require('./src/routes/users');
@@ -31,8 +34,13 @@ const io = new Server(server, {
   }
 });
 
-// Make io accessible to routes
+// Initialize Socket Manager
+const socketManager = new SocketManager(io);
+socketManager.initialize();
+
+// Make io and socketManager accessible to routes
 app.set('io', io);
+app.set('socketManager', socketManager);
 
 // Security middleware
 app.use(helmet());
@@ -64,9 +72,12 @@ if (process.env.NODE_ENV !== 'test') {
 }
 
 // Connect to database
-connectDB().then(() => {
+connectDB().then(async () => {
   // Setup database indexes after connection
   setupIndexes();
+  
+  // Seed initial data
+  await seedData();
 });
 
 // Health check endpoint
@@ -89,32 +100,7 @@ app.use('/api/assignments', assignmentRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/reports', reportRoutes);
 
-// Socket.IO connection handling
-io.on('connection', (socket) => {
-  logger.info(`User connected: ${socket.id}`);
-
-  // Join room based on user role
-  socket.on('join-role', (role) => {
-    socket.join(role);
-    logger.info(`User ${socket.id} joined ${role} room`);
-  });
-
-  // Handle emergency alerts
-  socket.on('emergency-alert', (data) => {
-    socket.broadcast.emit('emergency-alert', data);
-    logger.info('Emergency alert broadcasted:', data);
-  });
-
-  // Handle vitals updates
-  socket.on('vitals-update', (data) => {
-    socket.broadcast.emit('vitals-update', data);
-    logger.info('Vitals update broadcasted:', data);
-  });
-
-  socket.on('disconnect', () => {
-    logger.info(`User disconnected: ${socket.id}`);
-  });
-});
+// Socket.IO connection handling is now managed by SocketManager
 
 // 404 handler
 app.use('*', (req, res) => {

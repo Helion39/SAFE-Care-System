@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { VitalsChart } from './VitalsChart';
 import { generateHealthSummary } from './mockData';
+import apiService from '../services/api';
 import { 
   Activity, 
   TrendingUp, 
@@ -13,7 +14,7 @@ import {
   Brain
 } from 'lucide-react';
 
-export function CaregiverDashboard({ data, setData, currentUser, onTriggerAlert, onResolveIncident }) {
+export function CaregiverDashboard({ data, setData, currentUser, onTriggerAlert, onResolveIncident, onDataChange }) {
   const [vitalsForm, setVitalsForm] = useState({
     systolic_bp: '',
     diastolic_bp: '',
@@ -22,11 +23,31 @@ export function CaregiverDashboard({ data, setData, currentUser, onTriggerAlert,
   const [showAISummary, setShowAISummary] = useState(false);
   const [aiSummary, setAiSummary] = useState('');
 
-  const assignedResident = data.residents.find(r => r.id === currentUser.assigned_resident_id);
+  // Find assigned resident by looking through assignments data
+  const caregiverId = currentUser._id || currentUser.id;
+  const activeAssignment = data.assignments?.find(assignment => {
+    const assignmentCaregiverId = assignment.caregiverId?._id || assignment.caregiverId?.id || assignment.caregiverId;
+    return assignmentCaregiverId === caregiverId && assignment.isActive;
+  });
+  
+  const assignedResident = activeAssignment 
+    ? data.residents.find(r => {
+        const residentId = r._id || r.id;
+        const assignmentResidentId = activeAssignment.residentId?._id || activeAssignment.residentId?.id || activeAssignment.residentId;
+        return residentId === assignmentResidentId;
+      })
+    : data.residents.find(r => {
+        // Fallback: Check if resident has this caregiver assigned directly
+        const assignedCaregiverId = r.assignedCaregiver?._id || r.assignedCaregiver || r.assigned_caregiver_id;
+        return assignedCaregiverId === caregiverId;
+      }) || data.residents.find(r => r.id === currentUser.assigned_resident_id); // Final fallback
   
   const residentVitals = assignedResident 
     ? data.vitals
-        .filter(v => v.resident_id === assignedResident.id)
+        .filter(v => {
+          const residentId = assignedResident._id || assignedResident.id;
+          return v.resident_id === residentId || v.residentId === residentId;
+        })
         .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
     : [];
 
@@ -34,30 +55,32 @@ export function CaregiverDashboard({ data, setData, currentUser, onTriggerAlert,
     i => i.claimed_by === currentUser.id && i.status === 'claimed'
   );
 
-  const handleVitalsSubmit = (e) => {
+  const handleVitalsSubmit = async (e) => {
     e.preventDefault();
     if (!assignedResident) return;
 
-    const newVital = {
-      id: Date.now(),
-      resident_id: assignedResident.id,
-      systolic_bp: parseInt(vitalsForm.systolic_bp),
-      diastolic_bp: parseInt(vitalsForm.diastolic_bp),
-      heart_rate: parseInt(vitalsForm.heart_rate),
-      timestamp: new Date().toISOString(),
-      caregiver_id: currentUser.id
+    const vitalsData = {
+      residentId: assignedResident._id || assignedResident.id,
+      systolicBP: parseInt(vitalsForm.systolic_bp),
+      diastolicBP: parseInt(vitalsForm.diastolic_bp),
+      heartRate: parseInt(vitalsForm.heart_rate)
+      // Note: caregiverId is automatically set by backend from req.user.id
     };
 
-    setData(prev => ({
-      ...prev,
-      vitals: [newVital, ...prev.vitals]
-    }));
-
-    setVitalsForm({
-      systolic_bp: '',
-      diastolic_bp: '',
-      heart_rate: ''
-    });
+    try {
+      const response = await apiService.createVitals(vitalsData);
+      if (response.success) {
+        await onDataChange(); // Refresh data
+        setVitalsForm({
+          systolic_bp: '',
+          diastolic_bp: '',
+          heart_rate: ''
+        });
+      }
+    } catch (error) {
+      console.error('Failed to record vitals:', error);
+      alert('Failed to record vitals: ' + error.message);
+    }
   };
 
   const handleGenerateAISummary = () => {

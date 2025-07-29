@@ -8,9 +8,11 @@ const {
   updateUser,
   deleteUser,
   getCaregivers,
-  getUserStats
+  getUserStats,
+  toggleUserStatus
 } = require('../controllers/userController');
 const { protect, authorize } = require('../middleware/auth');
+const { validate, userSchemas } = require('../middleware/validation');
 
 const router = express.Router();
 
@@ -30,10 +32,10 @@ router.route('/stats')
   .get(getUserStats);
 
 router.route('/create-caregiver')
-  .post(createCaregiver);
+  .post(validate(userSchemas.createCaregiver), createCaregiver);
 
 router.route('/bulk-create-caregivers')
-  .post(bulkCreateCaregivers);
+  .post(validate(userSchemas.bulkCreateCaregivers), bulkCreateCaregivers);
 
 router.route('/:id')
   .get(getUser)
@@ -41,6 +43,9 @@ router.route('/:id')
   .delete(deleteUser);
 
 router.route('/:id/reset-password')
-  .put(resetCaregiverPassword);
+  .put(validate(userSchemas.resetPassword), resetCaregiverPassword);
+
+router.route('/:id/toggle-status')
+  .put(toggleUserStatus);
 
 module.exports = router;

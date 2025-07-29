@@ -1,18 +1,22 @@
 const express = require('express');
+const {
+  generateReport,
+  scheduleReport,
+  getScheduledReports,
+  exportReport
+} = require('../controllers/reportController');
 const { protect, authorize } = require('../middleware/auth');
+const { validate, reportSchemas } = require('../middleware/validation');
 
 const router = express.Router();
 
-// All routes are protected
+// All routes are protected and admin only
 router.use(protect);
+router.use(authorize('admin'));
 
-// Placeholder routes - to be implemented in next tasks
-router.get('/', (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: 'Reports routes - Coming soon',
-    data: []
-  });
-});
+router.post('/generate', validate(reportSchemas.generate), generateReport);
+router.post('/schedule', validate(reportSchemas.schedule), scheduleReport);
+router.get('/scheduled', getScheduledReports);
+router.get('/export/:reportId', exportReport);
 
 module.exports = router;

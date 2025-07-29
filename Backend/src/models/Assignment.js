@@ -56,16 +56,23 @@ const AssignmentSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Compound indexes for efficient queries
-AssignmentSchema.index({ caregiverId: 1, isActive: 1 });
-AssignmentSchema.index({ startDate: -1 });
+// Compound indexes for efficient queries (with explicit names to avoid conflicts)
+AssignmentSchema.index(
+  { caregiverId: 1, isActive: 1 },
+  { name: 'caregiver_active_idx' }
+);
+AssignmentSchema.index(
+  { startDate: -1 },
+  { name: 'start_date_idx' }
+);
 
 // Ensure only one active assignment per resident (unique partial index)
 AssignmentSchema.index(
   { residentId: 1, isActive: 1 },
   { 
     unique: true,
-    partialFilterExpression: { isActive: true }
+    partialFilterExpression: { isActive: true },
+    name: 'resident_active_unique_idx'
   }
 );
 

@@ -55,26 +55,29 @@ export default function App() {
       promises.push(apiService.getResidents());
       promises.push(apiService.getIncidents());
       
+      // Load vitals data for all users
+      promises.push(apiService.getVitals());
+      
       // Only admins can access all users and assignments
       if (user?.role === 'admin') {
         console.log('🔍 Loading all users and assignments for admin');
         promises.push(apiService.getUsers());
         promises.push(apiService.getAssignments());
       } else {
-        // Caregivers can only access other caregivers
-        console.log('🔍 Loading caregivers for caregiver user');
+        // Caregivers need assignments to find their assigned residents
+        console.log('🔍 Loading caregivers and assignments for caregiver user');
         promises.push(apiService.getCaregivers());
-        promises.push(Promise.resolve({ data: [] })); // Empty assignments for caregivers
+        promises.push(apiService.getAssignments()); // Caregivers need assignments too
       }
 
-      const [residentsRes, incidentsRes, usersRes, assignmentsRes] = await Promise.all(promises);
+      const [residentsRes, incidentsRes, vitalsRes, usersRes, assignmentsRes] = await Promise.all(promises);
 
-      console.log('🔍 API responses:', { usersRes, residentsRes, incidentsRes });
+      console.log('🔍 API responses:', { usersRes, residentsRes, incidentsRes, vitalsRes, assignmentsRes });
 
       setData({
         users: usersRes?.data || [],
         residents: residentsRes?.data || [],
-        vitals: [],
+        vitals: vitalsRes?.data || [],
         incidents: incidentsRes?.data || [],
         assignments: assignmentsRes?.data || [],
         camera_info: [
@@ -189,13 +192,17 @@ export default function App() {
 
   const claimIncident = async (incidentId: any, caregiverId: any) => {
     try {
+      console.log('🔍 Attempting to claim incident:', incidentId, 'by caregiver:', caregiverId);
       const response = await apiService.claimIncident(incidentId);
+      console.log('🔍 Claim response:', response);
       if (response.success) {
         setActiveAlerts(prev => prev.filter(alert => alert.id !== incidentId));
         await loadData(); // Refresh data
+        console.log('✅ Incident claimed successfully');
       }
     } catch (error) {
-      console.error('Failed to claim incident:', error);
+      console.error('❌ Failed to claim incident:', error);
+      alert('Failed to claim incident: ' + error.message);
     }
   };
 

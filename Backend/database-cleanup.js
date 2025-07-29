@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 async function cleanupDatabase() {
     try {
         console.log('🔧 Starting database cleanup...');
-        
+
         // Connect to MongoDB
         await mongoose.connect(process.env.MONGODB_URI);
         console.log('✅ Connected to MongoDB');
@@ -14,7 +14,7 @@ async function cleanupDatabase() {
         const assignments = await mongoose.connection.db.collection('assignments').find({}).toArray();
         const residents = await mongoose.connection.db.collection('residents').find({}).toArray();
         const users = await mongoose.connection.db.collection('users').find({}).toArray();
-        
+
         console.log(`   - Assignments: ${assignments.length}`);
         console.log(`   - Residents: ${residents.length}`);
         console.log(`   - Users: ${users.length}`);

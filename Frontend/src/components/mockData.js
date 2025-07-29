@@ -16,11 +16,11 @@ export const mockData = {
     {
       id: 3,
       name: "James Wilson",
-      role: "caregiver", 
+      role: "caregiver",
       assigned_resident_id: 2
     }
   ],
-  
+
   residents: [
     {
       id: 1,
@@ -31,7 +31,7 @@ export const mockData = {
       medical_conditions: ["Hypertension", "Diabetes Type 2"]
     },
     {
-      id: 2, 
+      id: 2,
       name: "Mary Smith",
       room_number: "102",
       assigned_caregiver_id: 3,
@@ -40,7 +40,7 @@ export const mockData = {
     },
     {
       id: 3,
-      name: "Robert Brown", 
+      name: "Robert Brown",
       room_number: "103",
       assigned_caregiver_id: null,
       age: 75,
@@ -65,7 +65,7 @@ export const mockData = {
       systolic_bp: 138,
       diastolic_bp: 88,
       heart_rate: 82,
-      timestamp: "2025-01-23T14:00:00Z", 
+      timestamp: "2025-01-23T14:00:00Z",
       caregiver_id: 2
     },
     {
@@ -141,7 +141,7 @@ export const mockData = {
     {
       id: 2,
       resident_id: 2,
-      detection_time: "2025-01-21T09:15:00Z", 
+      detection_time: "2025-01-21T09:15:00Z",
       claimed_by: 3,
       status: "resolved",
       resolution: "true_emergency",
@@ -161,7 +161,7 @@ export const mockData = {
     },
     {
       id: 2,
-      room_number: "102", 
+      room_number: "102",
       status: "active",
       last_checked: "2025-01-23T12:00:00Z"
     },
@@ -192,31 +192,31 @@ export const generateHealthSummary = (vitals, residentName) => {
   const avgHeartRate = recent.reduce((sum, v) => sum + v.heart_rate, 0) / recent.length;
 
   let summary = `Health Summary for ${residentName}:\n\n`;
-  
+
   // Blood pressure analysis
   if (avgSystolic > 140 || avgDiastolic > 90) {
-    summary += "🔴 ELEVATED BLOOD PRESSURE: Recent readings show hypertension (avg: " + 
-               Math.round(avgSystolic) + "/" + Math.round(avgDiastolic) + 
-               " mmHg). Consider medication review.\n\n";
+    summary += "🔴 ELEVATED BLOOD PRESSURE: Recent readings show hypertension (avg: " +
+      Math.round(avgSystolic) + "/" + Math.round(avgDiastolic) +
+      " mmHg). Consider medication review.\n\n";
   } else if (avgSystolic > 130 || avgDiastolic > 80) {
-    summary += "🟡 BORDERLINE BP: Readings trending toward hypertension (avg: " + 
-               Math.round(avgSystolic) + "/" + Math.round(avgDiastolic) + 
-               " mmHg). Monitor closely.\n\n";
+    summary += "🟡 BORDERLINE BP: Readings trending toward hypertension (avg: " +
+      Math.round(avgSystolic) + "/" + Math.round(avgDiastolic) +
+      " mmHg). Monitor closely.\n\n";
   } else {
-    summary += "✅ NORMAL BLOOD PRESSURE: Readings within healthy range (avg: " + 
-               Math.round(avgSystolic) + "/" + Math.round(avgDiastolic) + " mmHg).\n\n";
+    summary += "✅ NORMAL BLOOD PRESSURE: Readings within healthy range (avg: " +
+      Math.round(avgSystolic) + "/" + Math.round(avgDiastolic) + " mmHg).\n\n";
   }
 
   // Heart rate analysis
   if (avgHeartRate > 90) {
-    summary += "🔴 ELEVATED HEART RATE: Average " + Math.round(avgHeartRate) + 
-               " bpm indicates tachycardia. Check for fever, pain, or anxiety.\n\n";
+    summary += "🔴 ELEVATED HEART RATE: Average " + Math.round(avgHeartRate) +
+      " bpm indicates tachycardia. Check for fever, pain, or anxiety.\n\n";
   } else if (avgHeartRate < 60) {
-    summary += "🟡 LOW HEART RATE: Average " + Math.round(avgHeartRate) + 
-               " bpm may indicate bradycardia. Review medications.\n\n";
+    summary += "🟡 LOW HEART RATE: Average " + Math.round(avgHeartRate) +
+      " bpm may indicate bradycardia. Review medications.\n\n";
   } else {
-    summary += "✅ NORMAL HEART RATE: Average " + Math.round(avgHeartRate) + 
-               " bpm within normal range.\n\n";
+    summary += "✅ NORMAL HEART RATE: Average " + Math.round(avgHeartRate) +
+      " bpm within normal range.\n\n";
   }
 
   // Trend analysis

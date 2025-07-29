@@ -3,10 +3,7 @@ const logger = require('../utils/logger');
 
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(process.env.MONGODB_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    const conn = await mongoose.connect(process.env.MONGODB_URI);
 
     logger.info(`MongoDB Connected: ${conn.connection.host}`);
     
@@ -59,9 +56,7 @@ const setupIndexes = async () => {
     await mongoose.connection.db.collection('incidents').createIndex({ residentId: 1, detectionTime: -1 });
     await mongoose.connection.db.collection('incidents').createIndex({ status: 1, detectionTime: -1 });
     
-    // Assignment indexes
-    await mongoose.connection.db.collection('assignments').createIndex({ caregiverId: 1, isActive: 1 });
-    await mongoose.connection.db.collection('assignments').createIndex({ residentId: 1, isActive: 1 });
+    // Assignment indexes - handled by model schema, skip to avoid conflicts
     
     logger.info('Database indexes created successfully');
   } catch (error) {

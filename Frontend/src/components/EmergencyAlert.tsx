@@ -62,7 +62,10 @@ export function EmergencyAlert({ incident, currentUser, onClaim }) {
           
           {currentUser.role === 'caregiver' && (
             <button 
-              onClick={() => onClaim(incident.id)}
+              onClick={() => {
+                console.log('🔍 Claiming incident:', incident.id, 'Full incident:', incident);
+                onClaim(incident.id);
+              }}
               className="healthcare-btn healthcare-btn-danger"
               style={{ 
                 animation: 'bounce 1s infinite',

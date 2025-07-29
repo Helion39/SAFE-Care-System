@@ -1,18 +1,18 @@
 const express = require('express');
-const { protect, authorize } = require('../middleware/auth');
+const {
+  getDashboardAnalytics,
+  getVitalsTrends,
+  getResidentHealthScores
+} = require('../controllers/analyticsController');
+const { protect } = require('../middleware/auth');
 
 const router = express.Router();
 
 // All routes are protected
 router.use(protect);
 
-// Placeholder routes - to be implemented in next tasks
-router.get('/', (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: 'Analytics routes - Coming soon',
-    data: []
-  });
-});
+router.get('/dashboard', getDashboardAnalytics);
+router.get('/vitals-trends', getVitalsTrends);
+router.get('/resident-health', getResidentHealthScores);
 
 module.exports = router;

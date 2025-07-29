@@ -189,26 +189,30 @@ class ApiService {
   // Vitals
   async getVitals(residentId = null) {
     const endpoint = residentId ? `/vitals/resident/${residentId}` : '/vitals';
-    return this.request(endpoint);
+    const response = await this.request(endpoint);
+    return transformApiResponse(response, 'vitals');
   }
 
   async createVitals(vitalsData) {
-    return this.request('/vitals', {
+    const response = await this.request('/vitals', {
       method: 'POST',
       body: JSON.stringify(vitalsData),
     });
+    return transformApiResponse(response, 'vitals');
   }
 
   // Incidents
   async getIncidents() {
-    return this.request('/incidents');
+    const response = await this.request('/incidents');
+    return transformApiResponse(response, 'incidents');
   }
 
   async createIncident(incidentData) {
-    return this.request('/incidents', {
+    const response = await this.request('/incidents', {
       method: 'POST',
       body: JSON.stringify(incidentData),
     });
+    return transformApiResponse(response, 'incidents');
   }
 
   async claimIncident(incidentId) {
