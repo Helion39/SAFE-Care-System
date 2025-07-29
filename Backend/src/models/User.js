@@ -83,10 +83,14 @@ UserSchema.methods.getSignedJwtToken = function() {
 };
 
 // Generate refresh token
-UserSchema.methods.getRefreshToken = function() {
-  return jwt.sign({ id: this._id }, process.env.JWT_REFRESH_SECRET, {
-    expiresIn: process.env.JWT_REFRESH_EXPIRE
-  });
+UserSchema.methods.getRefreshToken = function () {
+  return jwt.sign(
+    { id: this._id },
+    process.env.JWT_REFRESH_SECRET,
+    {
+      expiresIn: process.env.JWT_REFRESH_EXPIRE || '30d' // pastikan string, misal '30d'
+    }
+  );
 };
 
 // Match user entered password to hashed password in database

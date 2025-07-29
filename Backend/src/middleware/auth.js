@@ -2,6 +2,19 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const logger = require('../utils/logger');
 
+// Middleware: allow admin registration via header (for development/testing only)
+const devAdminHeader = (req, res, next) => {
+  if (
+    process.env.NODE_ENV === 'development' &&
+    req.headers.role === 'admin'
+  ) {
+    req.user = { role: 'admin', id: 'dev-admin' };
+    return next();
+  }
+  return protect(req, res, next);
+};
+
+
 // Protect routes - verify JWT token
 const protect = async (req, res, next) => {
   let token;
@@ -63,4 +76,4 @@ const authorize = (...roles) => {
   };
 };
 
-module.exports = { protect, authorize };
+module.exports = { protect, authorize, devAdminHeader };

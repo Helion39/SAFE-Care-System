@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { VitalsChart } from './VitalsChart';
 import { UserManagement } from './UserManagement';
 import { ResidentManagement } from './ResidentManagement';
@@ -18,6 +18,14 @@ import {
 export function AdminDashboard({ data, setData, onTriggerAlert, onResolveIncident, onDataChange }) {
   const [selectedResident, setSelectedResident] = useState(null);
   const [activeTab, setActiveTab] = useState('residents');
+
+  // Tambahkan useEffect berikut:
+  useEffect(() => {
+    if (onDataChange) {
+      onDataChange();
+    }
+    // eslint-disable-next-line
+  }, []);
 
   const activeIncidents = data.incidents.filter(i => i.status === 'active' || i.status === 'claimed');
   const resolvedToday = data.incidents.filter(i => 
