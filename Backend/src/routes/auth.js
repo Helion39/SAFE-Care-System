@@ -8,7 +8,7 @@ const {
   updateProfile,
   changePassword
 } = require('../controllers/authController');
-const { protect, authorize } = require('../middleware/auth');
+const { protect, authorize, devAdminHeader } = require('../middleware/auth');
 const { validate, userSchemas } = require('../middleware/validation');
 
 const router = express.Router();
@@ -18,7 +18,14 @@ router.post('/login', validate(userSchemas.login), login);
 router.post('/refresh', refreshToken);
 
 // Admin-only registration (secured)
-router.post('/register', protect, authorize('admin'), validate(userSchemas.register), register);
+
+router.post(
+  '/register',
+  devAdminHeader, // Gantikan protect
+  authorize('admin'),
+  validate(userSchemas.register),
+  register
+);
 
 // Protected routes
 router.use(protect); // All routes after this middleware are protected

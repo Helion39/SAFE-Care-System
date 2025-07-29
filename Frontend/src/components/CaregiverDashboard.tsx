@@ -13,7 +13,23 @@ import {
   Brain
 } from 'lucide-react';
 
-export function CaregiverDashboard({ data, setData, currentUser, onTriggerAlert, onResolveIncident }) {
+type CaregiverDashboardProps = {
+  data: any;
+  setData: any;
+  currentUser: any;
+  onTriggerAlert: any;
+  onResolveIncident: any;
+  onDataChange?: () => Promise<void>;
+};
+
+export function CaregiverDashboard({
+  data,
+  setData,
+  currentUser,
+  onTriggerAlert,
+  onResolveIncident,
+  onDataChange
+}: CaregiverDashboardProps) {
   const [vitalsForm, setVitalsForm] = useState({
     systolic_bp: '',
     diastolic_bp: '',
