@@ -39,8 +39,13 @@ const connectDB = async () => {
 // Database indexes setup
 const setupIndexes = async () => {
   try {
-    // User indexes
-    await mongoose.connection.db.collection('users').createIndex({ email: 1 }, { unique: true });
+    // User indexes - drop existing email index first, then create sparse one
+    try {
+      await mongoose.connection.db.collection('users').dropIndex('email_1');
+    } catch (err) {
+      // Index might not exist, ignore error
+    }
+    await mongoose.connection.db.collection('users').createIndex({ email: 1 }, { unique: true, sparse: true });
     
     // Resident indexes
     await mongoose.connection.db.collection('residents').createIndex({ room: 1 }, { unique: true });

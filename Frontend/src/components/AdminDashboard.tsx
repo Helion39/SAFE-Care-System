@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { VitalsChart } from './VitalsChart';
+import { UserManagement } from './UserManagement';
+import { ResidentManagement } from './ResidentManagement';
+import apiService from '../services/api';
 import { 
   Users, 
   AlertTriangle, 
@@ -7,12 +10,14 @@ import {
   Phone,
   Clock,
   TrendingUp,
-  Shield
+  Shield,
+  UserPlus,
+  Home
 } from 'lucide-react';
 
-export function AdminDashboard({ data, setData, onTriggerAlert, onResolveIncident }) {
+export function AdminDashboard({ data, setData, onTriggerAlert, onResolveIncident, onDataChange }) {
   const [selectedResident, setSelectedResident] = useState(null);
-  const [activeTab, setActiveTab] = useState('assignments');
+  const [activeTab, setActiveTab] = useState('residents');
 
   const activeIncidents = data.incidents.filter(i => i.status === 'active' || i.status === 'claimed');
   const resolvedToday = data.incidents.filter(i => 
@@ -20,17 +25,7 @@ export function AdminDashboard({ data, setData, onTriggerAlert, onResolveInciden
     new Date(i.resolved_time).toDateString() === new Date().toDateString()
   );
 
-  const handleAssignCaregiver = (residentId, caregiverId) => {
-    setData(prev => ({
-      ...prev,
-      residents: prev.residents.map(r =>
-        r.id === residentId ? { ...r, assigned_caregiver_id: parseInt(caregiverId) } : r
-      ),
-      users: prev.users.map(u =>
-        u.id === parseInt(caregiverId) ? { ...u, assigned_resident_id: residentId } : u
-      )
-    }));
-  };
+
 
   const handleConfirmEmergency = (incidentId) => {
     const adminAction = "Hospital contacted - Emergency services dispatched";
@@ -136,10 +131,18 @@ export function AdminDashboard({ data, setData, onTriggerAlert, onResolveInciden
       <div className="healthcare-tabs">
         <div className="healthcare-tabs-list">
           <button 
-            className={`healthcare-tab ${activeTab === 'assignments' ? 'active' : ''}`}
-            onClick={() => setActiveTab('assignments')}
+            className={`healthcare-tab ${activeTab === 'users' ? 'active' : ''}`}
+            onClick={() => setActiveTab('users')}
           >
-            Caregiver Assignments
+            <UserPlus style={{ width: '1rem', height: '1rem', marginRight: '0.5rem' }} />
+            Manage Users
+          </button>
+          <button 
+            className={`healthcare-tab ${activeTab === 'residents' ? 'active' : ''}`}
+            onClick={() => setActiveTab('residents')}
+          >
+            <Home style={{ width: '1rem', height: '1rem', marginRight: '0.5rem' }} />
+            Manage Residents
           </button>
           <button 
             className={`healthcare-tab ${activeTab === 'incidents' ? 'active' : ''}`}
@@ -162,85 +165,15 @@ export function AdminDashboard({ data, setData, onTriggerAlert, onResolveInciden
         </div>
       </div>
 
-      {activeTab === 'assignments' && (
-        <div className="healthcare-card">
-          <div className="healthcare-card-header">
-            Manage Caregiver Assignments
-          </div>
-          <table className="healthcare-table">
-            <thead>
-              <tr>
-                <th>Resident</th>
-                <th>Room</th>
-                <th>Assigned Caregiver</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.residents.map(resident => {
-                const assignedCaregiver = data.users.find(u => u.id === resident.assigned_caregiver_id);
-                return (
-                  <tr key={resident.id}>
-                    <td>{resident.name}</td>
-                    <td>{resident.room_number}</td>
-                    <td>
-                      {assignedCaregiver ? (
-                        <span className="healthcare-badge healthcare-badge-primary">{assignedCaregiver.name}</span>
-                      ) : (
-                        <span className="healthcare-badge" style={{ backgroundColor: '#e9ecef', color: '#495057' }}>Unassigned</span>
-                      )}
-                    </td>
-                    <td>
-                      <select
-                        onChange={(e) => e.target.value && handleAssignCaregiver(resident.id, e.target.value)}
-                        className="healthcare-input"
-                        style={{ width: '160px', padding: '0.5rem' }}
-                        defaultValue=""
-                      >
-                        <option value="">Assign...</option>
-                        {data.users
-                          .filter(u => u.role === 'caregiver')
-                          .map(caregiver => (
-                            <option key={caregiver.id} value={caregiver.id.toString()}>
-                              {caregiver.name}
-                            </option>
-                          ))}
-                      </select>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-          
-          <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid var(--healthcare-gray-200)' }}>
-            <h3 style={{ marginBottom: '1rem', fontWeight: '600' }}>System Testing</h3>
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <select
-                onChange={(e) => setSelectedResident(e.target.value ? parseInt(e.target.value) : null)}
-                className="healthcare-input"
-                style={{ width: '200px' }}
-                defaultValue=""
-              >
-                <option value="">Select resident...</option>
-                {data.residents.map(resident => (
-                  <option key={resident.id} value={resident.id}>
-                    {resident.name} - Room {resident.room_number}
-                  </option>
-                ))}
-              </select>
-              <button 
-                onClick={() => selectedResident && onTriggerAlert(selectedResident)}
-                disabled={!selectedResident}
-                className="healthcare-btn healthcare-btn-secondary"
-                style={{ fontSize: '0.875rem', padding: '0.5rem 1rem' }}
-              >
-                Simulate Fall Detection
-              </button>
-            </div>
-          </div>
-        </div>
+      {activeTab === 'users' && (
+        <UserManagement data={data} setData={setData} onDataChange={onDataChange} />
       )}
+
+      {activeTab === 'residents' && (
+        <ResidentManagement data={data} setData={setData} onDataChange={onDataChange} />
+      )}
+
+
 
       {activeTab === 'incidents' && (
         <div className="healthcare-card">
@@ -332,7 +265,7 @@ export function AdminDashboard({ data, setData, onTriggerAlert, onResolveInciden
             Camera System Status
           </div>
           <div className="healthcare-grid healthcare-grid-3">
-            {data.camera_info.map(camera => (
+            {(data.camera_info || []).map(camera => (
               <div key={camera.id} className="healthcare-card" style={{ margin: '0' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
                   <div>

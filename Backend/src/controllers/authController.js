@@ -42,6 +42,7 @@ const register = async (req, res, next) => {
           id: user._id,
           name: user.name,
           email: user.email,
+          username: user.username,
           role: user.role
         },
         token,
@@ -59,18 +60,25 @@ const register = async (req, res, next) => {
 // @access  Public
 const login = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const { email, username, password } = req.body;
+    
+    // Debug logging
+    console.log('🔍 Login attempt:', { email, username, password: password ? '***' : 'missing' });
 
-    // Validate email & password
-    if (!email || !password) {
+    // Validate credentials
+    if ((!email && !username) || !password) {
+      console.log('❌ Validation failed: missing credentials');
       return res.status(400).json({
         success: false,
-        error: 'Please provide an email and password'
+        error: 'Please provide email/username and password'
       });
     }
 
-    // Check for user
-    const user = await User.findOne({ email }).select('+password');
+    // Check for user by email or username
+    const query = email ? { email } : { username };
+    console.log('🔍 Searching for user with query:', query);
+    const user = await User.findOne(query).select('+password');
+    console.log('🔍 User found:', user ? `Yes (${user.username})` : 'No');
 
     if (!user) {
       return res.status(401).json({
@@ -97,9 +105,10 @@ const login = async (req, res, next) => {
       });
     }
 
-    // Update last login
+    // Update last login and set online status
     await user.updateLastLogin();
-
+    user.isOnline = true;
+    
     // Generate tokens
     const token = user.getSignedJwtToken();
     const refreshToken = user.getRefreshToken();
@@ -117,6 +126,7 @@ const login = async (req, res, next) => {
           id: user._id,
           name: user.name,
           email: user.email,
+          username: user.username,
           role: user.role,
           lastLogin: user.lastLogin
         },
@@ -135,9 +145,10 @@ const login = async (req, res, next) => {
 // @access  Private
 const logout = async (req, res, next) => {
   try {
-    // Clear refresh token from user
+    // Clear refresh token and set offline status
     await User.findByIdAndUpdate(req.user.id, {
-      refreshToken: undefined
+      refreshToken: undefined,
+      isOnline: false
     });
 
     logger.info(`User logged out: ${req.user.email}`);
@@ -166,6 +177,7 @@ const getMe = async (req, res, next) => {
           id: user._id,
           name: user.name,
           email: user.email,
+          username: user.username,
           role: user.role,
           lastLogin: user.lastLogin,
           createdAt: user.createdAt
@@ -259,6 +271,7 @@ const updateProfile = async (req, res, next) => {
           id: user._id,
           name: user.name,
           email: user.email,
+          username: user.username,
           role: user.role
         }
       }

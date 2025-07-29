@@ -1,117 +1,320 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from './components/ui/card';
-import { Button } from './components/ui/button';
-import { Input } from './components/ui/input';
-import { Label } from './components/ui/label';
-import { Badge } from './components/ui/badge';
-import { Alert, AlertDescription } from './components/ui/alert';
 import { AdminDashboard } from './components/AdminDashboard';
 import { CaregiverDashboard } from './components/CaregiverDashboard';
 import { EmergencyAlert } from './components/EmergencyAlert';
-import { mockData, initializeMockData } from './components/mockData';
+import apiService from './services/api';
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState<any>(null);
-  const [data, setData] = useState<any>(mockData);
+  const [data, setData] = useState<any>({
+    users: [],
+    residents: [],
+    vitals: [],
+    incidents: [],
+    assignments: []
+  });
   const [activeAlerts, setActiveAlerts] = useState<any[]>([]);
+  const [selectedRole, setSelectedRole] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loginForm, setLoginForm] = useState({ username: '', password: '' });
+  const [loginError, setLoginError] = useState('');
 
   useEffect(() => {
-    initializeMockData();
-    const storedData = localStorage.getItem('careSystemData');
-    if (storedData) {
-      setData(JSON.parse(storedData));
-    }
+    checkAuthStatus();
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem('careSystemData', JSON.stringify(data));
-  }, [data]);
-
-  const handleLogin = (role: string) => {
-    const user = role === 'admin' 
-      ? data.users.find(u => u.role === 'admin')
-      : data.users.find(u => u.role === 'caregiver');
-    setCurrentUser(user);
+  const checkAuthStatus = async () => {
+    try {
+      const token = localStorage.getItem('authToken');
+      if (token) {
+        const response = await apiService.getProfile();
+        if (response.success) {
+          const user = response.data.user;
+          setCurrentUser(user);
+          
+          // Load data with the user context
+          await loadDataForUser(user);
+        }
+      }
+    } catch (error) {
+      console.error('Auth check failed:', error);
+      localStorage.removeItem('authToken');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleLogout = () => {
-    setCurrentUser(null);
+  const loadDataForUser = async (user) => {
+    try {
+      console.log('🔍 Loading data for user:', user?.role, 'with token:', localStorage.getItem('authToken') ? 'Present' : 'Missing');
+      
+      // Load different data based on user role
+      const promises = [];
+      
+      // All users can access residents and incidents
+      promises.push(apiService.getResidents());
+      promises.push(apiService.getIncidents());
+      
+      // Only admins can access all users and assignments
+      if (user?.role === 'admin') {
+        console.log('🔍 Loading all users and assignments for admin');
+        promises.push(apiService.getUsers());
+        promises.push(apiService.getAssignments());
+      } else {
+        // Caregivers can only access other caregivers
+        console.log('🔍 Loading caregivers for caregiver user');
+        promises.push(apiService.getCaregivers());
+        promises.push(Promise.resolve({ data: [] })); // Empty assignments for caregivers
+      }
+
+      const [residentsRes, incidentsRes, usersRes, assignmentsRes] = await Promise.all(promises);
+
+      console.log('🔍 API responses:', { usersRes, residentsRes, incidentsRes });
+
+      setData({
+        users: usersRes?.data || [],
+        residents: residentsRes?.data || [],
+        vitals: [],
+        incidents: incidentsRes?.data || [],
+        assignments: assignmentsRes?.data || [],
+        camera_info: [
+          {
+            id: 1,
+            room_number: "101",
+            status: "active",
+            last_checked: new Date().toISOString()
+          },
+          {
+            id: 2,
+            room_number: "102", 
+            status: "active",
+            last_checked: new Date().toISOString()
+          },
+          {
+            id: 3,
+            room_number: "103",
+            status: "maintenance",
+            last_checked: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString() // 2 hours ago
+          }
+        ]
+      });
+    } catch (error) {
+      console.error('Failed to load data:', error);
+    }
   };
 
-  const triggerEmergencyAlert = (residentId: any) => {
-    const resident = data.residents.find(r => r.id === residentId);
-    const newIncident = {
-      id: Date.now(),
-      resident_id: residentId,
-      detection_time: new Date().toISOString(),
-      claimed_by: null,
-      status: 'active',
-      resolution: null,
-      admin_action: null,
-      resident_name: resident.name,
-      room_number: resident.room_number
-    };
-
-    setData(prev => ({
-      ...prev,
-      incidents: [newIncident, ...prev.incidents]
-    }));
-
-    setActiveAlerts(prev => [newIncident, ...prev]);
+  const loadData = async () => {
+    await loadDataForUser(currentUser);
   };
 
-  const claimIncident = (incidentId: any, caregiverId: any) => {
-    setData(prev => ({
-      ...prev,
-      incidents: prev.incidents.map(incident =>
-        incident.id === incidentId
-          ? { ...incident, claimed_by: caregiverId, status: 'claimed' }
-          : incident
-      )
-    }));
-
-    setActiveAlerts(prev => prev.filter(alert => alert.id !== incidentId));
+  const handleRoleSelect = (role: string) => {
+    setSelectedRole(role);
+    setLoginError('');
+    setLoginForm({ username: '', password: '' });
   };
 
-  const resolveIncident = (incidentId: any, isTrueEmergency: any, adminAction: any = null) => {
-    setData(prev => ({
-      ...prev,
-      incidents: prev.incidents.map(incident =>
-        incident.id === incidentId
-          ? { 
-              ...incident, 
-              status: 'resolved',
-              resolution: isTrueEmergency ? 'true_emergency' : 'false_alarm',
-              admin_action: adminAction,
-              resolved_time: new Date().toISOString()
-            }
-          : incident
-      )
-    }));
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoginError('');
+    
+    try {
+      const response = await apiService.login(loginForm);
+      console.log('🔍 Login response:', response);
+      if (response.success) {
+        const user = response.data.user;
+        console.log('✅ Setting current user:', user);
+        
+        // Validate that user role matches selected role
+        if (selectedRole === 'admin' && user.role !== 'admin') {
+          setLoginError('Invalid credentials for admin login. Please use admin credentials.');
+          return;
+        }
+        if (selectedRole === 'caregiver' && user.role !== 'caregiver') {
+          setLoginError('Invalid credentials for caregiver login. Please use caregiver credentials.');
+          return;
+        }
+        
+        setCurrentUser(user);
+        await loadDataForUser(user);
+        setSelectedRole(null);
+      }
+    } catch (error: any) {
+      setLoginError(error.message || 'Login failed');
+    }
   };
 
-  if (!currentUser) {
+  const handleLogout = async () => {
+    try {
+      await apiService.logout();
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      setCurrentUser(null);
+      setSelectedRole(null);
+      setData({
+        users: [],
+        residents: [],
+        vitals: [],
+        incidents: [],
+        assignments: []
+      });
+    }
+  };
+
+  const handleBackToRoleSelection = () => {
+    setSelectedRole(null);
+    setLoginError('');
+    setLoginForm({ username: '', password: '' });
+  };
+
+  const triggerEmergencyAlert = async (residentId: any) => {
+    try {
+      const resident = data.residents.find(r => r.id === residentId);
+      const incidentData = {
+        residentId,
+        type: 'fall',
+        severity: 'high',
+        description: `Simulated fall detection for ${resident?.name}`,
+      };
+
+      const response = await apiService.createIncident(incidentData);
+      if (response.success) {
+        setActiveAlerts(prev => [response.data, ...prev]);
+        await loadData(); // Refresh data
+      }
+    } catch (error) {
+      console.error('Failed to create incident:', error);
+    }
+  };
+
+  const claimIncident = async (incidentId: any, caregiverId: any) => {
+    try {
+      const response = await apiService.claimIncident(incidentId);
+      if (response.success) {
+        setActiveAlerts(prev => prev.filter(alert => alert.id !== incidentId));
+        await loadData(); // Refresh data
+      }
+    } catch (error) {
+      console.error('Failed to claim incident:', error);
+    }
+  };
+
+  const resolveIncident = async (incidentId: any, isTrueEmergency: any, adminAction: any = null) => {
+    try {
+      const resolution = isTrueEmergency ? 'true_emergency' : 'false_alarm';
+      const response = await apiService.resolveIncident(incidentId, resolution, '', adminAction);
+      if (response.success) {
+        await loadData(); // Refresh data
+      }
+    } catch (error) {
+      console.error('Failed to resolve incident:', error);
+    }
+  };
+
+  if (isLoading) {
     return (
       <div className="login-page">
         <div className="login-card">
           <h1 className="login-title">SAFE Care System</h1>
-          <p className="login-subtitle">Elderly Care Monitoring System</p>
+          <p className="login-subtitle">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!currentUser) {
+    // Role selection screen
+    if (!selectedRole) {
+      return (
+        <div className="login-page">
+          <div className="login-card">
+            <h1 className="login-title">SAFE Care System</h1>
+            <p className="login-subtitle">Elderly Care Monitoring System</p>
+            
+            <button 
+              onClick={() => handleRoleSelect('admin')} 
+              className="login-button login-button-primary"
+            >
+              Login as Admin
+            </button>
+            
+            <button 
+              onClick={() => handleRoleSelect('caregiver')} 
+              className="login-button login-button-secondary"
+            >
+              Login as Caregiver
+            </button>
+            
+            <p className="login-demo-text">Select your role to continue</p>
+          </div>
+        </div>
+      );
+    }
+
+    // Login form screen
+    return (
+      <div className="login-page">
+        <div className="login-card">
+          <h1 className="login-title">SAFE Care System</h1>
+          <p className="login-subtitle">
+            {selectedRole === 'admin' ? 'Administrator Login' : 'Caregiver Login'}
+          </p>
           
-          <button 
-            onClick={() => handleLogin('admin')} 
-            className="login-button login-button-primary"
-          >
-            Login as Admin
-          </button>
+          <form onSubmit={handleLogin} style={{ width: '100%', maxWidth: '300px' }}>
+            {loginError && (
+              <div className="healthcare-alert healthcare-alert-danger" style={{ marginBottom: '1rem' }}>
+                {loginError}
+              </div>
+            )}
+            
+            <div style={{ marginBottom: '1rem' }}>
+              <input
+                type="text"
+                placeholder="Username"
+                value={loginForm.username}
+                onChange={(e) => setLoginForm(prev => ({ ...prev, username: e.target.value }))}
+                className="healthcare-input"
+                required
+              />
+            </div>
+            
+            <div style={{ marginBottom: '1rem' }}>
+              <input
+                type="password"
+                placeholder="Password"
+                value={loginForm.password}
+                onChange={(e) => setLoginForm(prev => ({ ...prev, password: e.target.value }))}
+                className="healthcare-input"
+                required
+              />
+            </div>
+            
+            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+              <button 
+                type="button"
+                onClick={handleBackToRoleSelection}
+                className="healthcare-btn healthcare-btn-secondary"
+                style={{ flex: 1 }}
+              >
+                Back
+              </button>
+              <button 
+                type="submit"
+                className="healthcare-btn healthcare-btn-primary"
+                style={{ flex: 2 }}
+              >
+                Login
+              </button>
+            </div>
+          </form>
           
-          <button 
-            onClick={() => handleLogin('caregiver')} 
-            className="login-button login-button-secondary"
-          >
-            Login as Caregiver
-          </button>
-          
-          <p className="login-demo-text">Demo System - No real authentication required</p>
+          <div className="login-demo-text">
+            {selectedRole === 'admin' ? (
+              <p>Admin: admin / admin123</p>
+            ) : (
+              <p>Use credentials created by admin</p>
+            )}
+          </div>
         </div>
       </div>
     );
@@ -159,6 +362,7 @@ export default function App() {
             setData={setData}
             onTriggerAlert={triggerEmergencyAlert}
             onResolveIncident={resolveIncident}
+            onDataChange={loadData}
           />
         ) : (
           <CaregiverDashboard 
@@ -167,6 +371,7 @@ export default function App() {
             currentUser={currentUser}
             onTriggerAlert={triggerEmergencyAlert}
             onResolveIncident={resolveIncident}
+            onDataChange={loadData}
           />
         )}
       </main>

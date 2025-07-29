@@ -11,13 +11,27 @@ const UserSchema = new mongoose.Schema({
   },
   email: {
     type: String,
-    required: [true, 'Please add an email'],
+    required: false,
     unique: true,
+    sparse: true, // Allow multiple null values
     lowercase: true,
     match: [
       /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
       'Please add a valid email'
     ]
+  },
+  username: {
+    type: String,
+    required: [true, 'Please add a username'],
+    unique: true,
+    lowercase: true,
+    trim: true,
+    minlength: [3, 'Username must be at least 3 characters'],
+    maxlength: [20, 'Username cannot be more than 20 characters']
+  },
+  phone: {
+    type: String,
+    trim: true
   },
   password: {
     type: String,
@@ -36,6 +50,10 @@ const UserSchema = new mongoose.Schema({
   },
   lastLogin: {
     type: Date
+  },
+  isOnline: {
+    type: Boolean,
+    default: false
   },
   refreshToken: {
     type: String,

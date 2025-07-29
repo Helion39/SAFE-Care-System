@@ -7,25 +7,46 @@ const bcrypt = require('bcryptjs');
 // @access  Private/Admin
 const createCaregiver = async (req, res, next) => {
   try {
-    const { name, email, password, temporaryPassword } = req.body;
+    const { name, email, username, password, temporaryPassword, phone } = req.body;
 
-    // Check if user exists
-    const existingUser = await User.findOne({ email });
+    // Check if user exists by username (email is optional now)
+    const existingUser = await User.findOne({ username });
     if (existingUser) {
       return res.status(400).json({
         success: false,
-        error: 'User already exists with this email'
+        error: 'User already exists with this username'
       });
     }
 
+    // Check if email exists (only if email is provided)
+    if (email && email.trim()) {
+      const existingEmail = await User.findOne({ email: email.trim() });
+      if (existingEmail) {
+        return res.status(400).json({
+          success: false,
+          error: 'User already exists with this email'
+        });
+      }
+    }
+
     // Create caregiver account
-    const user = await User.create({
+    const userData = {
       name,
-      email,
+      username,
       password: password || temporaryPassword || 'TempPass123!', // Default temp password
       role: 'caregiver',
       isActive: true
-    });
+    };
+
+    // Add optional fields only if provided
+    if (email && email.trim()) {
+      userData.email = email.trim();
+    }
+    if (phone && phone.trim()) {
+      userData.phone = phone.trim();
+    }
+
+    const user = await User.create(userData);
 
     logger.info(`New caregiver account created by admin: ${email}`);
 
@@ -36,6 +57,7 @@ const createCaregiver = async (req, res, next) => {
           id: user._id,
           name: user.name,
           email: user.email,
+          username: user.username,
           role: user.role,
           isActive: user.isActive,
           createdAt: user.createdAt
@@ -345,7 +367,7 @@ const getCaregivers = async (req, res, next) => {
     const caregivers = await User.find({ 
       role: 'caregiver', 
       isActive: true 
-    }).select('name email createdAt');
+    }).select('name email username role isActive phone lastLogin isOnline createdAt');
 
     res.status(200).json({
       success: true,
@@ -398,6 +420,50 @@ const getUserStats = async (req, res, next) => {
   }
 };
 
+
+
+
+
+
+
+// @desc    Toggle user active status
+// @route   PUT /api/users/:id/toggle-status
+// @access  Private/Admin
+const toggleUserStatus = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found'
+      });
+    }
+
+    // Toggle the status
+    user.isActive = !user.isActive;
+    await user.save();
+
+    logger.info(`User status toggled by admin: ${user.email} - Active: ${user.isActive}`);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        username: user.username,
+        role: user.role,
+        isActive: user.isActive
+      },
+      message: `User ${user.isActive ? 'activated' : 'deactivated'} successfully`
+    });
+  } catch (error) {
+    logger.error('Toggle user status error:', error);
+    next(error);
+  }
+};
+
 module.exports = {
   createCaregiver,
   bulkCreateCaregivers,
@@ -407,5 +473,6 @@ module.exports = {
   updateUser,
   deleteUser,
   getCaregivers,
-  getUserStats
+  getUserStats,
+  toggleUserStatus
 };

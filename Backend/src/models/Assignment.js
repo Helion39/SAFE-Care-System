@@ -58,10 +58,9 @@ const AssignmentSchema = new mongoose.Schema({
 
 // Compound indexes for efficient queries
 AssignmentSchema.index({ caregiverId: 1, isActive: 1 });
-AssignmentSchema.index({ residentId: 1, isActive: 1 });
 AssignmentSchema.index({ startDate: -1 });
 
-// Ensure only one active assignment per resident
+// Ensure only one active assignment per resident (unique partial index)
 AssignmentSchema.index(
   { residentId: 1, isActive: 1 },
   { 
@@ -70,24 +69,9 @@ AssignmentSchema.index(
   }
 );
 
-// Pre-save middleware to handle assignment logic
+// Simplified pre-save middleware
 AssignmentSchema.pre('save', async function(next) {
-  // If this is a new active assignment, deactivate any existing active assignments for this resident
-  if (this.isNew && this.isActive) {
-    await this.constructor.updateMany(
-      { 
-        residentId: this.residentId,
-        isActive: true,
-        _id: { $ne: this._id }
-      },
-      { 
-        isActive: false,
-        endDate: new Date()
-      }
-    );
-  }
-  
-  // If assignment is being deactivated, set end date
+  // Only set end date when deactivating
   if (this.isModified('isActive') && !this.isActive && !this.endDate) {
     this.endDate = new Date();
   }
