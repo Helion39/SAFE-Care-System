@@ -6,7 +6,7 @@ const logger = require('../utils/logger');
 // @access  Public (Admin only in production)
 const register = async (req, res, next) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password, role, username } = req.body;
 
     // Check if user exists
     const existingUser = await User.findOne({ email });
@@ -22,7 +22,8 @@ const register = async (req, res, next) => {
       name,
       email,
       password,
-      role
+      role,
+      username
     });
 
     // Generate tokens
