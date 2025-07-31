@@ -1,7 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Alert, AlertDescription } from './ui/alert';
-import { Button } from './ui/button';
-import { Badge } from './ui/badge';
 import { AlertTriangle, Clock, MapPin } from 'lucide-react';
 
 export function EmergencyAlert({ incident, currentUser, onClaim }) {
@@ -25,58 +22,41 @@ export function EmergencyAlert({ incident, currentUser, onClaim }) {
   };
 
   return (
-    <div style={{ 
-      position: 'fixed', 
-      top: '1rem', 
-      left: '1rem', 
-      right: '1rem', 
-      zIndex: 50,
-      animation: 'pulse 1s infinite'
-    }}>
-      <div className="healthcare-alert healthcare-alert-danger" style={{ 
-        border: '2px solid var(--healthcare-danger)',
-        backgroundColor: '#f8d7da'
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <AlertTriangle style={{ width: '1.25rem', height: '1.25rem', color: '#dc3545' }} />
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <span className="healthcare-badge healthcare-badge-danger">EMERGENCY ALERT</span>
-                <span style={{ fontWeight: '600', color: '#721c24' }}>
-                  {incident.resident_name}
-                </span>
+    <div className="emergency-alert">
+      <div className="emergency-alert-content">
+        <div className="flex items-center gap-2">
+          <AlertTriangle style={{ width: '1.25rem', height: '1.25rem' }} />
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="badge badge-error">EMERGENCY ALERT</span>
+              <span style={{ fontWeight: '600' }}>
+                {incident.resident_name}
+              </span>
+            </div>
+            <div className="flex items-center gap-3" style={{ fontSize: 'var(--text-sm)' }}>
+              <div className="flex items-center gap-1">
+                <MapPin style={{ width: '0.75rem', height: '0.75rem' }} />
+                Room {incident.room_number}
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '0.25rem', fontSize: '0.875rem', color: '#721c24' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                  <MapPin style={{ width: '0.75rem', height: '0.75rem' }} />
-                  Room {incident.room_number}
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                  <Clock style={{ width: '0.75rem', height: '0.75rem' }} />
-                  {formatTime(timeElapsed)} elapsed
-                </div>
+              <div className="flex items-center gap-1">
+                <Clock style={{ width: '0.75rem', height: '0.75rem' }} />
+                {formatTime(timeElapsed)} elapsed
               </div>
             </div>
           </div>
-          
-          {currentUser.role === 'caregiver' && (
-            <button 
-              onClick={() => {
-                console.log('🔍 Claiming incident:', incident.id, 'Full incident:', incident);
-                onClaim(incident.id);
-              }}
-              className="healthcare-btn healthcare-btn-danger"
-              style={{ 
-                animation: 'bounce 1s infinite',
-                fontSize: '0.875rem',
-                padding: '0.5rem 1rem'
-              }}
-            >
-              CLAIM INCIDENT
-            </button>
-          )}
         </div>
+        
+        {currentUser.role === 'caregiver' && (
+          <button 
+            onClick={() => {
+              console.log('🔍 Claiming incident:', incident.id, 'Full incident:', incident);
+              onClaim(incident.id);
+            }}
+            className="btn btn-error btn-sm"
+          >
+            CLAIM INCIDENT
+          </button>
+        )}
       </div>
     </div>
   );

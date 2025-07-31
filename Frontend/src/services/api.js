@@ -1,6 +1,6 @@
 import { transformApiResponse } from '../utils/dataTransform.js';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
 class ApiService {
   constructor() {
     this.token = localStorage.getItem('authToken');
@@ -130,23 +130,25 @@ class ApiService {
 
   // Residents Management
   async getResidents() {
-  const response = await this.request('/residents');
-  console.log('Residents API response:', response);
-  return response.data;
-}
+    const response = await this.request('/residents');
+    console.log('Residents API response:', response);
+    return transformApiResponse(response, 'residents');
+  }
 
   async createResident(residentData) {
-    return this.request('/residents', {
+    const response = await this.request('/residents', {
       method: 'POST',
       body: JSON.stringify(residentData),
     });
+    return transformApiResponse(response, 'residents');
   }
 
   async updateResident(residentId, residentData) {
-    return this.request(`/residents/${residentId}`, {
+    const response = await this.request(`/residents/${residentId}`, {
       method: 'PUT',
       body: JSON.stringify(residentData),
     });
+    return transformApiResponse(response, 'residents');
   }
 
   async deleteResident(residentId) {
@@ -242,6 +244,8 @@ class ApiService {
   async getResidentHealthScores() {
     return this.request('/analytics/resident-health');
   }
+
+
 }
 
 export default new ApiService();

@@ -99,12 +99,12 @@ export function UserManagement({ data, setData, onDataChange }: UserManagementPr
 
   if (showCreateForm) {
     return (
-      <div className="space-y-6">
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: '700' }}>Create New Caregiver</h2>
+      <div className="flex flex-col gap-3">
+        <div className="flex items-center justify-between">
+          <h2 style={{ fontSize: 'var(--text-2xl)', fontWeight: '700' }}>Create New Caregiver</h2>
           <button
             onClick={() => setShowCreateForm(false)}
-            className="healthcare-btn healthcare-btn-secondary"
+            className="btn btn-secondary"
           >
             Back to User List
           </button>
@@ -119,21 +119,21 @@ export function UserManagement({ data, setData, onDataChange }: UserManagementPr
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+    <div className="flex flex-col gap-3">
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div className="flex justify-between items-center">
         <div>
-          <div className="healthcare-card-header" style={{ marginBottom: '0.5rem', fontSize: '1.5rem' }}>
+          <div className="card-header mb-1" style={{ fontSize: 'var(--text-2xl)' }}>
             <Users />
             Caregiver Management
           </div>
-          <p style={{ color: 'var(--healthcare-gray-600)', fontSize: '0.875rem' }}>
+          <p style={{ color: 'var(--gray-600)', fontSize: 'var(--text-sm)' }}>
             Manage caregiver accounts and permissions
           </p>
         </div>
         <button
           onClick={() => setShowCreateForm(true)}
-          className="healthcare-btn healthcare-btn-primary"
+          className="btn btn-primary"
         >
           <UserPlus />
           Add New Caregiver
@@ -141,46 +141,46 @@ export function UserManagement({ data, setData, onDataChange }: UserManagementPr
       </div>
 
       {/* Stats Cards */}
-      <div className="healthcare-grid healthcare-grid-3">
-        <div className="healthcare-metric-card">
-          <div className="healthcare-metric-icon">
-            <Users style={{ width: '2rem', height: '2rem', color: 'var(--healthcare-primary)' }} />
+      <div className="grid grid-3">
+        <div className="metric-card">
+          <div className="metric-icon">
+            <Users style={{ width: '2rem', height: '2rem', color: 'var(--primary)' }} />
           </div>
-          <div className="healthcare-metric-number">{caregivers.length}</div>
-          <div className="healthcare-metric-label">Total Caregivers</div>
+          <div className="metric-number">{caregivers.length}</div>
+          <div className="metric-label">Total Caregivers</div>
         </div>
         
-        <div className="healthcare-metric-card">
-          <div className="healthcare-metric-icon">
-            <UserCheck style={{ width: '2rem', height: '2rem', color: 'var(--healthcare-success)' }} />
+        <div className="metric-card">
+          <div className="metric-icon">
+            <UserCheck style={{ width: '2rem', height: '2rem', color: 'var(--success)' }} />
           </div>
-          <div className="healthcare-metric-number" style={{ color: 'var(--healthcare-success)' }}>
+          <div className="metric-number" style={{ color: 'var(--success)' }}>
             {caregivers.filter((u: any) => u.isActive !== undefined ? u.isActive : (u.status === 'active')).length}
           </div>
-          <div className="healthcare-metric-label">Active Caregivers</div>
+          <div className="metric-label">Active Caregivers</div>
         </div>
         
-        <div className="healthcare-metric-card">
-          <div className="healthcare-metric-icon">
-            <UserX style={{ width: '2rem', height: '2rem', color: 'var(--healthcare-danger)' }} />
+        <div className="metric-card">
+          <div className="metric-icon">
+            <UserX style={{ width: '2rem', height: '2rem', color: 'var(--error)' }} />
           </div>
-          <div className="healthcare-metric-number" style={{ color: 'var(--healthcare-danger)' }}>
+          <div className="metric-number" style={{ color: 'var(--error)' }}>
             {caregivers.filter((u: any) => u.isActive !== undefined ? !u.isActive : (u.status === 'inactive')).length}
           </div>
-          <div className="healthcare-metric-label">Inactive Caregivers</div>
+          <div className="metric-label">Inactive Caregivers</div>
         </div>
       </div>
 
       {/* Search and Filter */}
-      <div className="healthcare-card">
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      <div className="card">
+        <div className="flex flex-col gap-2">
           <div style={{ position: 'relative', flex: 1 }}>
             <Search style={{ 
               position: 'absolute', 
               left: '0.75rem', 
               top: '50%', 
               transform: 'translateY(-50%)', 
-              color: 'var(--healthcare-gray-400)', 
+              color: 'var(--gray-400)', 
               width: '1rem', 
               height: '1rem' 
             }} />
@@ -188,7 +188,7 @@ export function UserManagement({ data, setData, onDataChange }: UserManagementPr
               placeholder="Search by name, username, or email..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="healthcare-input"
+              className="input"
               style={{ paddingLeft: '2.5rem' }}
             />
           </div>
@@ -196,7 +196,7 @@ export function UserManagement({ data, setData, onDataChange }: UserManagementPr
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="healthcare-input"
+            className="input"
             style={{ width: '200px' }}
           >
             <option value="all">All Status</option>
@@ -207,14 +207,14 @@ export function UserManagement({ data, setData, onDataChange }: UserManagementPr
       </div>
 
       {/* User List */}
-      <div className="healthcare-card">
-        <div className="healthcare-card-header">
+      <div className="card">
+        <div className="card-header">
           Caregiver Accounts ({filteredCaregivers.length})
         </div>
         {filteredCaregivers.length === 0 ? (
-          <div className="text-center" style={{ padding: '2rem 0' }}>
-            <Users style={{ width: '3rem', height: '3rem', color: 'var(--healthcare-gray-400)', margin: '0 auto 1rem' }} />
-            <p style={{ color: 'var(--healthcare-gray-500)' }}>
+          <div className="text-center p-3">
+            <Users style={{ width: '3rem', height: '3rem', color: 'var(--gray-400)', margin: '0 auto var(--space-2)' }} />
+            <p style={{ color: 'var(--gray-500)' }}>
               {searchTerm || filterStatus !== 'all' 
                 ? 'No caregivers match your search criteria'
                 : 'No caregivers found. Create your first caregiver account.'
@@ -223,8 +223,7 @@ export function UserManagement({ data, setData, onDataChange }: UserManagementPr
             {!searchTerm && filterStatus === 'all' && (
               <button
                 onClick={() => setShowCreateForm(true)}
-                className="healthcare-btn healthcare-btn-primary"
-                style={{ marginTop: '1rem' }}
+                className="btn btn-primary mt-2"
               >
                 <UserPlus />
                 Add First Caregiver
@@ -233,7 +232,7 @@ export function UserManagement({ data, setData, onDataChange }: UserManagementPr
           </div>
         ) : (
           <div style={{ overflowX: 'auto' }}>
-            <table className="healthcare-table">
+            <table className="table">
               <thead>
                 <tr>
                   <th>Name</th>
@@ -255,71 +254,69 @@ export function UserManagement({ data, setData, onDataChange }: UserManagementPr
                     <td>
                       <div>
                         <div style={{ fontWeight: '500' }}>{user.name}</div>
-                        <div style={{ fontSize: '0.875rem', color: 'var(--healthcare-gray-500)' }}>
+                        <div style={{ fontSize: 'var(--text-sm)', color: 'var(--gray-500)' }}>
                           Created {new Date(user.createdAt || user.created_at).toLocaleDateString()}
                         </div>
                       </div>
                     </td>
                     <td>
                       <code style={{ 
-                        backgroundColor: 'var(--healthcare-gray-100)', 
+                        backgroundColor: 'var(--gray-100)', 
                         padding: '0.25rem 0.5rem', 
                         borderRadius: 'var(--radius-sm)', 
-                        fontSize: '0.875rem' 
+                        fontSize: 'var(--text-sm)' 
                       }}>
                         {user.username}
                       </code>
                     </td>
                     <td>
-                      <div style={{ fontSize: '0.875rem' }}>
+                      <div style={{ fontSize: 'var(--text-sm)' }}>
                         {user.email && (
-                          <div style={{ color: 'var(--healthcare-gray-600)' }}>{user.email}</div>
+                          <div style={{ color: 'var(--gray-600)' }}>{user.email}</div>
                         )}
                         {user.phone && (
-                          <div style={{ color: 'var(--healthcare-gray-600)' }}>{user.phone}</div>
+                          <div style={{ color: 'var(--gray-600)' }}>{user.phone}</div>
                         )}
                         {!user.email && !user.phone && (
-                          <span style={{ color: 'var(--healthcare-gray-400)' }}>No contact info</span>
+                          <span style={{ color: 'var(--gray-400)' }}>No contact info</span>
                         )}
                       </div>
                     </td>
                     <td>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                        <span className={`healthcare-badge ${isActive ? 'healthcare-badge-success' : 'healthcare-badge-danger'}`}>
+                      <div className="flex flex-col gap-1">
+                        <span className={`badge ${isActive ? 'badge-success' : 'badge-error'}`}>
                           {isActive ? 'Active' : 'Inactive'}
                         </span>
                         {isActive && (
-                          <span className={`healthcare-badge ${isOnline ? 'healthcare-badge-primary' : 'healthcare-badge-secondary'}`} style={{ fontSize: '0.75rem' }}>
+                          <span className={`badge ${isOnline ? 'badge-primary' : 'badge-secondary'}`} style={{ fontSize: 'var(--text-xs)' }}>
                             {isOnline ? 'Online' : 'Offline'}
                           </span>
                         )}
                       </div>
                     </td>
-                    <td style={{ fontSize: '0.875rem', color: 'var(--healthcare-gray-600)' }}>
+                    <td style={{ fontSize: 'var(--text-sm)', color: 'var(--gray-600)' }}>
                       {user.lastLogin || user.last_login 
                         ? new Date(user.lastLogin || user.last_login).toLocaleDateString()
                         : 'Never'
                       }
                     </td>
                     <td>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <div className="flex items-center gap-1">
                         <button
                           onClick={() => handleToggleUserStatus(userId)}
-                          className="healthcare-btn healthcare-btn-secondary"
+                          className="btn btn-sm btn-secondary"
                           style={{ 
-                            padding: '0.5rem 0.75rem', 
-                            fontSize: '0.75rem',
-                            color: isActive ? 'var(--healthcare-danger)' : 'var(--healthcare-success)'
+                            color: isActive ? 'var(--error)' : 'var(--success)'
                           }}
                         >
                           {isActive ? (
                             <>
-                              <UserX style={{ width: '0.75rem', height: '0.75rem', marginRight: '0.25rem' }} />
+                              <UserX style={{ width: '0.75rem', height: '0.75rem' }} />
                               Deactivate
                             </>
                           ) : (
                             <>
-                              <UserCheck style={{ width: '0.75rem', height: '0.75rem', marginRight: '0.25rem' }} />
+                              <UserCheck style={{ width: '0.75rem', height: '0.75rem' }} />
                               Activate
                             </>
                           )}
@@ -327,20 +324,17 @@ export function UserManagement({ data, setData, onDataChange }: UserManagementPr
                         
                         <button
                           onClick={() => handleResetPassword(userId)}
-                          className="healthcare-btn healthcare-btn-secondary"
-                          style={{ padding: '0.5rem 0.75rem', fontSize: '0.75rem' }}
+                          className="btn btn-sm btn-secondary"
                         >
-                          <Key style={{ width: '0.75rem', height: '0.75rem', marginRight: '0.25rem' }} />
+                          <Key style={{ width: '0.75rem', height: '0.75rem' }} />
                           Reset Password
                         </button>
                         
                         <button
                           onClick={() => handleDeleteUser(userId)}
-                          className="healthcare-btn healthcare-btn-secondary"
+                          className="btn btn-sm btn-secondary"
                           style={{ 
-                            padding: '0.5rem 0.75rem', 
-                            fontSize: '0.75rem',
-                            color: 'var(--healthcare-danger)'
+                            color: 'var(--error)'
                           }}
                         >
                           Delete

@@ -37,7 +37,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <form onSubmit={handleSubmit} className="bg-white p-6 rounded shadow-md w-full max-w-md">
+      <form onSubmit={handleSubmit} className="bg-white p-6 rounded border border-gray-200 w-full max-w-md">
         <h2 className="text-2xl font-bold mb-4 text-center">Login SAFE Care</h2>
 
         {errorMsg && <p className="text-red-600 text-sm mb-3">{errorMsg}</p>}

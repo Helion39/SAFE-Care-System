@@ -240,14 +240,14 @@ export default function App() {
             
             <button 
               onClick={() => handleRoleSelect('admin')} 
-              className="login-button login-button-primary"
+              className="btn btn-primary w-full mb-2"
             >
               Login as Admin
             </button>
             
             <button 
               onClick={() => handleRoleSelect('caregiver')} 
-              className="login-button login-button-secondary"
+              className="btn btn-secondary w-full mb-2"
             >
               Login as Caregiver
             </button>
@@ -267,47 +267,47 @@ export default function App() {
             {selectedRole === 'admin' ? 'Administrator Login' : 'Caregiver Login'}
           </p>
           
-          <form onSubmit={handleLogin} style={{ width: '100%', maxWidth: '300px' }}>
+          <form onSubmit={handleLogin} style={{ width: '100%' }}>
             {loginError && (
-              <div className="healthcare-alert healthcare-alert-danger" style={{ marginBottom: '1rem' }}>
+              <div className="alert alert-error mb-2">
                 {loginError}
               </div>
             )}
             
-            <div style={{ marginBottom: '1rem' }}>
+            <div className="form-group">
               <input
                 type="text"
                 placeholder="Username"
                 value={loginForm.username}
                 onChange={(e) => setLoginForm(prev => ({ ...prev, username: e.target.value }))}
-                className="healthcare-input"
+                className="input"
                 required
               />
             </div>
             
-            <div style={{ marginBottom: '1rem' }}>
+            <div className="form-group">
               <input
                 type="password"
                 placeholder="Password"
                 value={loginForm.password}
                 onChange={(e) => setLoginForm(prev => ({ ...prev, password: e.target.value }))}
-                className="healthcare-input"
+                className="input"
                 required
               />
             </div>
             
-            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+            <div className="flex gap-2 mb-2">
               <button 
                 type="button"
                 onClick={handleBackToRoleSelection}
-                className="healthcare-btn healthcare-btn-secondary"
+                className="btn btn-secondary"
                 style={{ flex: 1 }}
               >
                 Back
               </button>
               <button 
                 type="submit"
-                className="healthcare-btn healthcare-btn-primary"
+                className="btn btn-primary"
                 style={{ flex: 2 }}
               >
                 Login
@@ -328,7 +328,7 @@ export default function App() {
   }
 
   return (
-    <div className="healthcare-page">
+    <div className="page">
       {/* Emergency Alerts */}
       {activeAlerts.map(alert => (
         <EmergencyAlert
@@ -340,20 +340,20 @@ export default function App() {
       ))}
 
       {/* Header */}
-      <nav className="healthcare-nav">
-        <div className="healthcare-container">
-          <div className="healthcare-nav-content">
+      <nav className="nav">
+        <div className="container">
+          <div className="nav-content">
             <div className="flex items-center gap-2">
-              <span className="healthcare-nav-brand">SAFE Care System</span>
-              <span className={`healthcare-badge ${currentUser.role === 'admin' ? 'healthcare-badge-primary' : 'healthcare-badge-secondary'}`}>
+              <span className="nav-brand">SAFE Care System</span>
+              <span className={`badge ${currentUser.role === 'admin' ? 'badge-primary' : 'badge-secondary'}`}>
                 {currentUser.role === 'admin' ? 'Administrator' : 'Caregiver'}
               </span>
             </div>
-            <div className="healthcare-nav-user">
-              <span style={{ color: '#6c757d', fontSize: '0.875rem' }}>
+            <div className="nav-user">
+              <span style={{ color: 'var(--gray-500)', fontSize: 'var(--text-sm)' }}>
                 Welcome, {currentUser.name}
               </span>
-              <button onClick={handleLogout} className="healthcare-btn healthcare-btn-secondary" style={{ padding: '0.5rem 1rem', fontSize: '0.75rem' }}>
+              <button onClick={handleLogout} className="btn btn-sm btn-secondary">
                 Logout
               </button>
             </div>
@@ -362,7 +362,7 @@ export default function App() {
       </nav>
 
       {/* Main Content */}
-      <main className="healthcare-container" style={{ paddingTop: '1.5rem' }}>
+      <main className="container main-content">
         {currentUser.role === 'admin' ? (
           <AdminDashboard 
             data={data} 

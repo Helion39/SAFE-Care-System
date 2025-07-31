@@ -133,14 +133,14 @@ export function ResidentManagement({ data, setData, onDataChange }: ResidentMana
 
   if (showCreateForm) {
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: '700' }}>
+      <div className="flex flex-col gap-3">
+        <div className="flex items-center justify-between">
+          <h2 style={{ fontSize: 'var(--text-2xl)', fontWeight: '700' }}>
             {editingResident ? 'Edit Resident' : 'Add New Resident'}
           </h2>
           <button
             onClick={handleCancelEdit}
-            className="healthcare-btn healthcare-btn-secondary"
+            className="btn btn-secondary"
           >
             Back to Resident List
           </button>
@@ -158,21 +158,21 @@ export function ResidentManagement({ data, setData, onDataChange }: ResidentMana
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+    <div className="flex flex-col gap-3">
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div className="flex justify-between items-center">
         <div>
-          <div className="healthcare-card-header" style={{ marginBottom: '0.5rem', fontSize: '1.5rem' }}>
+          <div className="card-header mb-1" style={{ fontSize: 'var(--text-2xl)' }}>
             <Home />
             Resident Management
           </div>
-          <p style={{ color: 'var(--healthcare-gray-600)', fontSize: '0.875rem' }}>
+          <p style={{ color: 'var(--gray-600)', fontSize: 'var(--text-sm)' }}>
             Manage resident information and caregiver assignments
           </p>
         </div>
         <button
           onClick={() => setShowCreateForm(true)}
-          className="healthcare-btn healthcare-btn-primary"
+          className="btn btn-primary"
         >
           <UserPlus />
           Add New Resident
@@ -180,59 +180,59 @@ export function ResidentManagement({ data, setData, onDataChange }: ResidentMana
       </div>
 
       {/* Stats Cards */}
-      <div className="healthcare-grid healthcare-grid-4">
-        <div className="healthcare-metric-card">
-          <div className="healthcare-metric-icon">
-            <Users style={{ width: '2rem', height: '2rem', color: 'var(--healthcare-primary)' }} />
+      <div className="grid grid-4">
+        <div className="metric-card">
+          <div className="metric-icon">
+            <Users style={{ width: '2rem', height: '2rem', color: 'var(--primary)' }} />
           </div>
-          <div className="healthcare-metric-number">{residents.length}</div>
-          <div className="healthcare-metric-label">Total Residents</div>
+          <div className="metric-number">{residents.length}</div>
+          <div className="metric-label">Total Residents</div>
         </div>
         
-        <div className="healthcare-metric-card">
-          <div className="healthcare-metric-icon">
-            <Heart style={{ width: '2rem', height: '2rem', color: 'var(--healthcare-success)' }} />
+        <div className="metric-card">
+          <div className="metric-icon">
+            <Heart style={{ width: '2rem', height: '2rem', color: 'var(--success)' }} />
           </div>
-          <div className="healthcare-metric-number" style={{ color: 'var(--healthcare-success)' }}>
+          <div className="metric-number" style={{ color: 'var(--success)' }}>
             {residents.filter((r: any) => r.assignedCaregiver?._id || r.assignedCaregiver || r.assigned_caregiver_id).length}
           </div>
-          <div className="healthcare-metric-label">Assigned</div>
+          <div className="metric-label">Assigned</div>
         </div>
         
-        <div className="healthcare-metric-card">
-          <div className="healthcare-metric-icon">
-            <Users style={{ width: '2rem', height: '2rem', color: 'var(--healthcare-warning)' }} />
+        <div className="metric-card">
+          <div className="metric-icon">
+            <Users style={{ width: '2rem', height: '2rem', color: 'var(--warning)' }} />
           </div>
-          <div className="healthcare-metric-number" style={{ color: 'var(--healthcare-warning)' }}>
+          <div className="metric-number" style={{ color: 'var(--warning)' }}>
             {residents.filter((r: any) => !(r.assignedCaregiver?._id || r.assignedCaregiver || r.assigned_caregiver_id)).length}
           </div>
-          <div className="healthcare-metric-label">Unassigned</div>
+          <div className="metric-label">Unassigned</div>
         </div>
         
-        <div className="healthcare-metric-card">
-          <div className="healthcare-metric-icon">
-            <Home style={{ width: '2rem', height: '2rem', color: 'var(--healthcare-info)' }} />
+        <div className="metric-card">
+          <div className="metric-icon">
+            <Home style={{ width: '2rem', height: '2rem', color: 'var(--info)' }} />
           </div>
-          <div className="healthcare-metric-number" style={{ color: 'var(--healthcare-info)' }}>
+          <div className="metric-number" style={{ color: 'var(--info)' }}>
             {residents.length > 0 
               ? Math.round(residents.reduce((sum: number, r: any) => sum + r.age, 0) / residents.length)
               : 0
             }
           </div>
-          <div className="healthcare-metric-label">Avg Age</div>
+          <div className="metric-label">Avg Age</div>
         </div>
       </div>
 
       {/* Search and Filter */}
-      <div className="healthcare-card">
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      <div className="card">
+        <div className="flex flex-col gap-2">
           <div style={{ position: 'relative', flex: 1 }}>
             <Search style={{ 
               position: 'absolute', 
               left: '0.75rem', 
               top: '50%', 
               transform: 'translateY(-50%)', 
-              color: 'var(--healthcare-gray-400)', 
+              color: 'var(--gray-400)', 
               width: '1rem', 
               height: '1rem' 
             }} />
@@ -240,7 +240,7 @@ export function ResidentManagement({ data, setData, onDataChange }: ResidentMana
               placeholder="Search by name, room, or medical condition..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="healthcare-input"
+              className="input"
               style={{ paddingLeft: '2.5rem' }}
             />
           </div>
@@ -248,7 +248,7 @@ export function ResidentManagement({ data, setData, onDataChange }: ResidentMana
           <select
             value={filterAssignment}
             onChange={(e) => setFilterAssignment(e.target.value)}
-            className="healthcare-input"
+            className="input"
             style={{ width: '200px' }}
           >
             <option value="all">All Residents</option>
@@ -259,14 +259,14 @@ export function ResidentManagement({ data, setData, onDataChange }: ResidentMana
       </div>
 
       {/* Resident List */}
-      <div className="healthcare-card">
-        <div className="healthcare-card-header">
+      <div className="card">
+        <div className="card-header">
           Residents ({filteredResidents.length})
         </div>
         {filteredResidents.length === 0 ? (
-          <div className="text-center" style={{ padding: '2rem 0' }}>
-            <Home style={{ width: '3rem', height: '3rem', color: 'var(--healthcare-gray-400)', margin: '0 auto 1rem' }} />
-            <p style={{ color: 'var(--healthcare-gray-500)' }}>
+          <div className="text-center p-3">
+            <Home style={{ width: '3rem', height: '3rem', color: 'var(--gray-400)', margin: '0 auto var(--space-2)' }} />
+            <p style={{ color: 'var(--gray-500)' }}>
               {searchTerm || filterAssignment !== 'all' 
                 ? 'No residents match your search criteria'
                 : 'No residents found. Add your first resident.'
@@ -275,8 +275,7 @@ export function ResidentManagement({ data, setData, onDataChange }: ResidentMana
             {!searchTerm && filterAssignment === 'all' && (
               <button
                 onClick={() => setShowCreateForm(true)}
-                className="healthcare-btn healthcare-btn-primary"
-                style={{ marginTop: '1rem' }}
+                className="btn btn-primary mt-2"
               >
                 <UserPlus />
                 Add First Resident
@@ -285,7 +284,7 @@ export function ResidentManagement({ data, setData, onDataChange }: ResidentMana
           </div>
         ) : (
           <div style={{ overflowX: 'auto' }}>
-            <table className="healthcare-table">
+            <table className="table">
               <thead>
                 <tr>
                   <th>Resident</th>
@@ -308,36 +307,36 @@ export function ResidentManagement({ data, setData, onDataChange }: ResidentMana
                       <td>
                         <div>
                           <div style={{ fontWeight: '500' }}>{resident.name}</div>
-                          <div style={{ fontSize: '0.875rem', color: 'var(--healthcare-gray-500)' }}>
+                          <div style={{ fontSize: 'var(--text-sm)', color: 'var(--gray-500)' }}>
                             Added {new Date(resident.createdAt || resident.created_at).toLocaleDateString()}
                           </div>
                         </div>
                       </td>
                       <td>
-                        <span className="healthcare-badge healthcare-badge-secondary" style={{ fontFamily: 'monospace' }}>
+                        <span className="badge badge-secondary" style={{ fontFamily: 'monospace' }}>
                           {resident.room || resident.room_number}
                         </span>
                       </td>
                       <td>
-                        <span style={{ fontSize: '0.875rem' }}>{resident.age} years</span>
+                        <span style={{ fontSize: 'var(--text-sm)' }}>{resident.age} years</span>
                       </td>
                       <td>
                         <div style={{ maxWidth: '200px' }}>
                           {(resident.medicalConditions || resident.medical_conditions) && (resident.medicalConditions || resident.medical_conditions).length > 0 ? (
-                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
+                            <div className="flex flex-wrap gap-1">
                               {(resident.medicalConditions || resident.medical_conditions).slice(0, 2).map((condition: string, index: number) => (
-                                <span key={index} className="healthcare-badge healthcare-badge-secondary" style={{ fontSize: '0.75rem' }}>
+                                <span key={index} className="badge badge-secondary" style={{ fontSize: 'var(--text-xs)' }}>
                                   {condition}
                                 </span>
                               ))}
                               {(resident.medicalConditions || resident.medical_conditions).length > 2 && (
-                                <span className="healthcare-badge healthcare-badge-secondary" style={{ fontSize: '0.75rem' }}>
+                                <span className="badge badge-secondary" style={{ fontSize: 'var(--text-xs)' }}>
                                   +{(resident.medicalConditions || resident.medical_conditions).length - 2} more
                                 </span>
                               )}
                             </div>
                           ) : (
-                            <span style={{ color: 'var(--healthcare-gray-400)', fontSize: '0.875rem' }}>None listed</span>
+                            <span style={{ color: 'var(--gray-400)', fontSize: 'var(--text-sm)' }}>None listed</span>
                           )}
                         </div>
                       </td>
@@ -346,8 +345,8 @@ export function ResidentManagement({ data, setData, onDataChange }: ResidentMana
                           <select
                             value={assignedCaregiverId || ''}
                             onChange={(e) => handleAssignCaregiver(residentId, e.target.value)}
-                            className="healthcare-input"
-                            style={{ width: '100%', padding: '0.5rem', fontSize: '0.875rem' }}
+                            className="input"
+                            style={{ width: '100%', padding: '0.5rem', fontSize: 'var(--text-sm)' }}
                           >
                             <option value="">Unassigned</option>
                             {caregivers
@@ -362,7 +361,7 @@ export function ResidentManagement({ data, setData, onDataChange }: ResidentMana
                               })}
                           </select>
                           {assignedCaregiver && (
-                            <div style={{ fontSize: '0.75rem', color: 'var(--healthcare-gray-500)', marginTop: '0.25rem' }}>
+                            <div style={{ fontSize: 'var(--text-xs)', color: 'var(--gray-500)', marginTop: '0.25rem' }}>
                               {assignedCaregiver.name}
                             </div>
                           )}
@@ -370,41 +369,38 @@ export function ResidentManagement({ data, setData, onDataChange }: ResidentMana
                       </td>
                       <td>
                         {(resident.emergencyContact || resident.emergency_contact) ? (
-                          <div style={{ fontSize: '0.875rem' }}>
+                          <div style={{ fontSize: 'var(--text-sm)' }}>
                             <div style={{ fontWeight: '500' }}>{(resident.emergencyContact || resident.emergency_contact).name}</div>
-                            <div style={{ color: 'var(--healthcare-gray-600)', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                            <div className="flex items-center gap-1" style={{ color: 'var(--gray-600)' }}>
                               <Phone style={{ width: '0.75rem', height: '0.75rem' }} />
                               {(resident.emergencyContact || resident.emergency_contact).phone}
                             </div>
-                            <div style={{ color: 'var(--healthcare-gray-500)', fontSize: '0.75rem' }}>
+                            <div style={{ color: 'var(--gray-500)', fontSize: 'var(--text-xs)' }}>
                               {(resident.emergencyContact || resident.emergency_contact).relationship}
                             </div>
                           </div>
                         ) : (
-                          <span style={{ color: 'var(--healthcare-gray-400)', fontSize: '0.875rem' }}>Not provided</span>
+                          <span style={{ color: 'var(--gray-400)', fontSize: 'var(--text-sm)' }}>Not provided</span>
                         )}
                       </td>
                       <td>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <div className="flex items-center gap-1">
                           <button
                             onClick={() => handleEditResident(resident)}
-                            className="healthcare-btn healthcare-btn-secondary"
-                            style={{ padding: '0.5rem 0.75rem', fontSize: '0.75rem' }}
+                            className="btn btn-sm btn-secondary"
                           >
-                            <Edit style={{ width: '0.75rem', height: '0.75rem', marginRight: '0.25rem' }} />
+                            <Edit style={{ width: '0.75rem', height: '0.75rem' }} />
                             Edit
                           </button>
                           
                           <button
                             onClick={() => handleDeleteResident(residentId)}
-                            className="healthcare-btn healthcare-btn-secondary"
+                            className="btn btn-sm btn-secondary"
                             style={{ 
-                              padding: '0.5rem 0.75rem', 
-                              fontSize: '0.75rem',
-                              color: 'var(--healthcare-danger)'
+                              color: 'var(--error)'
                             }}
                           >
-                            <Trash2 style={{ width: '0.75rem', height: '0.75rem', marginRight: '0.25rem' }} />
+                            <Trash2 style={{ width: '0.75rem', height: '0.75rem' }} />
                             Delete
                           </button>
                         </div>
