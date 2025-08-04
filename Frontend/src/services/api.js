@@ -1,6 +1,6 @@
 import { transformApiResponse } from '../utils/dataTransform.js';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 class ApiService {
   constructor() {
     this.token = localStorage.getItem('authToken');
@@ -70,6 +70,10 @@ class ApiService {
     }
     
     return response;
+  }
+
+  async googleCallback() {
+    return this.request('/auth/google/callback');
   }
 
   async logout() {
@@ -245,6 +249,38 @@ class ApiService {
     return this.request('/analytics/resident-health');
   }
 
+  // Camera Management
+  async getCameras() {
+    return this.request('/cameras');
+  }
+
+  // Chatbot
+  async sendChatMessage(message) {
+    return this.request('/chatbot', {
+      method: 'POST',
+      body: JSON.stringify({ message })
+    });
+  }
+
+  async updateCameraStatus(cameraId, status) {
+    return this.request(`/cameras/${cameraId}/status`, {
+      method: 'PUT',
+      body: JSON.stringify({ status })
+    });
+  }
+
+  async toggleFallDetection(cameraId, enabled) {
+    return this.request(`/cameras/${cameraId}/fall-detection`, {
+      method: 'PUT',
+      body: JSON.stringify({ enabled })
+    });
+  }
+
+  async simulateFallDetection(cameraId) {
+    return this.request(`/cameras/${cameraId}/simulate-fall`, {
+      method: 'POST'
+    });
+  }
 
 }
 

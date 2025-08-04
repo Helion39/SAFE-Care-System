@@ -1,4 +1,6 @@
 const express = require('express');
+const passport = require('passport');
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const {
   register,
   login,
@@ -10,6 +12,7 @@ const {
 } = require('../controllers/authController');
 const { protect, authorize, devAdminHeader } = require('../middleware/auth');
 const { validate, userSchemas } = require('../middleware/validation');
+const User = require('../models/User');
 
 const router = express.Router();
 
@@ -24,14 +27,115 @@ router.use((req, res, next) => {
 router.post('/login', validate(userSchemas.login), login);
 router.post('/refresh', refreshToken);
 
-// Admin-only registration (secured)
 
+
+// Admin-only registration (secured)
 router.post(
   '/register',
-  devAdminHeader, // Gantikan protect
+  devAdminHeader,
   authorize('admin'),
   validate(userSchemas.register),
   register
+);
+
+// Configure Google OAuth Strategy
+passport.use(new GoogleStrategy({
+  clientID: process.env.GOOGLE_CLIENT_ID,
+  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+  callbackURL: process.env.GOOGLE_CALLBACK_URL
+}, async (accessToken, refreshToken, profile, done) => {
+  try {
+    // Check if user already exists
+    let user = await User.findOne({ email: profile.emails[0].value });
+    
+    if (user) {
+      return done(null, user);
+    }
+    
+    // Create new family user
+    const email = profile.emails[0].value;
+    const username = email.split('@')[0].substring(0, 20); // Use email prefix, max 20 chars
+    
+    user = await User.create({
+      name: profile.displayName,
+      email: email,
+      username: username,
+      password: 'google_oauth_' + Date.now(),
+      role: 'family',
+      googleId: profile.id
+    });
+    
+    return done(null, user);
+  } catch (error) {
+    return done(error, null);
+  }
+}));
+
+passport.serializeUser((user, done) => {
+  done(null, user._id);
+});
+
+passport.deserializeUser(async (id, done) => {
+  try {
+    const user = await User.findById(id);
+    done(null, user);
+  } catch (error) {
+    done(error, null);
+  }
+});
+
+// Google OAuth routes
+router.get('/google', (req, res, next) => {
+  const residentId = req.query.residentId;
+  passport.authenticate('google', {
+    scope: ['profile', 'email'],
+    state: residentId
+  })(req, res, next);
+});
+
+router.get('/google/callback', 
+  (req, res, next) => {
+    const residentId = req.query.state;
+    console.log('🔍 OAuth callback - residentId from state:', residentId);
+    req.residentId = residentId;
+    passport.authenticate('google', { session: false })(req, res, next);
+  },
+  async (req, res) => {
+    try {
+      const user = req.user;
+      const residentId = req.residentId;
+      
+      console.log('🔍 OAuth callback - user before update:', { id: user._id, assignedResidentId: user.assignedResidentId });
+      console.log('🔍 OAuth callback - residentId to assign:', residentId);
+      
+      if (residentId) {
+        user.assignedResidentId = residentId;
+        await user.save();
+        console.log('🔍 OAuth callback - user after update:', { id: user._id, assignedResidentId: user.assignedResidentId });
+      }
+      
+      const token = user.getSignedJwtToken();
+      const refreshToken = user.getRefreshToken();
+      
+      user.refreshToken = refreshToken;
+      await user.save();
+      
+      const userPayload = {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        assignedResidentId: user.assignedResidentId
+      };
+      
+      console.log('🔍 OAuth callback - final user payload:', userPayload);
+      
+      res.redirect(`http://localhost:3000?token=${token}&user=${encodeURIComponent(JSON.stringify(userPayload))}`);;
+    } catch (error) {
+      console.error('🔍 OAuth callback error:', error);
+      res.redirect('http://localhost:3000?error=oauth_failed');
+    }
+  }
 );
 
 // Protected routes

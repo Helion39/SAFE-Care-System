@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { AdminDashboard } from './components/AdminDashboard';
 import { CaregiverDashboard } from './components/CaregiverDashboard';
+import { FamilyLogin } from './components/FamilyLogin';
+import { FamilyDashboard } from './components/FamilyDashboard';
 import { EmergencyAlert } from './components/EmergencyAlert';
 import apiService from './services/api';
 
@@ -20,6 +22,32 @@ export default function App() {
   const [loginError, setLoginError] = useState('');
 
   useEffect(() => {
+    // Check for OAuth callback parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    const userParam = urlParams.get('user');
+    const error = urlParams.get('error');
+    
+    if (token && userParam) {
+      try {
+        const user = JSON.parse(decodeURIComponent(userParam));
+        apiService.setToken(token);
+        setCurrentUser(user);
+        loadDataForUser(user);
+        // Clean URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+        return;
+      } catch (err) {
+        console.error('OAuth callback error:', err);
+      }
+    }
+    
+    if (error) {
+      console.error('OAuth error:', error);
+      // Clean URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+    
     checkAuthStatus();
   }, []);
 
@@ -55,8 +83,12 @@ export default function App() {
       promises.push(apiService.getResidents());
       promises.push(apiService.getIncidents());
       
-      // Load vitals data for all users
-      promises.push(apiService.getVitals());
+      // Load vitals data for all users except family
+      if (user?.role !== 'family') {
+        promises.push(apiService.getVitals());
+      } else {
+        promises.push(Promise.resolve({ data: [] }));
+      }
       
       // Only admins can access all users and assignments
       if (user?.role === 'admin') {
@@ -252,9 +284,31 @@ export default function App() {
               Login as Caregiver
             </button>
             
+            <button 
+              onClick={() => handleRoleSelect('family')} 
+              className="login-button login-button-secondary"
+              style={{ backgroundColor: '#28a745', color: 'white', marginBottom: '0.5rem' }}
+            >
+              Family Portal
+            </button>
+            
             <p className="login-demo-text">Select your role to continue</p>
           </div>
         </div>
+      );
+    }
+
+    // Family login screen
+    if (selectedRole === 'family') {
+      return (
+        <FamilyLogin 
+          onLogin={(user) => {
+            setCurrentUser(user);
+            loadDataForUser(user);
+            setSelectedRole(null);
+          }}
+          onBack={handleBackToRoleSelection}
+        />
       );
     }
 
@@ -345,8 +399,8 @@ export default function App() {
           <div className="nav-content">
             <div className="flex items-center gap-2">
               <span className="nav-brand">SAFE Care System</span>
-              <span className={`badge ${currentUser.role === 'admin' ? 'badge-primary' : 'badge-secondary'}`}>
-                {currentUser.role === 'admin' ? 'Administrator' : 'Caregiver'}
+              <span className={`badge ${currentUser.role === 'admin' ? 'badge-primary' : currentUser.role === 'family' ? 'badge-success' : 'badge-secondary'}`}>
+                {currentUser.role === 'admin' ? 'Administrator' : currentUser.role === 'family' ? 'Family Member' : 'Caregiver'}
               </span>
             </div>
             <div className="nav-user">
@@ -370,6 +424,12 @@ export default function App() {
             onTriggerAlert={triggerEmergencyAlert}
             onResolveIncident={resolveIncident}
             onDataChange={loadData}
+          />
+        ) : currentUser.role === 'family' ? (
+          <FamilyDashboard 
+            data={data}
+            currentUser={currentUser}
+            onLogout={handleLogout}
           />
         ) : (
           <CaregiverDashboard 

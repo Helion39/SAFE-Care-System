@@ -307,6 +307,22 @@ export function ResidentManagement({ data, setData, onDataChange }: ResidentMana
                       <td>
                         <div>
                           <div style={{ fontWeight: '500' }}>{resident.name}</div>
+                          <div style={{ fontSize: 'var(--text-xs)', color: 'var(--gray-500)', fontFamily: 'monospace', display: 'flex', alignItems: 'center', gap: 'var(--space-1)' }}>
+                            ID: {residentId}
+                            <button
+                              onClick={() => navigator.clipboard.writeText(residentId)}
+                              style={{ 
+                                background: 'none', 
+                                border: 'none', 
+                                color: 'var(--primary)', 
+                                cursor: 'pointer',
+                                fontSize: 'var(--text-xs)'
+                              }}
+                              title="Copy ID"
+                            >
+                              📋
+                            </button>
+                          </div>
                           <div style={{ fontSize: 'var(--text-sm)', color: 'var(--gray-500)' }}>
                             Added {new Date(resident.createdAt || resident.created_at).toLocaleDateString()}
                           </div>

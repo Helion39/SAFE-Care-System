@@ -4,6 +4,8 @@ const helmet = require('helmet');
 const compression = require('compression');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
+const session = require('express-session');
+const passport = require('passport');
 const { createServer } = require('http');
 const { Server } = require('socket.io');
 require('dotenv').config();
@@ -22,6 +24,8 @@ const incidentRoutes = require('./src/routes/incidents');
 const assignmentRoutes = require('./src/routes/assignments');
 const analyticsRoutes = require('./src/routes/analytics');
 const reportRoutes = require('./src/routes/reports');
+const cameraRoutes = require('./src/routes/cameras');
+const chatbotRoutes = require('./src/routes/chatbot');
 
 const app = express();
 const server = createServer(app);
@@ -52,15 +56,16 @@ app.use(cors({
   credentials: true
 }));
 
-// Rate limiting
-const limiter = rateLimit({
-  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutes
-  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100, // limit each IP to 100 requests per windowMs
-  message: {
-    error: 'Too many requests from this IP, please try again later.'
-  }
-});
-app.use('/api/', limiter);
+// Session middleware for passport
+app.use(session({
+  secret: process.env.JWT_SECRET,
+  resave: false,
+  saveUninitialized: false
+}));
+
+// Passport middleware
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
@@ -99,6 +104,8 @@ app.use('/api/incidents', incidentRoutes);
 app.use('/api/assignments', assignmentRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/reports', reportRoutes);
+app.use('/api/cameras', cameraRoutes);
+app.use('/api/chatbot', chatbotRoutes);
 
 // Socket.IO connection handling is now managed by SocketManager
 

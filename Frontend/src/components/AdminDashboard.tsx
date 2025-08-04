@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { VitalsChart } from './VitalsChart';
 import { UserManagement } from './UserManagement';
 import { ResidentManagement } from './ResidentManagement';
+import { CameraMonitoring } from './CameraMonitoring';
 import apiService from '../services/api';
 import { 
   Users, 
@@ -168,7 +169,8 @@ export function AdminDashboard({ data, setData, onTriggerAlert, onResolveInciden
             className={`tab ${activeTab === 'cameras' ? 'active' : ''}`}
             onClick={() => setActiveTab('cameras')}
           >
-            Camera Status
+            <Camera style={{ width: '1rem', height: '1rem', marginRight: '0.5rem' }} />
+            Camera Monitoring
           </button>
         </div>
       </div>
@@ -267,37 +269,7 @@ export function AdminDashboard({ data, setData, onTriggerAlert, onResolveInciden
       )}
 
       {activeTab === 'cameras' && (
-        <div className="card">
-          <div className="card-header">
-            <Camera />
-            Camera System Status
-          </div>
-          <div className="grid grid-3">
-            {(data.camera_info || []).map(camera => (
-              <div key={camera.id} className="card" style={{ margin: '0' }}>
-                <div className="flex justify-between items-center mb-2">
-                  <div>
-                    <p style={{ fontWeight: '600' }}>Room {camera.room_number}</p>
-                    <p style={{ fontSize: 'var(--text-sm)', color: 'var(--gray-500)' }}>
-                      Last checked: {new Date(camera.last_checked).toLocaleString()}
-                    </p>
-                  </div>
-                  <span className={`badge ${camera.status === 'active' ? 'badge-success' : 'badge-error'}`}>
-                    {camera.status === 'active' ? 'Active' : 'Maintenance Required'}
-                  </span>
-                </div>
-                <div style={{ 
-                  padding: 'var(--space-1)', 
-                  backgroundColor: 'var(--gray-100)', 
-                  borderRadius: 'var(--radius)', 
-                  fontSize: 'var(--text-sm)' 
-                }}>
-                  📹 Camera feed available - AI monitoring enabled
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        <CameraMonitoring data={data} onTriggerAlert={onTriggerAlert} />
       )}
 
 
