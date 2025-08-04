@@ -31,6 +31,7 @@ export const transformResident = (resident) => {
     age: resident.age,
     medicalConditions: resident.medicalConditions || resident.medical_conditions || [],
     medical_conditions: resident.medicalConditions || resident.medical_conditions || [],
+    familyEmails: resident.familyEmails || [],
     emergencyContact: resident.emergencyContact || resident.emergency_contact,
     emergency_contact: resident.emergencyContact || resident.emergency_contact,
     assignedCaregiver: resident.assignedCaregiver,

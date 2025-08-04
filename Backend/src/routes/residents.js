@@ -26,7 +26,7 @@ router.get('/:id', getResident);
 
 // Admin only routes
 router.post('/', authorize('admin'), validate(residentSchemas.create), createResident);
-router.put('/:id', authorize('admin'), validate(residentSchemas.update), updateResident);
+router.put('/:id', authorize('admin'), updateResident);
 router.delete('/:id', authorize('admin'), deleteResident);
 
 module.exports = router;

@@ -31,11 +31,14 @@ export default function App() {
     if (token && userParam) {
       try {
         const user = JSON.parse(decodeURIComponent(userParam));
+        // Store token in localStorage
+        localStorage.setItem('authToken', token);
         apiService.setToken(token);
         setCurrentUser(user);
         loadDataForUser(user);
         // Clean URL
         window.history.replaceState({}, document.title, window.location.pathname);
+        setIsLoading(false);
         return;
       } catch (err) {
         console.error('OAuth callback error:', err);

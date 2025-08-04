@@ -8,7 +8,7 @@ interface FamilyLoginProps {
 }
 
 export function FamilyLogin({ onLogin, onBack }: FamilyLoginProps) {
-  const [loginForm, setLoginForm] = useState({ email: '', password: '', residentId: '' });
+  const [loginForm, setLoginForm] = useState({ email: '' });
   const [loginError, setLoginError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -18,21 +18,14 @@ export function FamilyLogin({ onLogin, onBack }: FamilyLoginProps) {
     setIsLoading(true);
     
     try {
-      const response = await apiService.login({
-        email: loginForm.email,
-        password: loginForm.password,
-        role: 'family'
+      const response = await apiService.familyLogin({
+        email: loginForm.email
       });
       
-      if (response.success && response.data.user.role === 'family') {
-        // Store resident ID in user object
-        const userWithResident = {
-          ...response.data.user,
-          assignedResidentId: loginForm.residentId
-        };
-        onLogin(userWithResident);
+      if (response.success) {
+        onLogin(response.data.user);
       } else {
-        setLoginError('Invalid family member credentials');
+        setLoginError(response.message || 'Login failed');
       }
     } catch (error: any) {
       setLoginError(error.message || 'Login failed');
@@ -42,15 +35,11 @@ export function FamilyLogin({ onLogin, onBack }: FamilyLoginProps) {
   };
 
   const handleGoogleLogin = () => {
-    if (!loginForm.residentId) {
-      setLoginError('Please enter Resident ID first');
-      return;
-    }
-    // Redirect to Google OAuth with resident ID
+    // Redirect to Google OAuth for family login
     const baseUrl = process.env.REACT_APP_API_URL ? 
       process.env.REACT_APP_API_URL.replace('/api', '') : 
       'http://localhost:5000';
-    window.location.href = `${baseUrl}/api/auth/google?residentId=${loginForm.residentId}`;
+    window.location.href = `${baseUrl}/api/auth/google`;
   };
 
   return (
@@ -83,57 +72,23 @@ export function FamilyLogin({ onLogin, onBack }: FamilyLoginProps) {
             </div>
           )}
           
-          <div style={{ marginBottom: '1rem' }}>
+          <div style={{ marginBottom: '1.5rem' }}>
             <div style={{ position: 'relative' }}>
               <Mail style={{ 
                 position: 'absolute', 
                 left: '0.75rem', 
                 top: '50%', 
                 transform: 'translateY(-50%)', 
-                color: 'var(--healthcare-gray-400)', 
+                color: 'var(--gray-400)', 
                 width: '1rem', 
                 height: '1rem' 
               }} />
               <input
                 type="email"
-                placeholder="Email address"
+                placeholder="Enter your registered email address"
                 value={loginForm.email}
                 onChange={(e) => setLoginForm(prev => ({ ...prev, email: e.target.value }))}
-                className="healthcare-input"
-                style={{ paddingLeft: '2.5rem' }}
-                required
-              />
-            </div>
-          </div>
-          
-          <div style={{ marginBottom: '1rem' }}>
-            <input
-              type="text"
-              placeholder="Resident ID (ask admin for this ID)"
-              value={loginForm.residentId}
-              onChange={(e) => setLoginForm(prev => ({ ...prev, residentId: e.target.value }))}
-              className="healthcare-input"
-              required
-            />
-          </div>
-          
-          <div style={{ marginBottom: '1.5rem' }}>
-            <div style={{ position: 'relative' }}>
-              <Lock style={{ 
-                position: 'absolute', 
-                left: '0.75rem', 
-                top: '50%', 
-                transform: 'translateY(-50%)', 
-                color: 'var(--healthcare-gray-400)', 
-                width: '1rem', 
-                height: '1rem' 
-              }} />
-              <input
-                type="password"
-                placeholder="Password"
-                value={loginForm.password}
-                onChange={(e) => setLoginForm(prev => ({ ...prev, password: e.target.value }))}
-                className="healthcare-input"
+                className="input"
                 style={{ paddingLeft: '2.5rem' }}
                 required
               />

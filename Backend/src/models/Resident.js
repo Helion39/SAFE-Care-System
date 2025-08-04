@@ -61,7 +61,13 @@ const ResidentSchema = new mongoose.Schema({
   notes: {
     type: String,
     maxlength: [1000, 'Notes cannot be more than 1000 characters']
-  }
+  },
+  familyEmails: [{
+    type: String,
+    trim: true,
+    lowercase: true,
+    match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, 'Please enter a valid email']
+  }]
 }, {
   timestamps: true,
   toJSON: { virtuals: true },

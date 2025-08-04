@@ -84,6 +84,19 @@ class ApiService {
     }
   }
 
+  async familyLogin(credentials) {
+    const response = await this.request('/auth/family-login', {
+      method: 'POST',
+      body: JSON.stringify(credentials),
+    });
+    
+    if (response.success && response.data && response.data.token) {
+      this.setToken(response.data.token);
+    }
+    
+    return response;
+  }
+
   async getProfile() {
     return this.request('/auth/me');
   }

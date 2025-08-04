@@ -114,7 +114,7 @@ export function ResidentManagement({ data, setData, onDataChange }: ResidentMana
 
   const handleUpdateResident = async (residentData: any) => {
     try {
-      const response = await apiService.updateResident(editingResident.id, residentData);
+      const response = await apiService.updateResident(editingResident._id || editingResident.id, residentData);
       if (response.success) {
         await onDataChange(); // Refresh data
         setShowCreateForm(false);
@@ -292,6 +292,7 @@ export function ResidentManagement({ data, setData, onDataChange }: ResidentMana
                   <th>Age</th>
                   <th>Medical Conditions</th>
                   <th>Assigned Caregiver</th>
+                  <th>Family Emails</th>
                   <th>Emergency Contact</th>
                   <th>Actions</th>
                 </tr>
@@ -380,6 +381,26 @@ export function ResidentManagement({ data, setData, onDataChange }: ResidentMana
                             <div style={{ fontSize: 'var(--text-xs)', color: 'var(--gray-500)', marginTop: '0.25rem' }}>
                               {assignedCaregiver.name}
                             </div>
+                          )}
+                        </div>
+                      </td>
+                      <td>
+                        <div style={{ maxWidth: '200px' }}>
+                          {resident.familyEmails && resident.familyEmails.length > 0 ? (
+                            <div className="flex flex-col gap-1">
+                              {resident.familyEmails.slice(0, 2).map((email: string, index: number) => (
+                                <span key={index} className="badge badge-secondary" style={{ fontSize: 'var(--text-xs)', fontFamily: 'monospace' }}>
+                                  {email}
+                                </span>
+                              ))}
+                              {resident.familyEmails.length > 2 && (
+                                <span className="badge badge-secondary" style={{ fontSize: 'var(--text-xs)' }}>
+                                  +{resident.familyEmails.length - 2} more
+                                </span>
+                              )}
+                            </div>
+                          ) : (
+                            <span style={{ color: 'var(--gray-400)', fontSize: 'var(--text-sm)' }}>No family access</span>
                           )}
                         </div>
                       </td>

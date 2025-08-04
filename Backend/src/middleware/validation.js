@@ -77,19 +77,22 @@ const residentSchemas = {
       phone: Joi.string().max(20),
       relationship: Joi.string().max(50)
     }).optional().allow(null),
+    familyEmails: Joi.array().items(Joi.string().email()).default([]),
     notes: Joi.string().max(1000).optional().allow('', null)
   }),
   
   update: Joi.object({
-    name: Joi.string().min(2).max(100),
-    room: Joi.string().min(1).max(20),
-    age: Joi.number().integer().min(1).max(150),
-    medicalConditions: Joi.array().items(Joi.string().max(100)),
+    name: Joi.string().min(2).max(100).optional(),
+    room: Joi.string().min(1).max(20).optional(),
+    age: Joi.number().integer().min(1).max(150).optional(),
+    medicalConditions: Joi.array().items(Joi.string().max(100)).optional(),
     emergencyContact: Joi.object({
-      name: Joi.string().max(100),
-      phone: Joi.string().max(20),
-      relationship: Joi.string().max(50)
-    }).optional()
+      name: Joi.string().max(100).optional().allow(''),
+      phone: Joi.string().max(20).optional().allow(''),
+      relationship: Joi.string().max(50).optional().allow('')
+    }).optional().allow(null),
+    familyEmails: Joi.array().items(Joi.string().email()).optional(),
+    notes: Joi.string().max(1000).optional().allow('', null)
   })
 };
 

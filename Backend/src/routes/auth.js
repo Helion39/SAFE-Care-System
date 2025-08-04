@@ -8,7 +8,8 @@ const {
   getMe,
   refreshToken,
   updateProfile,
-  changePassword
+  changePassword,
+  familyLogin
 } = require('../controllers/authController');
 const { protect, authorize, devAdminHeader } = require('../middleware/auth');
 const { validate, userSchemas } = require('../middleware/validation');
@@ -25,6 +26,7 @@ router.use((req, res, next) => {
 
 // Public routes
 router.post('/login', validate(userSchemas.login), login);
+router.post('/family-login', familyLogin);
 router.post('/refresh', refreshToken);
 
 
@@ -45,16 +47,28 @@ passport.use(new GoogleStrategy({
   callbackURL: process.env.GOOGLE_CALLBACK_URL
 }, async (accessToken, refreshToken, profile, done) => {
   try {
+    const email = profile.emails[0].value;
+    
     // Check if user already exists
-    let user = await User.findOne({ email: profile.emails[0].value });
+    let user = await User.findOne({ email: email });
     
     if (user) {
       return done(null, user);
     }
     
-    // Create new family user
-    const email = profile.emails[0].value;
-    const username = email.split('@')[0].substring(0, 20); // Use email prefix, max 20 chars
+    // Find resident by family email
+    const Resident = require('../models/Resident');
+    const resident = await Resident.findOne({ 
+      familyEmails: { $in: [email.toLowerCase()] },
+      isActive: true 
+    });
+    
+    if (!resident) {
+      return done(new Error('No resident found for this email'), null);
+    }
+    
+    // Create new family user with resident connection
+    const username = email.split('@')[0].substring(0, 20);
     
     user = await User.create({
       name: profile.displayName,
@@ -62,7 +76,8 @@ passport.use(new GoogleStrategy({
       username: username,
       password: 'google_oauth_' + Date.now(),
       role: 'family',
-      googleId: profile.id
+      googleId: profile.id,
+      assignedResidentId: resident._id
     });
     
     return done(null, user);
@@ -105,14 +120,7 @@ router.get('/google/callback',
       const user = req.user;
       const residentId = req.residentId;
       
-      console.log('🔍 OAuth callback - user before update:', { id: user._id, assignedResidentId: user.assignedResidentId });
-      console.log('🔍 OAuth callback - residentId to assign:', residentId);
-      
-      if (residentId) {
-        user.assignedResidentId = residentId;
-        await user.save();
-        console.log('🔍 OAuth callback - user after update:', { id: user._id, assignedResidentId: user.assignedResidentId });
-      }
+      console.log('🔍 OAuth callback - user:', { id: user._id, assignedResidentId: user.assignedResidentId, email: user.email });
       
       const token = user.getSignedJwtToken();
       const refreshToken = user.getRefreshToken();
@@ -130,7 +138,10 @@ router.get('/google/callback',
       
       console.log('🔍 OAuth callback - final user payload:', userPayload);
       
-      res.redirect(`http://localhost:3000?token=${token}&user=${encodeURIComponent(JSON.stringify(userPayload))}`);;
+      // Redirect to frontend with token and user data
+      const redirectUrl = `http://localhost:3000?token=${token}&user=${encodeURIComponent(JSON.stringify(userPayload))}`;
+      console.log('🔍 OAuth redirect URL:', redirectUrl);
+      res.redirect(redirectUrl);
     } catch (error) {
       console.error('🔍 OAuth callback error:', error);
       res.redirect('http://localhost:3000?error=oauth_failed');

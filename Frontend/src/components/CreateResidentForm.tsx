@@ -20,6 +20,7 @@ export function CreateResidentForm({ onCreateResident, onCancel, existingRooms, 
       phone: initialData?.emergency_contact?.phone || initialData?.emergencyContact?.phone || '',
       relationship: initialData?.emergency_contact?.relationship || initialData?.emergencyContact?.relationship || ''
     },
+    familyEmails: initialData?.familyEmails?.length ? initialData.familyEmails : [''],
     notes: initialData?.notes || ''
   });
   const [errors, setErrors] = useState<any>({});
@@ -53,7 +54,7 @@ export function CreateResidentForm({ onCreateResident, onCancel, existingRooms, 
     // Room number validation
     if (!formData.roomNumber.trim()) {
       newErrors.roomNumber = 'Room number is required';
-    } else if (existingRooms.includes(formData.roomNumber.trim())) {
+    } else if (!isEditing && existingRooms.includes(formData.roomNumber.trim())) {
       newErrors.roomNumber = 'Room number already exists';
     }
 
@@ -110,6 +111,7 @@ export function CreateResidentForm({ onCreateResident, onCancel, existingRooms, 
           phone: formData.emergencyContact.phone.trim(),
           relationship: formData.emergencyContact.relationship.trim()
         } : null,
+        familyEmails: formData.familyEmails.filter(email => email.trim()),
         notes: formData.notes.trim() || null
       };
 
@@ -126,6 +128,7 @@ export function CreateResidentForm({ onCreateResident, onCancel, existingRooms, 
           phone: '',
           relationship: ''
         },
+        familyEmails: [''],
         notes: ''
       });
       
@@ -177,6 +180,29 @@ export function CreateResidentForm({ onCreateResident, onCancel, existingRooms, 
       ...prev,
       medicalConditions: prev.medicalConditions.map((condition, i) => 
         i === index ? value : condition
+      )
+    }));
+  };
+
+  const addFamilyEmail = () => {
+    setFormData(prev => ({
+      ...prev,
+      familyEmails: [...prev.familyEmails, '']
+    }));
+  };
+
+  const removeFamilyEmail = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      familyEmails: prev.familyEmails.filter((_, i) => i !== index)
+    }));
+  };
+
+  const updateFamilyEmail = (index: number, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      familyEmails: prev.familyEmails.map((email, i) => 
+        i === index ? value : email
       )
     }));
   };
@@ -384,6 +410,48 @@ export function CreateResidentForm({ onCreateResident, onCancel, existingRooms, 
               )}
             </div>
           </div>
+        </div>
+
+        {/* Family Access */}
+        <div className="mb-3">
+          <div className="flex items-center justify-between mb-2">
+            <h3 style={{ fontSize: 'var(--text-lg)', fontWeight: '600' }}>Family Access</h3>
+            <button
+              type="button"
+              onClick={addFamilyEmail}
+              className="btn btn-sm btn-secondary"
+            >
+              <Plus style={{ width: '1rem', height: '1rem' }} />
+              Add Email
+            </button>
+          </div>
+
+          {formData.familyEmails.map((email, index) => (
+            <div key={index} className="flex gap-2 items-start mb-2">
+              <div style={{ flex: 1 }}>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => updateFamilyEmail(index, e.target.value)}
+                  placeholder="Enter family member email for dashboard access"
+                  className="input"
+                />
+              </div>
+              
+              {formData.familyEmails.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => removeFamilyEmail(index)}
+                  className="btn btn-sm btn-secondary"
+                >
+                  <X style={{ width: '1rem', height: '1rem' }} />
+                </button>
+              )}
+            </div>
+          ))}
+          <p style={{ fontSize: 'var(--text-xs)', color: 'var(--gray-500)', marginTop: '0.5rem' }}>
+            Family members with these emails can access the resident's dashboard using Google login
+          </p>
         </div>
 
         {/* Notes */}

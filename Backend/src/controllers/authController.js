@@ -181,6 +181,7 @@ const getMe = async (req, res, next) => {
           username: user.username,
           role: user.role,
           lastLogin: user.lastLogin,
+          assignedResidentId: user.assignedResidentId,
           createdAt: user.createdAt
         }
       }
@@ -326,6 +327,68 @@ const changePassword = async (req, res, next) => {
   }
 };
 
+// @desc    Family login - find resident by email
+// @route   POST /api/auth/family-login
+// @access  Public
+const familyLogin = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide email address'
+      });
+    }
+
+    // Find resident by family email
+    const Resident = require('../models/Resident');
+    const resident = await Resident.findOne({ 
+      familyEmails: { $in: [email.toLowerCase()] },
+      isActive: true 
+    }).populate('assignedCaregiver', 'name');
+
+    if (!resident) {
+      return res.status(404).json({
+        success: false,
+        message: 'No resident found for this email. Please contact the administrator.'
+      });
+    }
+
+    // Create temporary family user object
+    const familyUser = {
+      id: `family_${resident._id}`,
+      name: `Family of ${resident.name}`,
+      email: email,
+      role: 'family',
+      assignedResidentId: resident._id,
+      residentName: resident.name,
+      residentRoom: resident.room
+    };
+
+    // Generate token for family user
+    const jwt = require('jsonwebtoken');
+    const token = jwt.sign(
+      { id: familyUser.id, email: familyUser.email, role: 'family', residentId: resident._id },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRE }
+    );
+
+    logger.info(`Family member logged in for resident: ${resident.name}`);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        user: familyUser,
+        token
+      }
+    });
+  } catch (error) {
+    logger.error('Family login error:', error);
+    next(error);
+  }
+};
+
 module.exports = {
   register,
   login,
@@ -333,5 +396,6 @@ module.exports = {
   getMe,
   refreshToken,
   updateProfile,
-  changePassword
+  changePassword,
+  familyLogin
 };

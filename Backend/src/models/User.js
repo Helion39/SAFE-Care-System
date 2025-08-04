@@ -65,6 +65,10 @@ const UserSchema = new mongoose.Schema({
     type: String,
     select: false
   },
+  assignedResidentId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Resident'
+  },
   resetPasswordToken: String,
   resetPasswordExpire: Date
 }, {

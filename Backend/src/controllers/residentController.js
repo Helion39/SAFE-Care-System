@@ -8,7 +8,7 @@ const logger = require('../utils/logger');
 // @access  Private/Admin
 const createResident = async (req, res, next) => {
   try {
-    const { name, room, age, medicalConditions, emergencyContact, notes } = req.body;
+    const { name, room, age, medicalConditions, emergencyContact, familyEmails, notes } = req.body;
 
     // Check if room number already exists
     const existingResident = await Resident.findOne({ room });
@@ -25,6 +25,7 @@ const createResident = async (req, res, next) => {
       age,
       medicalConditions: medicalConditions || [],
       emergencyContact,
+      familyEmails: familyEmails || [],
       notes
     });
 
@@ -165,7 +166,13 @@ const getResident = async (req, res, next) => {
 // @access  Private/Admin
 const updateResident = async (req, res, next) => {
   try {
-    const { name, room, age, medicalConditions, emergencyContact, notes } = req.body;
+    console.log('🔍 Update resident request:', {
+      id: req.params.id,
+      body: JSON.stringify(req.body, null, 2),
+      user: req.user?.role
+    });
+
+    const { name, room, age, medicalConditions, emergencyContact, familyEmails, notes } = req.body;
 
     const resident = await Resident.findById(req.params.id);
 
@@ -188,12 +195,15 @@ const updateResident = async (req, res, next) => {
     }
 
     const fieldsToUpdate = {};
-    if (name) fieldsToUpdate.name = name;
-    if (room) fieldsToUpdate.room = room;
-    if (age) fieldsToUpdate.age = age;
-    if (medicalConditions) fieldsToUpdate.medicalConditions = medicalConditions;
-    if (emergencyContact) fieldsToUpdate.emergencyContact = emergencyContact;
+    if (name !== undefined) fieldsToUpdate.name = name;
+    if (room !== undefined) fieldsToUpdate.room = room;
+    if (age !== undefined) fieldsToUpdate.age = age;
+    if (medicalConditions !== undefined) fieldsToUpdate.medicalConditions = medicalConditions;
+    if (emergencyContact !== undefined) fieldsToUpdate.emergencyContact = emergencyContact;
+    if (familyEmails !== undefined) fieldsToUpdate.familyEmails = familyEmails;
     if (notes !== undefined) fieldsToUpdate.notes = notes;
+
+    console.log('🔧 Fields to update:', JSON.stringify(fieldsToUpdate, null, 2));
 
     const updatedResident = await Resident.findByIdAndUpdate(
       req.params.id,
@@ -212,8 +222,15 @@ const updateResident = async (req, res, next) => {
       message: 'Resident updated successfully'
     });
   } catch (error) {
+    console.error('❌ Update resident error:', error);
     logger.error('Update resident error:', error);
-    next(error);
+    
+    // Send detailed error for debugging
+    res.status(400).json({
+      success: false,
+      error: error.message || 'Update failed',
+      details: error.errors ? Object.values(error.errors).map(e => e.message) : undefined
+    });
   }
 };
 
