@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tailwind Test</title>
+    <style>
+        /* Test CSS custom properties */
+        :root {
+            --pastel-primary: #C6E7FF;
+            --pastel-secondary: #D4F6FF;
+            --pastel-background: #FBFBFB;
+            --pastel-white: #FFFFFF;
+            --info: #1565C0;
+            --gray-200: #E8EAED;
+            --gray-600: #80868B;
+        }
+    </style>
+</head>
+<body class="bg-pastel-background">
+    <div class="max-w-4xl mx-auto p-6">
+        <h1 class="text-2xl font-bold text-info mb-6">SAFE Pastel Design Test</h1>
+        
+        <!-- Test Pastel Colors -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-pastel-white border border-gray-200 rounded-lg p-6">
+                <h3 class="text-lg font-semibold text-gray-700 mb-2">Pastel Primary</h3>
+                <div class="bg-pastel-primary p-4 rounded text-info font-medium">
+                    #C6E7FF - Light Blue
+                </div>
+            </div>
+            
+            <div class="bg-pastel-white border border-gray-200 rounded-lg p-6">
+                <h3 class="text-lg font-semibold text-gray-700 mb-2">Pastel Secondary</h3>
+                <div class="bg-pastel-secondary p-4 rounded text-info font-medium">
+                    #D4F6FF - Lighter Blue
+                </div>
+            </div>
+            
+            <div class="bg-pastel-white border border-gray-200 rounded-lg p-6">
+                <h3 class="text-lg font-semibold text-gray-700 mb-2">Background</h3>
+                <div class="bg-pastel-background border border-gray-200 p-4 rounded text-gray-600 font-medium">
+                    #FBFBFB - Off-white
+                </div>
+            </div>
+        </div>
+        
+        <!-- Test Spacing -->
+        <div class="bg-pastel-white border border-gray-200 rounded-lg p-6 mb-8">
+            <h3 class="text-lg font-semibold text-gray-700 mb-4">Spacing Test (8px Grid)</h3>
+            <div class="space-y-2">
+                <div class="bg-pastel-primary p-1 rounded">p-1 (8px)</div>
+                <div class="bg-pastel-primary p-2 rounded">p-2 (16px)</div>
+                <div class="bg-pastel-primary p-3 rounded">p-3 (24px)</div>
+                <div class="bg-pastel-primary p-4 rounded">p-4 (32px)</div>
+            </div>
+        </div>
+        
+        <!-- Test Typography -->
+        <div class="bg-pastel-white border border-gray-200 rounded-lg p-6">
+            <h3 class="text-lg font-semibold text-gray-700 mb-4">Typography Test</h3>
+            <div class="space-y-2">
+                <p class="text-xs text-gray-600">Extra Small (12px) - Caption text</p>
+                <p class="text-sm text-gray-600">Small (14px) - Secondary content</p>
+                <p class="text-base text-gray-700">Base (16px) - Primary content</p>
+                <p class="text-lg text-gray-700">Large (18px) - Heading 3</p>
+                <p class="text-xl font-semibold text-gray-800">Extra Large (20px) - Heading 2</p>
+                <p class="text-2xl font-bold text-gray-800">2XL (24px) - Heading 1</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
