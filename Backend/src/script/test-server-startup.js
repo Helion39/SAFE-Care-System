@@ -1,5 +1,5 @@
 require('dotenv').config();
-const { connectDB, setupIndexes } = require('./src/config/database');
+const { connectDB, setupIndexes } = require('../config/database');
 
 async function testServerStartup() {
     try {

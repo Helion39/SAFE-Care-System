@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
-const Vitals = require('./src/models/Vitals');
-const Resident = require('./src/models/Resident');
-const User = require('./src/models/User');
+const Vitals = require('../models/Vitals');
+const Resident = require('../models/Resident');
+const User = require('../models/User');
 require('dotenv').config();
 
 const cleanupVitals = async () => {

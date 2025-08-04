@@ -1,7 +1,7 @@
 // Debug script to check users in database
 require('dotenv').config();
 const mongoose = require('mongoose');
-const User = require('./src/models/User');
+const User = require('../models/User');
 
 async function checkUsers() {
   try {

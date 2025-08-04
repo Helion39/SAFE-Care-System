@@ -1,7 +1,7 @@
 // Script to fix the database by clearing and re-seeding with proper usernames
 require('dotenv').config();
 const mongoose = require('mongoose');
-const User = require('./src/models/User');
+const User = require('../models/User');
 
 async function fixDatabase() {
     try {

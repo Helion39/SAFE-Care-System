@@ -1,8 +1,8 @@
 require('dotenv').config();
 const mongoose = require('mongoose');
-const Incident = require('./src/models/Incident');
-const Resident = require('./src/models/Resident');
-const User = require('./src/models/User');
+const Incident = require('../models/Incident');
+const Resident = require('../models/Resident');
+const User = require('../models/User');
 
 async function debugIncidents() {
     try {

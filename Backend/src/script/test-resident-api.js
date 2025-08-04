@@ -1,7 +1,7 @@
 require('dotenv').config();
 const mongoose = require('mongoose');
-const Resident = require('./src/models/Resident');
-const User = require('./src/models/User');
+const Resident = require('../models/Resident');
+const User = require('../models/User');
 
 async function testResidentAPI() {
     try {

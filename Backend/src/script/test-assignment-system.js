@@ -1,8 +1,8 @@
 require('dotenv').config();
 const mongoose = require('mongoose');
-const Assignment = require('./src/models/Assignment');
-const User = require('./src/models/User');
-const Resident = require('./src/models/Resident');
+const Assignment = require('../models/Assignment');
+const User = require('../models/User');
+const Resident = require('../models/Resident');
 
 async function testAssignmentSystem() {
     try {

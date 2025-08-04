@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
-const User = require('./src/models/User');
-const Resident = require('./src/models/Resident');
-const Vitals = require('./src/models/Vitals');
-const Incident = require('./src/models/Incident');
-const Assignment = require('./src/models/Assignment');
+const User = require('../models/User');
+const Resident = require('../models/Resident');
+const Vitals = require('../models/Vitals');
+const Incident = require('../models/Incident');
+const Assignment = require('../models/Assignment');
 require('dotenv').config();
 
 const debugDatabase = async () => {

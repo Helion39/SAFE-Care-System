@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const seedData = require('./src/utils/seedData');
+const seedData = require('../utils/seedData');
 require('dotenv').config();
 
 const fixDatabaseIssue = async () => {
@@ -14,9 +14,9 @@ const fixDatabaseIssue = async () => {
     console.log('');
 
     // Check current data
-    const User = require('./src/models/User');
-    const Resident = require('./src/models/Resident');
-    const Vitals = require('./src/models/Vitals');
+    const User = require('../models/User');
+    const Resident = require('../models/Resident');
+    const Vitals = require('../models/Vitals');
 
     const userCount = await User.countDocuments();
     const residentCount = await Resident.countDocuments();
