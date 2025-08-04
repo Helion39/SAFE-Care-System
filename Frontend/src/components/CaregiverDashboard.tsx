@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { VitalsChart } from './VitalsChart';
+import { Chatbot } from './Chatbot';
 import { generateHealthSummary } from './mockData';
 import apiService from '../services/api';
 import { 
@@ -375,6 +376,9 @@ export function CaregiverDashboard({ data, setData, currentUser, onTriggerAlert,
           Simulate Emergency for {assignedResident.name}
         </button>
       </div>
+
+      {/* Chatbot */}
+      <Chatbot currentUser={currentUser} />
 
     </div>
   );
