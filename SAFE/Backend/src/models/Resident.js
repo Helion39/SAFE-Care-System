@@ -1,6 +1,12 @@
 const mongoose = require('mongoose');
 
 const ResidentSchema = new mongoose.Schema({
+  residentId: {
+    type: String,
+    unique: true,
+    trim: true,
+    maxlength: [20, 'Resident ID cannot be more than 20 characters']
+  },
   name: {
     type: String,
     required: [true, 'Please add a resident name'],
@@ -72,6 +78,32 @@ const ResidentSchema = new mongoose.Schema({
   timestamps: true,
   toJSON: { virtuals: true },
   toObject: { virtuals: true }
+});
+
+// Auto-generate residentId before saving
+ResidentSchema.pre('save', async function(next) {
+  if (!this.residentId) {
+    try {
+      // Find the highest existing resident ID
+      const lastResident = await this.constructor.findOne(
+        { residentId: { $regex: /^RES\d+$/ } },
+        { residentId: 1 }
+      ).sort({ residentId: -1 });
+      
+      let nextNumber = 1;
+      if (lastResident && lastResident.residentId) {
+        const match = lastResident.residentId.match(/^RES(\d+)$/);
+        if (match) {
+          nextNumber = parseInt(match[1]) + 1;
+        }
+      }
+      
+      this.residentId = `RES${nextNumber.toString().padStart(3, '0')}`;
+    } catch (error) {
+      return next(error);
+    }
+  }
+  next();
 });
 
 // Virtual for latest vitals

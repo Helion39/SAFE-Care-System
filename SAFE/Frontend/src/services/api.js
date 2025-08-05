@@ -136,6 +136,7 @@ class ApiService {
   }
 
   async createResident(residentData) {
+    console.log('🔍 Creating resident with data:', residentData);
     const response = await this.request('/residents', {
       method: 'POST',
       body: JSON.stringify(residentData),
@@ -159,6 +160,11 @@ class ApiService {
 
   async getResident(residentId) {
     return this.request(`/residents/${residentId}`);
+  }
+
+  async checkRoomAvailability(roomNumber, excludeId = null) {
+    const params = excludeId ? `?excludeId=${excludeId}` : '';
+    return this.request(`/residents/check-room/${encodeURIComponent(roomNumber)}${params}`);
   }
 
   // Assignments
@@ -267,6 +273,23 @@ class ApiService {
     return response;
   }
 
+  async familyGoogleLogin(googleToken) {
+    const response = await this.request('/auth/family-google-login', {
+      method: 'POST',
+      body: JSON.stringify({ googleToken }),
+    });
+
+    if (response.success && response.data && response.data.token) {
+      this.setToken(response.data.token);
+    }
+
+    return response;
+  }
+
+  async getFamilyDataByEmail(email) {
+    return this.request(`/family/data/${encodeURIComponent(email)}`);
+  }
+
   // Family Access Management
   async addFamilyEmail(residentId, email) {
     return this.request(`/residents/${residentId}/family-emails`, {
@@ -280,6 +303,22 @@ class ApiService {
       method: 'DELETE',
       body: JSON.stringify({ email }),
     });
+  }
+
+  // Family-specific data access
+  async getFamilyResidentData(residentId) {
+    const response = await this.request(`/family/resident/${residentId}`);
+    return transformApiResponse(response, 'residents');
+  }
+
+  async getFamilyVitals(residentId) {
+    const response = await this.request(`/family/resident/${residentId}/vitals`);
+    return transformApiResponse(response, 'vitals');
+  }
+
+  async getFamilyIncidents(residentId) {
+    const response = await this.request(`/family/resident/${residentId}/incidents`);
+    return transformApiResponse(response, 'incidents');
   }
 }
 

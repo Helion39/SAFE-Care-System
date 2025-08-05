@@ -1,10 +1,15 @@
 import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AdminDashboard } from './components/AdminDashboard';
 import CaregiverDashboard from './components/CaregiverDashboard';
 import { EmergencyAlert } from './components/EmergencyAlert';
+import { FamilyLoginPage } from './components/FamilyLoginPage';
+import { FamilyDashboard } from './components/FamilyDashboard';
+import { Modal } from './components/Modal';
+import { useModal } from './hooks/useModal';
 import apiService from './services/api';
 
-export default function App() {
+function StaffLogin() {
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [data, setData] = useState<any>({
     users: [],
@@ -18,6 +23,7 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [loginForm, setLoginForm] = useState({ username: '', password: '' });
   const [loginError, setLoginError] = useState('');
+  const { modalState, showConfirm, closeModal } = useModal();
 
   useEffect(() => {
     checkAuthStatus();
@@ -146,22 +152,30 @@ export default function App() {
     }
   };
 
-  const handleLogout = async () => {
-    try {
-      await apiService.logout();
-    } catch (error) {
-      console.error('Logout error:', error);
-    } finally {
-      setCurrentUser(null);
-      setSelectedRole(null);
-      setData({
-        users: [],
-        residents: [],
-        vitals: [],
-        incidents: [],
-        assignments: []
-      });
-    }
+  const handleLogout = () => {
+    showConfirm(
+      'Confirm Logout',
+      'Are you sure you want to logout? You will need to login again to access the system.',
+      async () => {
+        try {
+          await apiService.logout();
+        } catch (error) {
+          console.error('Logout error:', error);
+        } finally {
+          setCurrentUser(null);
+          setSelectedRole(null);
+          setData({
+            users: [],
+            residents: [],
+            vitals: [],
+            incidents: [],
+            assignments: []
+          });
+        }
+      },
+      'Logout',
+      'Cancel'
+    );
   };
 
   const handleBackToRoleSelection = () => {
@@ -202,7 +216,7 @@ export default function App() {
       }
     } catch (error) {
       console.error('❌ Failed to claim incident:', error);
-      alert('Failed to claim incident: ' + error.message);
+      // Note: This would need modal implementation in parent component
     }
   };
 
@@ -236,7 +250,7 @@ export default function App() {
         <div className="login-page">
           <div className="login-card">
             <h1 className="login-title">SAFE Care System</h1>
-            <p className="login-subtitle">Elderly Care Monitoring System</p>
+            <p className="login-subtitle">Staff Portal</p>
             
             <button 
               onClick={() => handleRoleSelect('admin')} 
@@ -251,8 +265,6 @@ export default function App() {
             >
               Login as Caregiver
             </button>
-            
-            <p className="login-demo-text">Select your role to continue</p>
           </div>
         </div>
       );
@@ -378,6 +390,263 @@ export default function App() {
           onDataChange={loadData}
         />
       )}
+      
+      <Modal
+        isOpen={modalState.isOpen}
+        onClose={closeModal}
+        title={modalState.title}
+        message={modalState.message}
+        type={modalState.type}
+        onConfirm={modalState.onConfirm}
+        confirmText={modalState.confirmText}
+        cancelText={modalState.cancelText}
+      />
     </div>
+  );
+}
+
+// Komponen halaman tidak ditemukan
+function NotFoundPage() {
+  return (
+    <div className="login-page">
+      <div className="login-card" style={{ maxWidth: '500px', textAlign: 'center' }}>
+        <h1 style={{ fontSize: '4rem', color: 'var(--error)', marginBottom: '1rem' }}>404</h1>
+        <h2 className="login-title" style={{ color: 'var(--gray-700)' }}>Halaman Tidak Ditemukan</h2>
+        <p className="login-subtitle" style={{ marginBottom: '2rem' }}>
+          Maaf, halaman yang Anda cari tidak tersedia.
+        </p>
+        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Family Portal Component
+function FamilyPortal() {
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [data, setData] = useState<any>({
+    users: [],
+    residents: [],
+    vitals: [],
+    incidents: [],
+    assignments: []
+  });
+  const [isLoading, setIsLoading] = useState(true);
+  const { modalState: familyModalState, showConfirm: showFamilyConfirm, closeModal: closeFamilyModal } = useModal();
+
+  useEffect(() => {
+    checkFamilyAuth();
+  }, []);
+
+  const checkFamilyAuth = async () => {
+    try {
+      // Check URL parameters for OAuth callback
+      const urlParams = new URLSearchParams(window.location.search);
+      const token = urlParams.get('token');
+      const userParam = urlParams.get('user');
+      const error = urlParams.get('error');
+
+      if (error) {
+        console.error('OAuth error:', error);
+        setIsLoading(false);
+        return;
+      }
+
+      if (token && userParam) {
+        // OAuth callback - set token and user
+        const user = JSON.parse(decodeURIComponent(userParam));
+        apiService.setToken(token);
+        setCurrentUser(user);
+        await loadFamilyData(user);
+        // Clean URL
+        window.history.replaceState({}, document.title, '/family-login');
+      } else {
+        // Check existing token
+        const existingToken = localStorage.getItem('authToken');
+        if (existingToken) {
+          const response = await apiService.getProfile();
+          if (response.success && response.data.user.role === 'family') {
+            const user = response.data.user;
+            // Validate that family user has an assigned resident
+            if (!user.assignedResidentId) {
+              console.error('Family user has no assigned resident');
+              localStorage.removeItem('authToken');
+              setIsLoading(false);
+              return;
+            }
+            setCurrentUser(user);
+            await loadFamilyData(user);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Family auth check failed:', error);
+      localStorage.removeItem('authToken');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const loadFamilyData = async (user) => {
+    try {
+      console.log('🔍 Family user email:', user.email);
+      
+      const [residentsRes, incidentsRes, vitalsRes, usersRes] = await Promise.all([
+        apiService.getResidents(),
+        apiService.getIncidents(),
+        apiService.getVitals(),
+        apiService.getCaregivers()
+      ]);
+
+      const allResidents = residentsRes?.data || [];
+      console.log('🔍 Available residents:', allResidents.map(r => ({ id: r._id || r.id, name: r.name, familyEmails: r.familyEmails })));
+      
+      // Find resident by email in familyEmails array
+      const linkedResident = allResidents.find((r: any) => {
+        if (r.familyEmails && Array.isArray(r.familyEmails)) {
+          return r.familyEmails.includes(user.email);
+        }
+        return false;
+      });
+
+      if (linkedResident) {
+        const residentObjectId = linkedResident._id || linkedResident.id;
+        console.log('✅ Found linked resident:', { id: residentObjectId, name: linkedResident.name, email: user.email });
+        
+        // Filter data for this resident ObjectId only
+        const residentVitals = (vitalsRes?.data || []).filter((v: any) => {
+          const vResidentId = v.resident_id || v.residentId;
+          return vResidentId === residentObjectId;
+        });
+
+        const residentIncidents = (incidentsRes?.data || []).filter((i: any) => {
+          const iResidentId = i.residentId || i.resident_id;
+          return iResidentId === residentObjectId;
+        });
+
+        console.log('🔍 Filtered data for resident:', {
+          residentId: residentObjectId,
+          vitalsCount: residentVitals.length,
+          incidentsCount: residentIncidents.length
+        });
+
+        setData({
+          users: usersRes?.data || [],
+          residents: [linkedResident],
+          vitals: residentVitals,
+          incidents: residentIncidents,
+          assignments: []
+        });
+      } else {
+        console.log('❌ No resident linked to email:', user.email);
+        // No resident linked to this email - return empty data
+        setData({
+          users: [],
+          residents: [],
+          vitals: [],
+          incidents: [],
+          assignments: []
+        });
+      }
+    } catch (error) {
+      console.error('Failed to load family data:', error);
+    }
+  };
+
+  const handleFamilyLogin = async (user: any) => {
+    setCurrentUser(user);
+    await loadFamilyData(user);
+  };
+
+  const handleFamilyLogout = () => {
+    showFamilyConfirm(
+      'Confirm Logout',
+      'Are you sure you want to logout? You will need to login again to access your family member\'s information.',
+      () => {
+        apiService.setToken(null);
+        setCurrentUser(null);
+        setData({
+          users: [],
+          residents: [],
+          vitals: [],
+          incidents: [],
+          assignments: []
+        });
+      },
+      'Logout',
+      'Cancel'
+    );
+  };
+
+  if (isLoading) {
+    return (
+      <div className="login-page">
+        <div className="login-card">
+          <h1 className="login-title">SAFE Care System</h1>
+          <p className="login-subtitle">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!currentUser) {
+    return <FamilyLoginPage />;
+  }
+
+  return (
+    <div className="min-h-screen bg-pastel-background">
+      {/* Header */}
+      <nav className="bg-pastel-white border-b border-gray-200 px-6 py-2">
+        <div className="flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            <span className="text-lg font-bold text-info">SAFE Care System</span>
+            <span className="badge badge-info">Family Portal</span>
+          </div>
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-gray-600">
+              Welcome, {currentUser.name}
+            </span>
+            <button onClick={handleFamilyLogout} className="btn btn-secondary text-sm px-3 py-1">
+              Logout
+            </button>
+          </div>
+        </div>
+      </nav>
+
+      {/* Main Content */}
+      <div className="container mx-auto px-6 py-6">
+        <FamilyDashboard 
+          userData={currentUser}
+          data={data} 
+          currentUser={currentUser}
+          onLogout={handleFamilyLogout}
+        />
+      </div>
+      
+      <Modal
+        isOpen={familyModalState.isOpen}
+        onClose={closeFamilyModal}
+        title={familyModalState.title}
+        message={familyModalState.message}
+        type={familyModalState.type}
+        onConfirm={familyModalState.onConfirm}
+        confirmText={familyModalState.confirmText}
+        cancelText={familyModalState.cancelText}
+      />
+    </div>
+  );
+}
+
+export default function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<NotFoundPage />} />
+        <Route path="/pp-login" element={<StaffLogin />} />
+        <Route path="/family-login" element={<FamilyPortal />} />
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
+    </Router>
   );
 }
