@@ -1,0 +1,218 @@
+/* SAFE Healthcare System - Global Styles */
+
+/* Import Tailwind CSS */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Import minimalist healthcare design system */
+@import './minimalist-healthcare.css';
+
+/* Pastel Color System CSS Custom Properties */
+:root {
+  /* Pastel Primary Colors */
+  --pastel-primary: #C6E7FF;      /* Light blue - primary backgrounds */
+  --pastel-secondary: #D4F6FF;    /* Lighter blue - secondary elements */
+  --pastel-background: #FBFBFB;   /* Off-white - main background */
+  --pastel-white: #FFFFFF;        /* Pure white - cards, forms */
+  
+  /* Enhanced Gray Scale */
+  --gray-50: #f5f9ff;   /* Lightest blue-gray - subtle backgrounds */
+  --gray-100: #F1F3F4;  /* Light gray - borders, dividers */
+  --gray-200: #E8EAED;  /* Medium light gray - inactive states */
+  --gray-300: #DADCE0;  /* Medium gray - borders */
+  --gray-400: #BDC1C6;  /* Dark gray - secondary text */
+  --gray-500: #9AA0A6;  /* Darker gray - labels */
+  --gray-600: #80868B;  /* Dark gray - primary text */
+  --gray-700: #5F6368;  /* Very dark gray - headings */
+  --gray-800: #3C4043;  /* Almost black - important text */
+  
+  /* Status Colors (Pastel Variants) */
+  --success-light: #E8F5E8;      /* Light green background */
+  --success: #2E7D32;            /* Green text */
+  --warning-light: #FFF8E1;      /* Light yellow background */
+  --warning: #F57F17;            /* Orange text */
+  --error-light: #FFEBEE;        /* Light red background */
+  --error: #C62828;              /* Red text */
+  --info-light: #E3F2FD;         /* Light blue background */
+  --info: #1565C0;               /* Blue text */
+  
+  /* Legacy color support (for gradual migration) */
+  --color-background: var(--pastel-background);
+  --color-foreground: var(--gray-800);
+  --color-card: var(--pastel-white);
+  --color-card-foreground: var(--gray-700);
+  --color-popover: var(--pastel-white);
+  --color-popover-foreground: var(--gray-700);
+  --color-primary: var(--pastel-primary);
+  --color-primary-foreground: var(--info);
+  --color-secondary: var(--gray-100);
+  --color-secondary-foreground: var(--gray-700);
+  --color-muted: var(--gray-100);
+  --color-muted-foreground: var(--gray-500);
+  --color-accent: var(--pastel-primary);
+  --color-accent-foreground: var(--info);
+  --color-destructive: var(--error-light);
+  --color-destructive-foreground: var(--error);
+  --color-border: var(--gray-200);
+  --color-input: var(--gray-300);
+  --color-input-background: var(--pastel-white);
+  --color-ring: var(--pastel-primary);
+  
+  /* Border Radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+}
+
+/* Base Styles with Pastel Theme */
+html {
+  font-size: 16px; /* Updated to 16px base for better accessibility */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Reset with box-sizing */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Body with pastel background */
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--gray-700);
+  background-color: var(--pastel-background);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Login page specific styles with pastel theme */
+.login-page {
+  min-height: 100vh;
+  background-color: var(--pastel-background);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-card {
+  background-color: var(--pastel-white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.login-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--info);
+  margin-bottom: 0.5rem;
+}
+
+.login-subtitle {
+  color: var(--gray-600);
+  margin-bottom: 2rem;
+  font-size: 0.875rem;
+}
+
+.login-button {
+  width: 100%;
+  padding: 0.75rem 1.5rem;
+  margin-bottom: 1rem;
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  min-height: 44px; /* Touch target accessibility */
+}
+
+.login-button-primary {
+  background-color: var(--pastel-primary);
+  color: var(--info);
+  border: 1px solid transparent;
+}
+
+.login-button-primary:hover {
+  background-color: #B3DDFF; /* Slightly darker pastel-primary */
+  transform: translateY(-1px);
+}
+
+.login-button-secondary {
+  background-color: var(--gray-100);
+  color: var(--gray-700);
+  border: 1px solid var(--gray-200);
+}
+
+.login-button-secondary:hover {
+  background-color: var(--gray-200);
+  transform: translateY(-1px);
+}
+
+.login-demo-text {
+  color: var(--gray-500);
+  font-size: 0.75rem;
+  margin-top: 1rem;
+}
+
+/* Chart container styles */
+.chart-container {
+  width: 100%;
+  height: 300px;
+  margin: 1rem 0;
+}
+
+/* Grid System */
+.grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.grid-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.grid-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.grid-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+/* Responsive grid adjustments */
+@media (max-width: 1024px) {
+  .grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .grid-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .grid-4,
+  .grid-3,
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .login-card {
+    margin: 1rem;
+    padding: 1.5rem;
+  }
+  
+  .chart-container {
+    height: 250px;
+  }
+}
