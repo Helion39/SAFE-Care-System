@@ -186,62 +186,62 @@ export function CreateResidentForm({ onCreateResident, onCancel, existingRooms, 
   };
 
   return (
-    <div className="healthcare-card" style={{ maxWidth: '1000px', margin: '0 auto' }}>
-      <div className="healthcare-card-header">
+    <div className="card" style={{ maxWidth: '1000px', margin: '0 auto' }}>
+      <div className="card-header">
         <UserPlus style={{ width: '1.25rem', height: '1.25rem' }} />
         {isEditing ? 'Edit Resident' : 'Add New Resident'}
       </div>
       <form onSubmit={handleSubmit}>
         {errors.submit && (
-          <div className="healthcare-alert healthcare-alert-danger">
+          <div className="alert alert-error">
             {errors.submit}
           </div>
         )}
 
         {/* Basic Information */}
-        <div style={{ marginBottom: '1.5rem' }}>
-          <h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '1rem' }}>Basic Information</h3>
+        <div className="mb-3">
+          <h3 style={{ fontSize: 'var(--text-lg)', fontWeight: '600', marginBottom: 'var(--space-2)' }}>Basic Information</h3>
           
-          <div className="healthcare-grid healthcare-grid-3" style={{ marginBottom: '1rem' }}>
+          <div className="grid grid-3 mb-2">
             {/* Name */}
-            <div className="healthcare-form-group">
-              <label htmlFor="name" className="healthcare-label">Full Name *</label>
+            <div className="form-group">
+              <label htmlFor="name" className="label">Full Name *</label>
               <input
                 id="name"
                 type="text"
                 value={formData.name}
                 onChange={(e) => handleInputChange('name', e.target.value)}
                 placeholder="Enter resident's full name"
-                className={`healthcare-input ${errors.name ? 'border-red-500' : ''}`}
+                className={`input ${errors.name ? 'border-red-500' : ''}`}
               />
               {errors.name && (
-                <p style={{ color: 'var(--healthcare-danger)', fontSize: '0.875rem', marginTop: '0.25rem' }}>
+                <p style={{ color: 'var(--error)', fontSize: 'var(--text-sm)', marginTop: '0.25rem' }}>
                   {errors.name}
                 </p>
               )}
             </div>
 
             {/* Room Number */}
-            <div className="healthcare-form-group">
-              <label htmlFor="roomNumber" className="healthcare-label">Room Number *</label>
+            <div className="form-group">
+              <label htmlFor="roomNumber" className="label">Room Number *</label>
               <input
                 id="roomNumber"
                 type="text"
                 value={formData.roomNumber}
                 onChange={(e) => handleInputChange('roomNumber', e.target.value)}
                 placeholder="e.g., 101, A-205"
-                className={`healthcare-input ${errors.roomNumber ? 'border-red-500' : ''}`}
+                className={`input ${errors.roomNumber ? 'border-red-500' : ''}`}
               />
               {errors.roomNumber && (
-                <p style={{ color: 'var(--healthcare-danger)', fontSize: '0.875rem', marginTop: '0.25rem' }}>
+                <p style={{ color: 'var(--error)', fontSize: 'var(--text-sm)', marginTop: '0.25rem' }}>
                   {errors.roomNumber}
                 </p>
               )}
             </div>
 
             {/* Age */}
-            <div className="healthcare-form-group">
-              <label htmlFor="age" className="healthcare-label">Age *</label>
+            <div className="form-group">
+              <label htmlFor="age" className="label">Age *</label>
               <input
                 id="age"
                 type="number"
@@ -250,10 +250,10 @@ export function CreateResidentForm({ onCreateResident, onCancel, existingRooms, 
                 value={formData.age}
                 onChange={(e) => handleInputChange('age', e.target.value)}
                 placeholder="Enter age"
-                className={`healthcare-input ${errors.age ? 'border-red-500' : ''}`}
+                className={`input ${errors.age ? 'border-red-500' : ''}`}
               />
               {errors.age && (
-                <p style={{ color: 'var(--healthcare-danger)', fontSize: '0.875rem', marginTop: '0.25rem' }}>
+                <p style={{ color: 'var(--error)', fontSize: 'var(--text-sm)', marginTop: '0.25rem' }}>
                   {errors.age}
                 </p>
               )}
@@ -262,33 +262,32 @@ export function CreateResidentForm({ onCreateResident, onCancel, existingRooms, 
         </div>
 
         {/* Medical Conditions */}
-        <div style={{ marginBottom: '1.5rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-            <h3 style={{ fontSize: '1.125rem', fontWeight: '600' }}>Medical Conditions</h3>
+        <div className="mb-3">
+          <div className="flex items-center justify-between mb-2">
+            <h3 style={{ fontSize: 'var(--text-lg)', fontWeight: '600' }}>Medical Conditions</h3>
             <button
               type="button"
               onClick={addMedicalCondition}
-              className="healthcare-btn healthcare-btn-secondary"
-              style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}
+              className="btn btn-sm btn-secondary"
             >
-              <Plus style={{ width: '1rem', height: '1rem', marginRight: '0.25rem' }} />
+              <Plus style={{ width: '1rem', height: '1rem' }} />
               Add Condition
             </button>
           </div>
 
           {formData.medicalConditions.map((condition, index) => (
-            <div key={index} style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start', marginBottom: '1rem' }}>
+            <div key={index} className="flex gap-2 items-start mb-2">
               <div style={{ flex: 1 }}>
                 <input
                   value={condition}
                   onChange={(e) => updateMedicalCondition(index, e.target.value)}
                   placeholder="Enter medical condition or select from common conditions"
-                  className="healthcare-input"
+                  className="input"
                 />
                 
                 {/* Common conditions dropdown */}
                 {condition === '' && (
-                  <div style={{ marginTop: '0.5rem', display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
+                  <div className="flex flex-wrap gap-1 mt-1">
                     {commonMedicalConditions.map((commonCondition) => (
                       <button
                         key={commonCondition}
@@ -296,15 +295,15 @@ export function CreateResidentForm({ onCreateResident, onCancel, existingRooms, 
                         onClick={() => selectCommonCondition(commonCondition, index)}
                         style={{
                           padding: '0.25rem 0.5rem',
-                          fontSize: '0.75rem',
-                          backgroundColor: 'var(--healthcare-gray-100)',
+                          fontSize: 'var(--text-xs)',
+                          backgroundColor: 'var(--gray-100)',
                           border: 'none',
                           borderRadius: 'var(--radius-sm)',
                           cursor: 'pointer',
                           transition: 'background-color 0.2s'
                         }}
-                        onMouseOver={(e) => (e.target as HTMLButtonElement).style.backgroundColor = 'var(--healthcare-gray-200)'}
-                        onMouseOut={(e) => (e.target as HTMLButtonElement).style.backgroundColor = 'var(--healthcare-gray-100)'}
+                        onMouseOver={(e) => (e.target as HTMLButtonElement).style.backgroundColor = 'var(--gray-200)'}
+                        onMouseOut={(e) => (e.target as HTMLButtonElement).style.backgroundColor = 'var(--gray-100)'}
                       >
                         {commonCondition}
                       </button>
@@ -317,8 +316,7 @@ export function CreateResidentForm({ onCreateResident, onCancel, existingRooms, 
                 <button
                   type="button"
                   onClick={() => removeMedicalCondition(index)}
-                  className="healthcare-btn healthcare-btn-secondary"
-                  style={{ padding: '0.5rem', fontSize: '0.875rem' }}
+                  className="btn btn-sm btn-secondary"
                 >
                   <X style={{ width: '1rem', height: '1rem' }} />
                 </button>
@@ -328,59 +326,59 @@ export function CreateResidentForm({ onCreateResident, onCancel, existingRooms, 
         </div>
 
         {/* Emergency Contact */}
-        <div style={{ marginBottom: '1.5rem' }}>
-          <h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '1rem' }}>Emergency Contact (Optional)</h3>
+        <div className="mb-3">
+          <h3 style={{ fontSize: 'var(--text-lg)', fontWeight: '600', marginBottom: 'var(--space-2)' }}>Emergency Contact (Optional)</h3>
           
-          <div className="healthcare-grid healthcare-grid-3" style={{ marginBottom: '1rem' }}>
+          <div className="grid grid-3 mb-2">
             {/* Contact Name */}
-            <div className="healthcare-form-group">
-              <label htmlFor="emergencyContactName" className="healthcare-label">Contact Name</label>
+            <div className="form-group">
+              <label htmlFor="emergencyContactName" className="label">Contact Name</label>
               <input
                 id="emergencyContactName"
                 type="text"
                 value={formData.emergencyContact.name}
                 onChange={(e) => handleEmergencyContactChange('name', e.target.value)}
                 placeholder="Enter contact name"
-                className={`healthcare-input ${errors.emergencyContactName ? 'border-red-500' : ''}`}
+                className={`input ${errors.emergencyContactName ? 'border-red-500' : ''}`}
               />
               {errors.emergencyContactName && (
-                <p style={{ color: 'var(--healthcare-danger)', fontSize: '0.875rem', marginTop: '0.25rem' }}>
+                <p style={{ color: 'var(--error)', fontSize: 'var(--text-sm)', marginTop: '0.25rem' }}>
                   {errors.emergencyContactName}
                 </p>
               )}
             </div>
 
             {/* Contact Phone */}
-            <div className="healthcare-form-group">
-              <label htmlFor="emergencyContactPhone" className="healthcare-label">Phone Number</label>
+            <div className="form-group">
+              <label htmlFor="emergencyContactPhone" className="label">Phone Number</label>
               <input
                 id="emergencyContactPhone"
                 type="tel"
                 value={formData.emergencyContact.phone}
                 onChange={(e) => handleEmergencyContactChange('phone', e.target.value)}
                 placeholder="Enter phone number"
-                className={`healthcare-input ${errors.emergencyContactPhone ? 'border-red-500' : ''}`}
+                className={`input ${errors.emergencyContactPhone ? 'border-red-500' : ''}`}
               />
               {errors.emergencyContactPhone && (
-                <p style={{ color: 'var(--healthcare-danger)', fontSize: '0.875rem', marginTop: '0.25rem' }}>
+                <p style={{ color: 'var(--error)', fontSize: 'var(--text-sm)', marginTop: '0.25rem' }}>
                   {errors.emergencyContactPhone}
                 </p>
               )}
             </div>
 
             {/* Relationship */}
-            <div className="healthcare-form-group">
-              <label htmlFor="emergencyContactRelationship" className="healthcare-label">Relationship</label>
+            <div className="form-group">
+              <label htmlFor="emergencyContactRelationship" className="label">Relationship</label>
               <input
                 id="emergencyContactRelationship"
                 type="text"
                 value={formData.emergencyContact.relationship}
                 onChange={(e) => handleEmergencyContactChange('relationship', e.target.value)}
                 placeholder="e.g., Son, Daughter, Spouse"
-                className={`healthcare-input ${errors.emergencyContactRelationship ? 'border-red-500' : ''}`}
+                className={`input ${errors.emergencyContactRelationship ? 'border-red-500' : ''}`}
               />
               {errors.emergencyContactRelationship && (
-                <p style={{ color: 'var(--healthcare-danger)', fontSize: '0.875rem', marginTop: '0.25rem' }}>
+                <p style={{ color: 'var(--error)', fontSize: 'var(--text-sm)', marginTop: '0.25rem' }}>
                   {errors.emergencyContactRelationship}
                 </p>
               )}
@@ -389,32 +387,32 @@ export function CreateResidentForm({ onCreateResident, onCancel, existingRooms, 
         </div>
 
         {/* Notes */}
-        <div className="healthcare-form-group">
-          <label htmlFor="notes" className="healthcare-label">Additional Notes (Optional)</label>
+        <div className="form-group">
+          <label htmlFor="notes" className="label">Additional Notes (Optional)</label>
           <textarea
             id="notes"
             value={formData.notes}
             onChange={(e) => handleInputChange('notes', e.target.value)}
             placeholder="Enter any additional notes about the resident..."
             rows={3}
-            className="healthcare-input"
+            className="input textarea"
             style={{ minHeight: '80px', resize: 'vertical' }}
           />
         </div>
 
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', paddingTop: '1rem' }}>
+        <div className="flex justify-end gap-2 pt-2">
           <button
             type="button"
             onClick={onCancel}
             disabled={isLoading}
-            className="healthcare-btn healthcare-btn-secondary"
+            className="btn btn-secondary"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={isLoading}
-            className="healthcare-btn healthcare-btn-primary"
+            className="btn btn-primary"
           >
             {isLoading ? (isEditing ? 'Updating...' : 'Adding Resident...') : (isEditing ? 'Update Resident' : 'Add Resident')}
           </button>

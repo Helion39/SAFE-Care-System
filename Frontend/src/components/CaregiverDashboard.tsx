@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { VitalsChart } from './VitalsChart';
+import { Chatbot } from './Chatbot';
 import { generateHealthSummary } from './mockData';
 import apiService from '../services/api';
 import { 
@@ -97,11 +98,11 @@ export function CaregiverDashboard({ data, setData, currentUser, onTriggerAlert,
 
   if (!assignedResident) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '24rem' }}>
-        <div className="healthcare-card" style={{ maxWidth: '28rem', textAlign: 'center' }}>
-          <User style={{ width: '3rem', height: '3rem', margin: '0 auto 1rem', color: '#6c757d' }} />
-          <h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.5rem' }}>No Assignment</h3>
-          <p style={{ color: '#6c757d' }}>
+      <div className="flex items-center justify-center" style={{ height: '24rem' }}>
+        <div className="card text-center" style={{ maxWidth: '28rem' }}>
+          <User style={{ width: '3rem', height: '3rem', margin: '0 auto var(--space-2)', color: 'var(--gray-400)' }} />
+          <h3 style={{ fontSize: 'var(--text-lg)', fontWeight: '600', marginBottom: 'var(--space-1)' }}>No Assignment</h3>
+          <p style={{ color: 'var(--gray-500)' }}>
             You are not currently assigned to a resident. Please contact your administrator.
           </p>
         </div>
@@ -112,38 +113,38 @@ export function CaregiverDashboard({ data, setData, currentUser, onTriggerAlert,
   const latestVitals = residentVitals[0];
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+    <div className="flex flex-col gap-3">
       {/* Incident Response Section */}
       {claimedIncidents.length > 0 && (
-        <div className="healthcare-card" style={{ backgroundColor: '#f8d7da', borderLeft: '4px solid var(--healthcare-danger)' }}>
-          <div className="healthcare-card-header" style={{ color: '#721c24' }}>
+        <div className="alert alert-error">
+          <div className="card-header" style={{ color: '#721c24' }}>
             <AlertTriangle />
             Active Incident Response Required
           </div>
           {claimedIncidents.map(incident => (
-            <div key={incident.id} style={{ marginBottom: '1.5rem' }}>
-              <div style={{ marginBottom: '1rem' }}>
-                <p style={{ fontWeight: '600', marginBottom: '0.5rem' }}>
+            <div key={incident.id} className="mb-3">
+              <div className="mb-2">
+                <p style={{ fontWeight: '600', marginBottom: 'var(--space-1)' }}>
                   Emergency detected for {incident.resident_name} in Room {incident.room_number}
                 </p>
-                <p style={{ fontSize: '0.875rem', color: '#6c757d', marginBottom: '0.5rem' }}>
+                <p style={{ fontSize: 'var(--text-sm)', color: 'var(--gray-500)', marginBottom: 'var(--space-1)' }}>
                   Detected: {new Date(incident.detection_time).toLocaleString()}
                 </p>
-                <p style={{ fontSize: '0.875rem' }}>
+                <p style={{ fontSize: 'var(--text-sm)' }}>
                   Please verify the situation and confirm if this is a true emergency or false alarm.
                 </p>
               </div>
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <div className="flex gap-2">
                 <button 
                   onClick={() => handleIncidentResolution(incident.id, true)}
-                  className="healthcare-btn-emergency"
+                  className="btn btn-error"
                 >
                   <AlertTriangle style={{ width: '1rem', height: '1rem' }} />
                   Confirm Emergency
                 </button>
                 <button 
                   onClick={() => handleIncidentResolution(incident.id, false)}
-                  className="healthcare-btn-false-alarm"
+                  className="btn btn-outline"
                 >
                   <XCircle style={{ width: '1rem', height: '1rem' }} />
                   False Alarm
@@ -155,14 +156,14 @@ export function CaregiverDashboard({ data, setData, currentUser, onTriggerAlert,
       )}
 
       {/* Resident Overview */}
-      <div className="healthcare-card">
-        <div className="healthcare-card-header">
+      <div className="card">
+        <div className="card-header">
           <User />
           {assignedResident.name}
         </div>
-        <div className="healthcare-grid healthcare-grid-3">
+        <div className="grid grid-3">
           <div>
-            <div style={{ marginBottom: '0.25rem' }}>
+            <div className="mb-1">
               <strong>Room:</strong> {assignedResident.room_number}
             </div>
             <div>
@@ -170,52 +171,52 @@ export function CaregiverDashboard({ data, setData, currentUser, onTriggerAlert,
             </div>
           </div>
           <div>
-            <div style={{ marginBottom: '0.25rem' }}>
+            <div className="mb-1">
               <strong>Medical Conditions:</strong>
             </div>
             <div>
               {assignedResident.medical_conditions.map((condition, index) => (
-                <span key={index} style={{ marginRight: '0.5rem', fontSize: '0.875rem' }}>
+                <span key={index} style={{ marginRight: 'var(--space-1)', fontSize: 'var(--text-sm)' }}>
                   {condition}{index < assignedResident.medical_conditions.length - 1 ? ', ' : ''}
                 </span>
               ))}
             </div>
           </div>
           <div>
-            <div style={{ marginBottom: '0.25rem' }}>
+            <div className="mb-1">
               <strong>Latest Vitals:</strong>
             </div>
             {latestVitals ? (
-              <div style={{ fontSize: '0.875rem' }}>
+              <div style={{ fontSize: 'var(--text-sm)' }}>
                 <div>BP: {latestVitals.systolic_bp}/{latestVitals.diastolic_bp} mmHg</div>
                 <div>HR: {latestVitals.heart_rate} bpm</div>
-                <div style={{ fontSize: '0.75rem', color: '#6c757d' }}>
+                <div style={{ fontSize: 'var(--text-xs)', color: 'var(--gray-500)' }}>
                   {new Date(latestVitals.timestamp).toLocaleString()}
                 </div>
               </div>
             ) : (
-              <div style={{ fontSize: '0.875rem', color: '#6c757d' }}>No recent vitals</div>
+              <div style={{ fontSize: 'var(--text-sm)', color: 'var(--gray-500)' }}>No recent vitals</div>
             )}
           </div>
         </div>
       </div>
 
-      <div className="healthcare-grid healthcare-grid-2">
+      <div className="grid grid-2">
         {/* Vitals Input */}
-        <div className="healthcare-card">
-          <div className="healthcare-card-header">
+        <div className="card">
+          <div className="card-header">
             <Stethoscope style={{ width: '1.25rem', height: '1.25rem' }} />
             Log Vital Signs
           </div>
           <form onSubmit={handleVitalsSubmit}>
-            <div className="healthcare-grid healthcare-grid-2" style={{ marginBottom: '1rem' }}>
-              <div className="healthcare-form-group">
-                <label className="healthcare-label" htmlFor="systolic">Systolic BP</label>
+            <div className="grid grid-2 mb-2">
+              <div className="form-group">
+                <label className="label" htmlFor="systolic">Systolic BP</label>
                 <input
                   id="systolic"
                   type="number"
                   placeholder="120"
-                  className="healthcare-input"
+                  className="input"
                   value={vitalsForm.systolic_bp}
                   onChange={(e) => setVitalsForm(prev => ({
                     ...prev,
@@ -224,13 +225,13 @@ export function CaregiverDashboard({ data, setData, currentUser, onTriggerAlert,
                   required
                 />
               </div>
-              <div className="healthcare-form-group">
-                <label className="healthcare-label" htmlFor="diastolic">Diastolic BP</label>
+              <div className="form-group">
+                <label className="label" htmlFor="diastolic">Diastolic BP</label>
                 <input
                   id="diastolic"
                   type="number"
                   placeholder="80"
-                  className="healthcare-input"
+                  className="input"
                   value={vitalsForm.diastolic_bp}
                   onChange={(e) => setVitalsForm(prev => ({
                     ...prev,
@@ -240,13 +241,13 @@ export function CaregiverDashboard({ data, setData, currentUser, onTriggerAlert,
                 />
               </div>
             </div>
-            <div className="healthcare-form-group">
-              <label className="healthcare-label" htmlFor="heartRate">Heart Rate (bpm)</label>
+            <div className="form-group">
+              <label className="label" htmlFor="heartRate">Heart Rate (bpm)</label>
               <input
                 id="heartRate"
                 type="number"
                 placeholder="72"
-                className="healthcare-input"
+                className="input"
                 value={vitalsForm.heart_rate}
                 onChange={(e) => setVitalsForm(prev => ({
                   ...prev,
@@ -255,16 +256,16 @@ export function CaregiverDashboard({ data, setData, currentUser, onTriggerAlert,
                 required
               />
             </div>
-            <button type="submit" className="healthcare-btn healthcare-btn-primary" style={{ width: '100%' }}>
-              <CheckCircle style={{ width: '1rem', height: '1rem', marginRight: '0.5rem' }} />
+            <button type="submit" className="btn btn-primary w-full">
+              <CheckCircle style={{ width: '1rem', height: '1rem' }} />
               Record Vitals
             </button>
           </form>
         </div>
 
         {/* AI Health Summary */}
-        <div className="healthcare-card">
-          <div className="healthcare-card-header">
+        <div className="card">
+          <div className="card-header">
             <Brain />
             AI Health Analysis
           </div>
@@ -272,31 +273,30 @@ export function CaregiverDashboard({ data, setData, currentUser, onTriggerAlert,
             <button 
               onClick={handleGenerateAISummary}
               disabled={residentVitals.length === 0}
-              className="healthcare-btn healthcare-btn-primary"
-              style={{ width: '100%' }}
+              className="btn btn-primary w-full"
             >
-              <TrendingUp style={{ width: '1rem', height: '1rem', marginRight: '0.5rem' }} />
+              <TrendingUp style={{ width: '1rem', height: '1rem' }} />
               Generate Health Summary
             </button>
             
             {showAISummary && (
               <div style={{ 
-                padding: '1rem', 
-                backgroundColor: '#e3f2fd', 
+                padding: 'var(--space-2)', 
+                backgroundColor: 'var(--primary-light)', 
                 borderRadius: 'var(--radius-lg)', 
-                border: '1px solid #bbdefb',
-                marginTop: '1rem'
+                border: '1px solid var(--gray-200)',
+                marginTop: 'var(--space-2)'
               }}>
-                <h4 style={{ fontWeight: '600', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <h4 className="flex items-center gap-1 mb-1" style={{ fontWeight: '600' }}>
                   <Brain style={{ width: '1rem', height: '1rem' }} />
                   AI Analysis Report
                 </h4>
-                <div style={{ fontSize: '0.875rem', whiteSpace: 'pre-line' }}>{aiSummary}</div>
+                <div style={{ fontSize: 'var(--text-sm)', whiteSpace: 'pre-line' }}>{aiSummary}</div>
               </div>
             )}
             
             {residentVitals.length === 0 && (
-              <p style={{ fontSize: '0.875rem', color: '#6c757d', textAlign: 'center', marginTop: '1rem' }}>
+              <p className="text-center mt-2" style={{ fontSize: 'var(--text-sm)', color: 'var(--gray-500)' }}>
                 Record some vital signs to generate AI insights
               </p>
             )}
@@ -306,8 +306,8 @@ export function CaregiverDashboard({ data, setData, currentUser, onTriggerAlert,
 
       {/* Vitals Chart */}
       {residentVitals.length > 0 && (
-        <div className="healthcare-card">
-          <div className="healthcare-card-header">
+        <div className="card">
+          <div className="card-header">
             <Activity />
             Vital Signs Trends
           </div>
@@ -316,13 +316,13 @@ export function CaregiverDashboard({ data, setData, currentUser, onTriggerAlert,
       )}
 
       {/* Recent Vitals History */}
-      <div className="healthcare-card">
-        <div className="healthcare-card-header">
+      <div className="card">
+        <div className="card-header">
           <Calendar />
           Recent Vital Signs
         </div>
         {residentVitals.length > 0 ? (
-          <table className="healthcare-table">
+          <table className="table">
             <thead>
               <tr>
                 <th>Blood Pressure</th>
@@ -340,16 +340,16 @@ export function CaregiverDashboard({ data, setData, currentUser, onTriggerAlert,
                   <td style={{ fontWeight: '500' }}>
                     {vital.heart_rate} bpm
                   </td>
-                  <td style={{ fontSize: '0.875rem', color: '#6c757d' }}>
+                  <td style={{ fontSize: 'var(--text-sm)', color: 'var(--gray-500)' }}>
                     {new Date(vital.timestamp).toLocaleString()}
                   </td>
                   <td>
                     {vital.systolic_bp > 140 || vital.diastolic_bp > 90 ? (
-                      <span className="healthcare-badge healthcare-badge-danger">High BP</span>
+                      <span className="badge badge-error">High BP</span>
                     ) : vital.systolic_bp < 90 || vital.diastolic_bp < 60 ? (
-                      <span className="healthcare-badge healthcare-badge-warning">Low BP</span>
+                      <span className="badge badge-warning">Low BP</span>
                     ) : (
-                      <span className="healthcare-badge healthcare-badge-success">Normal</span>
+                      <span className="badge badge-success">Normal</span>
                     )}
                   </td>
                 </tr>
@@ -357,26 +357,29 @@ export function CaregiverDashboard({ data, setData, currentUser, onTriggerAlert,
             </tbody>
           </table>
         ) : (
-          <div style={{ textAlign: 'center', padding: '2rem' }}>
-            <Activity style={{ width: '3rem', height: '3rem', margin: '0 auto 1rem', color: '#6c757d' }} />
-            <p style={{ color: '#6c757d' }}>No vital signs recorded yet</p>
+          <div className="text-center p-3">
+            <Activity style={{ width: '3rem', height: '3rem', margin: '0 auto var(--space-2)', color: 'var(--gray-400)' }} />
+            <p style={{ color: 'var(--gray-500)' }}>No vital signs recorded yet</p>
           </div>
         )}
       </div>
 
       {/* Test Emergency Button */}
-      <div className="healthcare-card">
-        <div className="healthcare-card-header" style={{ fontSize: '0.875rem' }}>
+      <div className="card">
+        <div className="card-header" style={{ fontSize: 'var(--text-sm)' }}>
           Emergency Testing
         </div>
         <button 
           onClick={() => onTriggerAlert(assignedResident.id)}
-          className="healthcare-btn healthcare-btn-secondary"
-          style={{ fontSize: '0.875rem', padding: '0.5rem 1rem' }}
+          className="btn btn-sm btn-secondary"
         >
           Simulate Emergency for {assignedResident.name}
         </button>
       </div>
+
+      {/* Chatbot */}
+      <Chatbot currentUser={currentUser} />
+
     </div>
   );
 }

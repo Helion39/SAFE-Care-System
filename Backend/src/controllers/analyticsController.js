@@ -19,14 +19,14 @@ const getDashboardAnalytics = asyncHandler(async (req, res) => {
   const totalResidents = await Resident.countDocuments();
   const totalCaregivers = await User.countDocuments({ role: 'caregiver' });
   const activeIncidents = await Incident.countDocuments({ status: 'active' });
-  
+
   // Vitals statistics
-  const vitalsToday = await Vitals.countDocuments({ 
-    timestamp: { $gte: today } 
+  const vitalsToday = await Vitals.countDocuments({
+    timestamp: { $gte: today }
   });
-  
-  const vitalsYesterday = await Vitals.countDocuments({ 
-    timestamp: { $gte: yesterday, $lt: today } 
+
+  const vitalsYesterday = await Vitals.countDocuments({
+    timestamp: { $gte: yesterday, $lt: today }
   });
 
   // Recent incidents
@@ -122,10 +122,10 @@ const getDashboardAnalytics = asyncHandler(async (req, res) => {
 // @access  Private (Admin/Caregiver)
 const getVitalsTrends = asyncHandler(async (req, res) => {
   const { period = '7d', residentId } = req.query;
-  
+
   let startDate;
   const now = new Date();
-  
+
   switch (period) {
     case '24h':
       startDate = new Date(now.getTime() - 24 * 60 * 60 * 1000);

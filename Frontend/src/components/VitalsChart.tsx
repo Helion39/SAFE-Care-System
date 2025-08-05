@@ -30,7 +30,7 @@ export function VitalsChart({ vitals }) {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (
-        <div style={{ backgroundColor: 'white', padding: '0.75rem', border: '1px solid #e5e7eb', borderRadius: '0.375rem', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)' }}>
+        <div style={{ backgroundColor: 'white', padding: '0.75rem', border: '1px solid #D4D4D4', borderRadius: '0.375rem' }}>
           <p style={{ fontWeight: '600' }}>{`${data.date} ${data.time}`}</p>
           <p style={{ color: '#dc2626' }}>
             <span style={{ display: 'inline-block', width: '0.75rem', height: '0.75rem', borderRadius: '50%', marginRight: '0.5rem', backgroundColor: '#dc2626' }}></span>

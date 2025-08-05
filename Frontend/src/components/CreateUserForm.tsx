@@ -116,98 +116,98 @@ export function CreateUserForm({ onCreateUser, onCancel }: CreateUserFormProps) 
   };
 
   return (
-    <div className="healthcare-card" style={{ maxWidth: '800px', margin: '0 auto' }}>
-      <div className="healthcare-card-header">
+    <div className="card" style={{ maxWidth: '800px', margin: '0 auto' }}>
+      <div className="card-header">
         <UserPlus style={{ width: '1.25rem', height: '1.25rem' }} />
         Create New Caregiver Account
       </div>
       <form onSubmit={handleSubmit}>
         {errors.submit && (
-          <div className="healthcare-alert healthcare-alert-danger">
+          <div className="alert alert-error">
             {errors.submit}
           </div>
         )}
 
-        <div className="healthcare-grid healthcare-grid-2" style={{ marginBottom: '1rem' }}>
+        <div className="grid grid-2 mb-2">
           {/* Full Name */}
-          <div className="healthcare-form-group">
-            <label htmlFor="name" className="healthcare-label">Full Name *</label>
+          <div className="form-group">
+            <label htmlFor="name" className="label">Full Name *</label>
             <input
               id="name"
               type="text"
               value={formData.name}
               onChange={(e) => handleInputChange('name', e.target.value)}
               placeholder="Enter full name"
-              className={`healthcare-input ${errors.name ? 'border-red-500' : ''}`}
+              className={`input ${errors.name ? 'border-red-500' : ''}`}
             />
             {errors.name && (
-              <p style={{ color: 'var(--healthcare-danger)', fontSize: '0.875rem', marginTop: '0.25rem' }}>
+              <p style={{ color: 'var(--error)', fontSize: 'var(--text-sm)', marginTop: '0.25rem' }}>
                 {errors.name}
               </p>
             )}
           </div>
 
           {/* Username */}
-          <div className="healthcare-form-group">
-            <label htmlFor="username" className="healthcare-label">Username *</label>
+          <div className="form-group">
+            <label htmlFor="username" className="label">Username *</label>
             <input
               id="username"
               type="text"
               value={formData.username}
               onChange={(e) => handleInputChange('username', e.target.value)}
               placeholder="Enter username"
-              className={`healthcare-input ${errors.username ? 'border-red-500' : ''}`}
+              className={`input ${errors.username ? 'border-red-500' : ''}`}
             />
             {errors.username && (
-              <p style={{ color: 'var(--healthcare-danger)', fontSize: '0.875rem', marginTop: '0.25rem' }}>
+              <p style={{ color: 'var(--error)', fontSize: 'var(--text-sm)', marginTop: '0.25rem' }}>
                 {errors.username}
               </p>
             )}
           </div>
         </div>
 
-        <div className="healthcare-grid healthcare-grid-2" style={{ marginBottom: '1rem' }}>
+        <div className="grid grid-2 mb-2">
           {/* Email */}
-          <div className="healthcare-form-group">
-            <label htmlFor="email" className="healthcare-label">Email (Optional)</label>
+          <div className="form-group">
+            <label htmlFor="email" className="label">Email (Optional)</label>
             <input
               id="email"
               type="email"
               value={formData.email}
               onChange={(e) => handleInputChange('email', e.target.value)}
               placeholder="Enter email address"
-              className={`healthcare-input ${errors.email ? 'border-red-500' : ''}`}
+              className={`input ${errors.email ? 'border-red-500' : ''}`}
             />
             {errors.email && (
-              <p style={{ color: 'var(--healthcare-danger)', fontSize: '0.875rem', marginTop: '0.25rem' }}>
+              <p style={{ color: 'var(--error)', fontSize: 'var(--text-sm)', marginTop: '0.25rem' }}>
                 {errors.email}
               </p>
             )}
           </div>
 
           {/* Phone */}
-          <div className="healthcare-form-group">
-            <label htmlFor="phone" className="healthcare-label">Phone (Optional)</label>
+          <div className="form-group">
+            <label htmlFor="phone" className="label">Phone (Optional)</label>
             <input
               id="phone"
               type="tel"
               value={formData.phone}
               onChange={(e) => handleInputChange('phone', e.target.value)}
               placeholder="Enter phone number"
-              className={`healthcare-input ${errors.phone ? 'border-red-500' : ''}`}
+              className={`input ${errors.phone ? 'border-red-500' : ''}`}
             />
             {errors.phone && (
-              <p style={{ color: 'var(--healthcare-danger)', fontSize: '0.875rem', marginTop: '0.25rem' }}>
+              <p style={{ color: 'var(--error)', fontSize: 'var(--text-sm)', marginTop: '0.25rem' }}>
                 {errors.phone}
               </p>
             )}
           </div>
         </div>
 
-        <div className="healthcare-grid healthcare-grid-2" style={{ marginBottom: '1rem' }}>
+        <div className="grid grid-2 mb-2">
           {/* Password */}
-          <div className="healthcare-form-group">
-            <label htmlFor="password" className="healthcare-label">Password *</label>
+          <div className="form-group">
+            <label htmlFor="password" className="label">Password *</label>
             <div style={{ position: 'relative' }}>
               <input
                 id="password"
@@ -215,7 +215,7 @@ export function CreateUserForm({ onCreateUser, onCancel }: CreateUserFormProps) 
                 value={formData.password}
                 onChange={(e) => handleInputChange('password', e.target.value)}
                 placeholder="Enter password"
-                className={`healthcare-input ${errors.password ? 'border-red-500' : ''}`}
+                className={`input ${errors.password ? 'border-red-500' : ''}`}
                 style={{ paddingRight: '2.5rem' }}
               />
               <button
@@ -229,25 +229,25 @@ export function CreateUserForm({ onCreateUser, onCancel }: CreateUserFormProps) 
                   background: 'none',
                   border: 'none',
                   cursor: 'pointer',
-                  color: 'var(--healthcare-gray-500)'
+                  color: 'var(--gray-500)'
                 }}
               >
                 {showPassword ? <EyeOff style={{ width: '1rem', height: '1rem' }} /> : <Eye style={{ width: '1rem', height: '1rem' }} />}
               </button>
             </div>
             {errors.password && (
-              <p style={{ color: 'var(--healthcare-danger)', fontSize: '0.875rem', marginTop: '0.25rem' }}>
+              <p style={{ color: 'var(--error)', fontSize: 'var(--text-sm)', marginTop: '0.25rem' }}>
                 {errors.password}
               </p>
             )}
-            <p style={{ color: 'var(--healthcare-gray-500)', fontSize: '0.75rem', marginTop: '0.25rem' }}>
+            <p style={{ color: 'var(--gray-500)', fontSize: 'var(--text-xs)', marginTop: '0.25rem' }}>
               Must be 8+ characters with uppercase, lowercase, and number
             </p>
           </div>
 
           {/* Confirm Password */}
-          <div className="healthcare-form-group">
-            <label htmlFor="confirmPassword" className="healthcare-label">Confirm Password *</label>
+          <div className="form-group">
+            <label htmlFor="confirmPassword" className="label">Confirm Password *</label>
             <div style={{ position: 'relative' }}>
               <input
                 id="confirmPassword"
@@ -255,7 +255,7 @@ export function CreateUserForm({ onCreateUser, onCancel }: CreateUserFormProps) 
                 value={formData.confirmPassword}
                 onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
                 placeholder="Confirm password"
-                className={`healthcare-input ${errors.confirmPassword ? 'border-red-500' : ''}`}
+                className={`input ${errors.confirmPassword ? 'border-red-500' : ''}`}
                 style={{ paddingRight: '2.5rem' }}
               />
               <button
@@ -269,33 +269,33 @@ export function CreateUserForm({ onCreateUser, onCancel }: CreateUserFormProps) 
                   background: 'none',
                   border: 'none',
                   cursor: 'pointer',
-                  color: 'var(--healthcare-gray-500)'
+                  color: 'var(--gray-500)'
                 }}
               >
                 {showConfirmPassword ? <EyeOff style={{ width: '1rem', height: '1rem' }} /> : <Eye style={{ width: '1rem', height: '1rem' }} />}
               </button>
             </div>
             {errors.confirmPassword && (
-              <p style={{ color: 'var(--healthcare-danger)', fontSize: '0.875rem', marginTop: '0.25rem' }}>
+              <p style={{ color: 'var(--error)', fontSize: 'var(--text-sm)', marginTop: '0.25rem' }}>
                 {errors.confirmPassword}
               </p>
             )}
           </div>
         </div>
 
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', paddingTop: '1rem' }}>
+        <div className="flex justify-end gap-2 pt-2">
           <button
             type="button"
             onClick={onCancel}
             disabled={isLoading}
-            className="healthcare-btn healthcare-btn-secondary"
+            className="btn btn-secondary"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={isLoading}
-            className="healthcare-btn healthcare-btn-primary"
+            className="btn btn-primary"
           >
             {isLoading ? 'Creating...' : 'Create Caregiver Account'}
           </button>

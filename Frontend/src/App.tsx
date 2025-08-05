@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { AdminDashboard } from './components/AdminDashboard';
 import { CaregiverDashboard } from './components/CaregiverDashboard';
+import { FamilyLogin } from './components/FamilyLogin';
+import { FamilyDashboard } from './components/FamilyDashboard';
 import { EmergencyAlert } from './components/EmergencyAlert';
 import apiService from './services/api';
 
@@ -20,6 +22,32 @@ export default function App() {
   const [loginError, setLoginError] = useState('');
 
   useEffect(() => {
+    // Check for OAuth callback parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    const userParam = urlParams.get('user');
+    const error = urlParams.get('error');
+    
+    if (token && userParam) {
+      try {
+        const user = JSON.parse(decodeURIComponent(userParam));
+        apiService.setToken(token);
+        setCurrentUser(user);
+        loadDataForUser(user);
+        // Clean URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+        return;
+      } catch (err) {
+        console.error('OAuth callback error:', err);
+      }
+    }
+    
+    if (error) {
+      console.error('OAuth error:', error);
+      // Clean URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+    
     checkAuthStatus();
   }, []);
 
@@ -55,8 +83,12 @@ export default function App() {
       promises.push(apiService.getResidents());
       promises.push(apiService.getIncidents());
       
-      // Load vitals data for all users
-      promises.push(apiService.getVitals());
+      // Load vitals data for all users except family
+      if (user?.role !== 'family') {
+        promises.push(apiService.getVitals());
+      } else {
+        promises.push(Promise.resolve({ data: [] }));
+      }
       
       // Only admins can access all users and assignments
       if (user?.role === 'admin') {
@@ -240,21 +272,43 @@ export default function App() {
             
             <button 
               onClick={() => handleRoleSelect('admin')} 
-              className="login-button login-button-primary"
+              className="btn btn-primary w-full mb-2"
             >
               Login as Admin
             </button>
             
             <button 
               onClick={() => handleRoleSelect('caregiver')} 
-              className="login-button login-button-secondary"
+              className="btn btn-secondary w-full mb-2"
             >
               Login as Caregiver
+            </button>
+            
+            <button 
+              onClick={() => handleRoleSelect('family')} 
+              className="login-button login-button-secondary"
+              style={{ backgroundColor: '#28a745', color: 'white', marginBottom: '0.5rem' }}
+            >
+              Family Portal
             </button>
             
             <p className="login-demo-text">Select your role to continue</p>
           </div>
         </div>
+      );
+    }
+
+    // Family login screen
+    if (selectedRole === 'family') {
+      return (
+        <FamilyLogin 
+          onLogin={(user) => {
+            setCurrentUser(user);
+            loadDataForUser(user);
+            setSelectedRole(null);
+          }}
+          onBack={handleBackToRoleSelection}
+        />
       );
     }
 
@@ -267,47 +321,47 @@ export default function App() {
             {selectedRole === 'admin' ? 'Administrator Login' : 'Caregiver Login'}
           </p>
           
-          <form onSubmit={handleLogin} style={{ width: '100%', maxWidth: '300px' }}>
+          <form onSubmit={handleLogin} style={{ width: '100%' }}>
             {loginError && (
-              <div className="healthcare-alert healthcare-alert-danger" style={{ marginBottom: '1rem' }}>
+              <div className="alert alert-error mb-2">
                 {loginError}
               </div>
             )}
             
-            <div style={{ marginBottom: '1rem' }}>
+            <div className="form-group">
               <input
                 type="text"
                 placeholder="Username"
                 value={loginForm.username}
                 onChange={(e) => setLoginForm(prev => ({ ...prev, username: e.target.value }))}
-                className="healthcare-input"
+                className="input"
                 required
               />
             </div>
             
-            <div style={{ marginBottom: '1rem' }}>
+            <div className="form-group">
               <input
                 type="password"
                 placeholder="Password"
                 value={loginForm.password}
                 onChange={(e) => setLoginForm(prev => ({ ...prev, password: e.target.value }))}
-                className="healthcare-input"
+                className="input"
                 required
               />
             </div>
             
-            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+            <div className="flex gap-2 mb-2">
               <button 
                 type="button"
                 onClick={handleBackToRoleSelection}
-                className="healthcare-btn healthcare-btn-secondary"
+                className="btn btn-secondary"
                 style={{ flex: 1 }}
               >
                 Back
               </button>
               <button 
                 type="submit"
-                className="healthcare-btn healthcare-btn-primary"
+                className="btn btn-primary"
                 style={{ flex: 2 }}
               >
                 Login
@@ -328,7 +382,7 @@ export default function App() {
   }
 
   return (
-    <div className="healthcare-page">
+    <div className="page">
       {/* Emergency Alerts */}
       {activeAlerts.map(alert => (
         <EmergencyAlert
@@ -340,20 +394,20 @@ export default function App() {
       ))}
 
       {/* Header */}
-      <nav className="healthcare-nav">
-        <div className="healthcare-container">
-          <div className="healthcare-nav-content">
+      <nav className="nav">
+        <div className="container">
+          <div className="nav-content">
             <div className="flex items-center gap-2">
-              <span className="healthcare-nav-brand">SAFE Care System</span>
-              <span className={`healthcare-badge ${currentUser.role === 'admin' ? 'healthcare-badge-primary' : 'healthcare-badge-secondary'}`}>
-                {currentUser.role === 'admin' ? 'Administrator' : 'Caregiver'}
+              <span className="nav-brand">SAFE Care System</span>
+              <span className={`badge ${currentUser.role === 'admin' ? 'badge-primary' : currentUser.role === 'family' ? 'badge-success' : 'badge-secondary'}`}>
+                {currentUser.role === 'admin' ? 'Administrator' : currentUser.role === 'family' ? 'Family Member' : 'Caregiver'}
               </span>
             </div>
-            <div className="healthcare-nav-user">
-              <span style={{ color: '#6c757d', fontSize: '0.875rem' }}>
+            <div className="nav-user">
+              <span style={{ color: 'var(--gray-500)', fontSize: 'var(--text-sm)' }}>
                 Welcome, {currentUser.name}
               </span>
-              <button onClick={handleLogout} className="healthcare-btn healthcare-btn-secondary" style={{ padding: '0.5rem 1rem', fontSize: '0.75rem' }}>
+              <button onClick={handleLogout} className="btn btn-sm btn-secondary">
                 Logout
               </button>
             </div>
@@ -362,7 +416,7 @@ export default function App() {
       </nav>
 
       {/* Main Content */}
-      <main className="healthcare-container" style={{ paddingTop: '1.5rem' }}>
+      <main className="container main-content">
         {currentUser.role === 'admin' ? (
           <AdminDashboard 
             data={data} 
@@ -370,6 +424,12 @@ export default function App() {
             onTriggerAlert={triggerEmergencyAlert}
             onResolveIncident={resolveIncident}
             onDataChange={loadData}
+          />
+        ) : currentUser.role === 'family' ? (
+          <FamilyDashboard 
+            data={data}
+            currentUser={currentUser}
+            onLogout={handleLogout}
           />
         ) : (
           <CaregiverDashboard 

@@ -530,17 +530,17 @@ const getAllVitals = async (req, res, next) => {
     // Transform data to match frontend expectations
     const transformedVitals = vitals.map(vital => ({
       id: vital._id,
-      resident_id: vital.residentId._id,
+      resident_id: vital.residentId?._id || vital.residentId,
       systolic_bp: vital.systolicBP,
       diastolic_bp: vital.diastolicBP,
       heart_rate: vital.heartRate,
       temperature: vital.temperature,
       oxygen_saturation: vital.oxygenSaturation,
       timestamp: vital.timestamp,
-      caregiver_id: vital.caregiverId._id,
+      caregiver_id: vital.caregiverId?._id || vital.caregiverId,
       notes: vital.notes,
-      resident_name: vital.residentId.name,
-      caregiver_name: vital.caregiverId.name
+      resident_name: vital.residentId?.name || 'Unknown Resident',
+      caregiver_name: vital.caregiverId?.name || 'Unknown Caregiver'
     }));
 
     // Pagination

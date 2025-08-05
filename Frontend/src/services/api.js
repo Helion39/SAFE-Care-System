@@ -72,6 +72,10 @@ class ApiService {
     return response;
   }
 
+  async googleCallback() {
+    return this.request('/auth/google/callback');
+  }
+
   async logout() {
     try {
       await this.request('/auth/logout', { method: 'POST' });
@@ -130,23 +134,25 @@ class ApiService {
 
   // Residents Management
   async getResidents() {
-  const response = await this.request('/residents');
-  console.log('Residents API response:', response);
-  return response.data;
-}
+    const response = await this.request('/residents');
+    console.log('Residents API response:', response);
+    return transformApiResponse(response, 'residents');
+  }
 
   async createResident(residentData) {
-    return this.request('/residents', {
+    const response = await this.request('/residents', {
       method: 'POST',
       body: JSON.stringify(residentData),
     });
+    return transformApiResponse(response, 'residents');
   }
 
   async updateResident(residentId, residentData) {
-    return this.request(`/residents/${residentId}`, {
+    const response = await this.request(`/residents/${residentId}`, {
       method: 'PUT',
       body: JSON.stringify(residentData),
     });
+    return transformApiResponse(response, 'residents');
   }
 
   async deleteResident(residentId) {
@@ -242,6 +248,40 @@ class ApiService {
   async getResidentHealthScores() {
     return this.request('/analytics/resident-health');
   }
+
+  // Camera Management
+  async getCameras() {
+    return this.request('/cameras');
+  }
+
+  // Chatbot
+  async sendChatMessage(message) {
+    return this.request('/chatbot', {
+      method: 'POST',
+      body: JSON.stringify({ message })
+    });
+  }
+
+  async updateCameraStatus(cameraId, status) {
+    return this.request(`/cameras/${cameraId}/status`, {
+      method: 'PUT',
+      body: JSON.stringify({ status })
+    });
+  }
+
+  async toggleFallDetection(cameraId, enabled) {
+    return this.request(`/cameras/${cameraId}/fall-detection`, {
+      method: 'PUT',
+      body: JSON.stringify({ enabled })
+    });
+  }
+
+  async simulateFallDetection(cameraId) {
+    return this.request(`/cameras/${cameraId}/simulate-fall`, {
+      method: 'POST'
+    });
+  }
+
 }
 
 export default new ApiService();

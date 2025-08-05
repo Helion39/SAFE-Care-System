@@ -35,14 +35,20 @@ const UserSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: [true, 'Please add a password'],
+    required: function() {
+      return !this.googleId; // Password not required for Google OAuth users
+    },
     minlength: 6,
     select: false
   },
   role: {
     type: String,
-    enum: ['admin', 'caregiver'],
+    enum: ['admin', 'caregiver', 'family'],
     required: [true, 'Please specify a role']
+  },
+  googleId: {
+    type: String,
+    sparse: true
   },
   isActive: {
     type: Boolean,

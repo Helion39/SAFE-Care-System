@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { VitalsChart } from './VitalsChart';
 import { UserManagement } from './UserManagement';
 import { ResidentManagement } from './ResidentManagement';
+import { CameraMonitoring } from './CameraMonitoring';
 import apiService from '../services/api';
 import { 
   Users, 
@@ -47,73 +48,73 @@ export function AdminDashboard({ data, setData, onTriggerAlert, onResolveInciden
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+    <div className="flex flex-col gap-3">
       {/* Overview Cards */}
-      <div className="healthcare-grid healthcare-grid-4">
-        <div className="healthcare-metric-card">
-          <div className="healthcare-metric-icon">
-            <AlertTriangle style={{ width: '2rem', height: '2rem', color: '#dc3545' }} />
+      <div className="grid grid-4">
+        <div className="metric-card">
+          <div className="metric-icon">
+            <AlertTriangle style={{ width: '2rem', height: '2rem', color: 'var(--error)' }} />
           </div>
-          <div className="healthcare-metric-number" style={{ color: '#dc3545' }}>
+          <div className="metric-number" style={{ color: 'var(--error)' }}>
             {activeIncidents.length}
           </div>
-          <div className="healthcare-metric-label">Active Alerts</div>
+          <div className="metric-label">Active Alerts</div>
         </div>
 
-        <div className="healthcare-metric-card">
-          <div className="healthcare-metric-icon">
+        <div className="metric-card">
+          <div className="metric-icon">
             <Users style={{ width: '2rem', height: '2rem' }} />
           </div>
-          <div className="healthcare-metric-number">{data.residents.length}</div>
-          <div className="healthcare-metric-label">Total Residents</div>
+          <div className="metric-number">{data.residents.length}</div>
+          <div className="metric-label">Total Residents</div>
         </div>
 
-        <div className="healthcare-metric-card">
-          <div className="healthcare-metric-icon">
+        <div className="metric-card">
+          <div className="metric-icon">
             <Shield style={{ width: '2rem', height: '2rem' }} />
           </div>
-          <div className="healthcare-metric-number">
+          <div className="metric-number">
             {data.users.filter(u => u.role === 'caregiver').length}
           </div>
-          <div className="healthcare-metric-label">Active Caregivers</div>
+          <div className="metric-label">Active Caregivers</div>
         </div>
 
-        <div className="healthcare-metric-card">
-          <div className="healthcare-metric-icon">
+        <div className="metric-card">
+          <div className="metric-icon">
             <TrendingUp style={{ width: '2rem', height: '2rem' }} />
           </div>
-          <div className="healthcare-metric-number">{resolvedToday.length}</div>
-          <div className="healthcare-metric-label">Resolved Today</div>
+          <div className="metric-number">{resolvedToday.length}</div>
+          <div className="metric-label">Resolved Today</div>
         </div>
       </div>
 
       {/* Active Incidents */}
       {activeIncidents.length > 0 && (
-        <div className="healthcare-card">
-          <div className="healthcare-card-header" style={{ color: '#dc3545' }}>
+        <div className="card">
+          <div className="card-header" style={{ color: 'var(--error)' }}>
             <AlertTriangle />
             Active Emergency Incidents
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div className="flex flex-col gap-2">
             {activeIncidents.map(incident => {
               const caregiver = data.users.find(u => u.id === incident.claimed_by);
               return (
-                <div key={incident.id} className="healthcare-alert healthcare-alert-danger">
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div key={incident.id} className="alert alert-error">
+                  <div className="flex justify-between items-center">
                     <div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
-                        <span className={`healthcare-badge ${incident.status === 'claimed' ? 'healthcare-badge-warning' : 'healthcare-badge-danger'}`}>
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className={`badge ${incident.status === 'claimed' ? 'badge-warning' : 'badge-error'}`}>
                           {incident.status === 'claimed' ? 'BEING HANDLED' : 'AWAITING RESPONSE'}
                         </span>
                         <span style={{ fontWeight: '600' }}>{incident.resident_name}</span>
-                        <span style={{ fontSize: '0.875rem', color: '#6c757d' }}>
+                        <span style={{ fontSize: 'var(--text-sm)', color: 'var(--gray-500)' }}>
                           Room {incident.room_number}
                         </span>
                       </div>
-                      <div style={{ fontSize: '0.875rem', color: '#6c757d' }}>
+                      <div style={{ fontSize: 'var(--text-sm)', color: 'var(--gray-500)' }}>
                         Detected: {new Date(incident.detection_time).toLocaleString()}
                         {caregiver && (
-                          <span style={{ marginLeft: '1rem' }}>
+                          <span style={{ marginLeft: 'var(--space-2)' }}>
                             Claimed by: {caregiver.name}
                           </span>
                         )}
@@ -122,7 +123,7 @@ export function AdminDashboard({ data, setData, onTriggerAlert, onResolveInciden
                     {incident.status === 'claimed' && (
                       <button
                         onClick={() => handleConfirmEmergency(incident.id)}
-                        className="healthcare-btn-call-hospital"
+                        className="btn btn-outline"
                       >
                         <Phone style={{ width: '1rem', height: '1rem' }} />
                         Call Hospital
@@ -136,39 +137,40 @@ export function AdminDashboard({ data, setData, onTriggerAlert, onResolveInciden
         </div>
       )}
 
-      <div className="healthcare-tabs">
-        <div className="healthcare-tabs-list">
+      <div className="tabs">
+        <div className="tabs-list">
           <button 
-            className={`healthcare-tab ${activeTab === 'users' ? 'active' : ''}`}
+            className={`tab ${activeTab === 'users' ? 'active' : ''}`}
             onClick={() => setActiveTab('users')}
           >
             <UserPlus style={{ width: '1rem', height: '1rem', marginRight: '0.5rem' }} />
             Manage Users
           </button>
           <button 
-            className={`healthcare-tab ${activeTab === 'residents' ? 'active' : ''}`}
+            className={`tab ${activeTab === 'residents' ? 'active' : ''}`}
             onClick={() => setActiveTab('residents')}
           >
             <Home style={{ width: '1rem', height: '1rem', marginRight: '0.5rem' }} />
             Manage Residents
           </button>
           <button 
-            className={`healthcare-tab ${activeTab === 'incidents' ? 'active' : ''}`}
+            className={`tab ${activeTab === 'incidents' ? 'active' : ''}`}
             onClick={() => setActiveTab('incidents')}
           >
             Incident History
           </button>
           <button 
-            className={`healthcare-tab ${activeTab === 'analytics' ? 'active' : ''}`}
+            className={`tab ${activeTab === 'analytics' ? 'active' : ''}`}
             onClick={() => setActiveTab('analytics')}
           >
             Analytics
           </button>
           <button 
-            className={`healthcare-tab ${activeTab === 'cameras' ? 'active' : ''}`}
+            className={`tab ${activeTab === 'cameras' ? 'active' : ''}`}
             onClick={() => setActiveTab('cameras')}
           >
-            Camera Status
+            <Camera style={{ width: '1rem', height: '1rem', marginRight: '0.5rem' }} />
+            Camera Monitoring
           </button>
         </div>
       </div>
@@ -184,11 +186,11 @@ export function AdminDashboard({ data, setData, onTriggerAlert, onResolveInciden
 
 
       {activeTab === 'incidents' && (
-        <div className="healthcare-card">
-          <div className="healthcare-card-header">
+        <div className="card">
+          <div className="card-header">
             Incident History
           </div>
-          <table className="healthcare-table">
+          <table className="table">
             <thead>
               <tr>
                 <th>Date/Time</th>
@@ -212,23 +214,23 @@ export function AdminDashboard({ data, setData, onTriggerAlert, onResolveInciden
                       <td>
                         <div>
                           <div>{incident.resident_name}</div>
-                          <div style={{ fontSize: '0.875rem', color: '#6c757d' }}>
+                          <div style={{ fontSize: 'var(--text-sm)', color: 'var(--gray-500)' }}>
                             Room {incident.room_number}
                           </div>
                         </div>
                       </td>
                       <td>
-                        <span className={`healthcare-badge ${
-                          incident.status === 'resolved' ? 'healthcare-badge-success' : 
-                          incident.status === 'claimed' ? 'healthcare-badge-primary' : 'healthcare-badge-danger'
+                        <span className={`badge ${
+                          incident.status === 'resolved' ? 'badge-success' : 
+                          incident.status === 'claimed' ? 'badge-primary' : 'badge-error'
                         }`}>
                           {incident.status}
                         </span>
                       </td>
                       <td>
                         {incident.resolution && (
-                          <span className={`healthcare-badge ${
-                            incident.resolution === 'true_emergency' ? 'healthcare-badge-danger' : 'healthcare-badge-secondary'
+                          <span className={`badge ${
+                            incident.resolution === 'true_emergency' ? 'badge-error' : 'badge-secondary'
                           }`}>
                             {incident.resolution === 'true_emergency' ? 'Emergency' : 'False Alarm'}
                           </span>
@@ -236,7 +238,7 @@ export function AdminDashboard({ data, setData, onTriggerAlert, onResolveInciden
                       </td>
                       <td>
                         {responseTime && (
-                          <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                          <span className="flex items-center gap-1">
                             <Clock style={{ width: '0.75rem', height: '0.75rem' }} />
                             {responseTime}m
                           </span>
@@ -251,12 +253,12 @@ export function AdminDashboard({ data, setData, onTriggerAlert, onResolveInciden
       )}
 
       {activeTab === 'analytics' && (
-        <div className="healthcare-grid healthcare-grid-2">
+        <div className="grid grid-2">
           {data.residents.map(resident => {
             const vitals = getResidentVitals(resident.id);
             return (
-              <div key={resident.id} className="healthcare-card">
-                <div className="healthcare-card-header">
+              <div key={resident.id} className="card">
+                <div className="card-header">
                   {resident.name} - Vital Signs
                 </div>
                 <VitalsChart vitals={vitals} />
@@ -267,37 +269,7 @@ export function AdminDashboard({ data, setData, onTriggerAlert, onResolveInciden
       )}
 
       {activeTab === 'cameras' && (
-        <div className="healthcare-card">
-          <div className="healthcare-card-header">
-            <Camera />
-            Camera System Status
-          </div>
-          <div className="healthcare-grid healthcare-grid-3">
-            {(data.camera_info || []).map(camera => (
-              <div key={camera.id} className="healthcare-card" style={{ margin: '0' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                  <div>
-                    <p style={{ fontWeight: '600' }}>Room {camera.room_number}</p>
-                    <p style={{ fontSize: '0.875rem', color: '#6c757d' }}>
-                      Last checked: {new Date(camera.last_checked).toLocaleString()}
-                    </p>
-                  </div>
-                  <span className={`healthcare-badge ${camera.status === 'active' ? 'healthcare-badge-success' : 'healthcare-badge-danger'}`}>
-                    {camera.status === 'active' ? 'Active' : 'Maintenance Required'}
-                  </span>
-                </div>
-                <div style={{ 
-                  padding: '0.5rem', 
-                  backgroundColor: 'var(--healthcare-gray-100)', 
-                  borderRadius: 'var(--radius)', 
-                  fontSize: '0.875rem' 
-                }}>
-                  📹 Camera feed available - AI monitoring enabled
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        <CameraMonitoring data={data} onTriggerAlert={onTriggerAlert} />
       )}
 
 
