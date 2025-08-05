@@ -6,14 +6,14 @@ const bcrypt = require('bcryptjs');
 const checkAndCreateAdmin = async () => {
   try {
     console.log('🔍 Checking admin user in database...');
-    
+
     // Connect to MongoDB
     await mongoose.connect(process.env.MONGODB_URI);
     console.log('✅ Connected to MongoDB');
 
     // Check if admin user exists
     const adminUser = await User.findOne({ username: 'admin' });
-    
+
     if (adminUser) {
       console.log('👤 Admin user found:');
       console.log('   Name:', adminUser.name);
@@ -21,12 +21,12 @@ const checkAndCreateAdmin = async () => {
       console.log('   Email:', adminUser.email);
       console.log('   Role:', adminUser.role);
       console.log('   Active:', adminUser.isActive);
-      
+
       // Test password
       console.log('\n🔐 Testing password...');
       const isPasswordValid = await bcrypt.compare('admin123', adminUser.password);
       console.log('   Password "admin123" is valid:', isPasswordValid);
-      
+
       if (!isPasswordValid) {
         console.log('🔧 Updating admin password...');
         const hashedPassword = await bcrypt.hash('admin123', 12);
@@ -36,10 +36,10 @@ const checkAndCreateAdmin = async () => {
         );
         console.log('✅ Admin password updated successfully!');
       }
-      
+
     } else {
       console.log('❌ Admin user not found. Creating new admin user...');
-      
+
       // Create admin user
       const hashedPassword = await bcrypt.hash('admin123', 12);
       const newAdmin = await User.create({
@@ -50,7 +50,7 @@ const checkAndCreateAdmin = async () => {
         role: 'admin',
         isActive: true
       });
-      
+
       console.log('✅ Admin user created successfully:');
       console.log('   Name:', newAdmin.name);
       console.log('   Username:', newAdmin.username);
@@ -61,7 +61,7 @@ const checkAndCreateAdmin = async () => {
     // Check total users
     const totalUsers = await User.countDocuments();
     console.log(`\n📊 Total users in database: ${totalUsers}`);
-    
+
     // List all users
     const allUsers = await User.find({}, 'name username role isActive');
     console.log('\n👥 All users in database:');

@@ -340,9 +340,21 @@ export default function App() {
       ))}
 
       {/* Header */}
-      <nav className="bg-pastel-white border-b border-gray-200 px-6 py-2">
-        <div className="flex justify-between items-center">
+      <nav className="bg-pastel-white border-b border-gray-200 sticky top-0 z-50">
+        <div className="flex justify-between items-center px-6 py-2">
           <div className="flex items-center gap-3">
+            <button
+              onClick={() => {
+                // This will be handled by the dashboard component
+                const event = new CustomEvent('toggleSidebar');
+                window.dispatchEvent(event);
+              }}
+              className="p-1 rounded hover:bg-blue-100 transition-colors"
+            >
+              <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
             <span className="text-lg font-bold text-info">SAFE Care System</span>
             <span className={`badge ${currentUser.role === 'admin' ? 'badge-primary' : 'badge-secondary'}`}>
               {currentUser.role === 'admin' ? 'Administrator' : 'Caregiver'}
