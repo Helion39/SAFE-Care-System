@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { VitalsChart } from './VitalsChart';
 import { UserManagement } from './UserManagement';
 import { ResidentManagement } from './ResidentManagement';
+import { CameraMonitoring } from './CameraMonitoring'; 
 import apiService from '../services/api';
 import { 
   Users, 
@@ -456,6 +457,11 @@ export function AdminDashboard({ data, setData, onTriggerAlert, onResolveInciden
             )}
 
             {activeTab === 'cameras' && (
+              <CameraMonitoring 
+                    data={data} 
+                    onTriggerAlert={onTriggerAlert} 
+                />
+              )}
               <div style={{ 
                 backgroundColor: 'white', 
                 borderRadius: '12px', 
@@ -518,7 +524,7 @@ export function AdminDashboard({ data, setData, onTriggerAlert, onResolveInciden
                 </div>
                 </div>
               </div>
-            )}
+            
           </div>
         </div>
       </div>
