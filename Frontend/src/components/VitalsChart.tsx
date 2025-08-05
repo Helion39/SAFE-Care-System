@@ -10,6 +10,38 @@ export function VitalsChart({ vitals }) {
     );
   }
 
+  // Helper function to determine if data spans multiple days
+  const spansDays = (vitalsData) => {
+    if (vitalsData.length < 2) return false;
+    const firstDate = new Date(vitalsData[0].timestamp).toDateString();
+    const lastDate = new Date(vitalsData[vitalsData.length - 1].timestamp).toDateString();
+    return firstDate !== lastDate;
+  };
+
+  // Helper function to format chart labels
+  const formatChartLabel = (timestamp, allData) => {
+    const date = new Date(timestamp);
+    const today = new Date();
+    const isToday = date.toDateString() === today.toDateString();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const isYesterday = date.toDateString() === yesterday.toDateString();
+
+    // If data spans multiple days, show date context
+    if (spansDays(allData)) {
+      if (isToday) {
+        return `Today ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+      } else if (isYesterday) {
+        return `Yesterday ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+      } else {
+        return `${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+      }
+    }
+    
+    // Single day data, just show time
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
+
   // Prepare data for the chart (reverse chronological to show oldest first)
   const chartData = vitals
     .slice()
@@ -20,6 +52,7 @@ export function VitalsChart({ vitals }) {
         hour: '2-digit', 
         minute: '2-digit' 
       }),
+      displayLabel: formatChartLabel(vital.timestamp, vitals),
       systolic: vital.systolic_bp,
       diastolic: vital.diastolic_bp,
       heartRate: vital.heart_rate,
@@ -53,11 +86,15 @@ export function VitalsChart({ vitals }) {
   return (
     <div className="chart-container">
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+        <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 60 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
           <XAxis 
-            dataKey="time"
-            tick={{ fontSize: 12, fill: '#6b7280' }}
+            dataKey="displayLabel"
+            tick={{ fontSize: 11, fill: '#6b7280' }}
+            angle={-45}
+            textAnchor="end"
+            height={60}
+            interval={0}
           />
           <YAxis 
             tick={{ fontSize: 12, fill: '#6b7280' }}
