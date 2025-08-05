@@ -1,0 +1,512 @@
+import React, { useState } from 'react';
+import { UserPlus, Plus, X } from 'lucide-react';
+
+interface CreateResidentFormProps {
+  onCreateResident: (residentData: any) => void;
+  onCancel: () => void;
+  existingRooms: string[];
+  initialData?: any;
+  isEditing?: boolean;
+}
+
+export function CreateResidentForm({ onCreateResident, onCancel, existingRooms, initialData, isEditing }: CreateResidentFormProps) {
+  const [formData, setFormData] = useState({
+    name: initialData?.name || '',
+    roomNumber: initialData?.room_number || initialData?.room || '',
+    age: initialData?.age?.toString() || '',
+    medicalConditions: initialData?.medical_conditions?.length ? initialData.medical_conditions : initialData?.medicalConditions?.length ? initialData.medicalConditions : [''],
+    familyEmails: initialData?.familyEmails?.length ? initialData.familyEmails : [''],
+    emergencyContact: {
+      name: initialData?.emergency_contact?.name || initialData?.emergencyContact?.name || '',
+      phone: initialData?.emergency_contact?.phone || initialData?.emergencyContact?.phone || '',
+      relationship: initialData?.emergency_contact?.relationship || initialData?.emergencyContact?.relationship || ''
+    },
+    notes: initialData?.notes || ''
+  });
+  const [errors, setErrors] = useState<any>({});
+  const [isLoading, setIsLoading] = useState(false);
+
+  const commonMedicalConditions = [
+    'Diabetes',
+    'Hypertension',
+    'Heart Disease',
+    'Arthritis',
+    'Dementia',
+    'Alzheimer\'s',
+    'COPD',
+    'Osteoporosis',
+    'Depression',
+    'Anxiety',
+    'Stroke History',
+    'Kidney Disease'
+  ];
+
+  const validateForm = () => {
+    const newErrors: any = {};
+
+    // Name validation
+    if (!formData.name.trim()) {
+      newErrors.name = 'Resident name is required';
+    } else if (formData.name.trim().length < 2) {
+      newErrors.name = 'Name must be at least 2 characters';
+    }
+
+    // Room number validation
+    if (!formData.roomNumber.trim()) {
+      newErrors.roomNumber = 'Room number is required';
+    } else if (existingRooms.includes(formData.roomNumber.trim())) {
+      newErrors.roomNumber = 'Room number already exists';
+    }
+
+    // Age validation
+    if (!formData.age) {
+      newErrors.age = 'Age is required';
+    } else {
+      const ageNum = parseInt(formData.age);
+      if (isNaN(ageNum) || ageNum < 1 || ageNum > 120) {
+        newErrors.age = 'Age must be between 1 and 120';
+      }
+    }
+
+    // Family emails validation
+    const validEmails = formData.familyEmails.filter(email => email.trim());
+    for (let i = 0; i < validEmails.length; i++) {
+      const email = validEmails[i];
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        newErrors[`familyEmail${i}`] = 'Please enter a valid email address';
+      }
+    }
+
+    // Emergency contact validation (optional but if provided, must be complete)
+    const { emergencyContact } = formData;
+    if (emergencyContact.name || emergencyContact.phone || emergencyContact.relationship) {
+      if (!emergencyContact.name.trim()) {
+        newErrors.emergencyContactName = 'Emergency contact name is required';
+      }
+      if (!emergencyContact.phone.trim()) {
+        newErrors.emergencyContactPhone = 'Emergency contact phone is required';
+      } else if (!/^\+?[\d\s\-()]+$/.test(emergencyContact.phone)) {
+        newErrors.emergencyContactPhone = 'Please enter a valid phone number';
+      }
+      if (!emergencyContact.relationship.trim()) {
+        newErrors.emergencyContactRelationship = 'Relationship is required';
+      }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsLoading(true);
+    
+    try {
+      // Simulate API call delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      const residentData = {
+        name: formData.name.trim(),
+        room: formData.roomNumber.trim(),
+        age: parseInt(formData.age),
+        medicalConditions: formData.medicalConditions.filter(condition => condition.trim()),
+        familyEmails: formData.familyEmails.filter(email => email.trim()),
+        emergencyContact: (formData.emergencyContact.name || formData.emergencyContact.phone) ? {
+          name: formData.emergencyContact.name.trim(),
+          phone: formData.emergencyContact.phone.trim(),
+          relationship: formData.emergencyContact.relationship.trim()
+        } : null,
+        notes: formData.notes.trim() || null
+      };
+
+      onCreateResident(residentData);
+      
+      // Reset form
+      setFormData({
+        name: '',
+        roomNumber: '',
+        age: '',
+        medicalConditions: [''],
+        familyEmails: [''],
+        emergencyContact: {
+          name: '',
+          phone: '',
+          relationship: ''
+        },
+        notes: ''
+      });
+      
+    } catch (error) {
+      setErrors({ submit: 'Failed to create resident. Please try again.' });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    
+    // Clear error when user starts typing
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: null }));
+    }
+  };
+
+  const handleEmergencyContactChange = (field: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      emergencyContact: { ...prev.emergencyContact, [field]: value }
+    }));
+    
+    // Clear error when user starts typing
+    const errorKey = `emergencyContact${field.charAt(0).toUpperCase() + field.slice(1)}`;
+    if (errors[errorKey]) {
+      setErrors(prev => ({ ...prev, [errorKey]: null }));
+    }
+  };
+
+  const addMedicalCondition = () => {
+    setFormData(prev => ({
+      ...prev,
+      medicalConditions: [...prev.medicalConditions, '']
+    }));
+  };
+
+  const removeMedicalCondition = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      medicalConditions: prev.medicalConditions.filter((_, i) => i !== index)
+    }));
+  };
+
+  const updateMedicalCondition = (index: number, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      medicalConditions: prev.medicalConditions.map((condition, i) => 
+        i === index ? value : condition
+      )
+    }));
+  };
+
+  const selectCommonCondition = (condition: string, index: number) => {
+    updateMedicalCondition(index, condition);
+  };
+
+  const addFamilyEmail = () => {
+    setFormData(prev => ({
+      ...prev,
+      familyEmails: [...prev.familyEmails, '']
+    }));
+  };
+
+  const removeFamilyEmail = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      familyEmails: prev.familyEmails.filter((_, i) => i !== index)
+    }));
+  };
+
+  const updateFamilyEmail = (index: number, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      familyEmails: prev.familyEmails.map((email, i) => 
+        i === index ? value : email
+      )
+    }));
+    
+    // Clear error when user starts typing
+    const errorKey = `familyEmail${index}`;
+    if (errors[errorKey]) {
+      setErrors(prev => ({ ...prev, [errorKey]: null }));
+    }
+  };
+
+  return (
+    <div className="card" style={{ maxWidth: '1000px', margin: '0 auto' }}>
+      <div className="card-header">
+        <UserPlus style={{ width: '1.25rem', height: '1.25rem' }} />
+        {isEditing ? 'Edit Resident' : 'Add New Resident'}
+      </div>
+      <form onSubmit={handleSubmit}>
+        {errors.submit && (
+          <div className="alert alert-error">
+            {errors.submit}
+          </div>
+        )}
+
+        {/* Basic Information */}
+        <div className="mb-3">
+          <h3 style={{ fontSize: 'var(--text-lg)', fontWeight: '600', marginBottom: 'var(--space-2)' }}>Basic Information</h3>
+          
+          <div className="grid grid-3 mb-2">
+            {/* Name */}
+            <div className="form-group">
+              <label htmlFor="name" className="label">Full Name *</label>
+              <input
+                id="name"
+                type="text"
+                value={formData.name}
+                onChange={(e) => handleInputChange('name', e.target.value)}
+                placeholder="Enter resident's full name"
+                className={`input ${errors.name ? 'border-red-500' : ''}`}
+              />
+              {errors.name && (
+                <p style={{ color: 'var(--error)', fontSize: 'var(--text-sm)', marginTop: '0.25rem' }}>
+                  {errors.name}
+                </p>
+              )}
+            </div>
+
+            {/* Room Number */}
+            <div className="form-group">
+              <label htmlFor="roomNumber" className="label">Room Number *</label>
+              <input
+                id="roomNumber"
+                type="text"
+                value={formData.roomNumber}
+                onChange={(e) => handleInputChange('roomNumber', e.target.value)}
+                placeholder="e.g., 101, A-205"
+                className={`input ${errors.roomNumber ? 'border-red-500' : ''}`}
+              />
+              {errors.roomNumber && (
+                <p style={{ color: 'var(--error)', fontSize: 'var(--text-sm)', marginTop: '0.25rem' }}>
+                  {errors.roomNumber}
+                </p>
+              )}
+            </div>
+
+            {/* Age */}
+            <div className="form-group">
+              <label htmlFor="age" className="label">Age *</label>
+              <input
+                id="age"
+                type="number"
+                min="1"
+                max="120"
+                value={formData.age}
+                onChange={(e) => handleInputChange('age', e.target.value)}
+                placeholder="Enter age"
+                className={`input ${errors.age ? 'border-red-500' : ''}`}
+              />
+              {errors.age && (
+                <p style={{ color: 'var(--error)', fontSize: 'var(--text-sm)', marginTop: '0.25rem' }}>
+                  {errors.age}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Medical Conditions */}
+        <div className="mb-3">
+          <div className="flex items-center justify-between mb-2">
+            <h3 style={{ fontSize: 'var(--text-lg)', fontWeight: '600' }}>Medical Conditions</h3>
+            <button
+              type="button"
+              onClick={addMedicalCondition}
+              className="btn btn-sm btn-secondary"
+            >
+              <Plus style={{ width: '1rem', height: '1rem' }} />
+              Add Condition
+            </button>
+          </div>
+
+          {formData.medicalConditions.map((condition, index) => (
+            <div key={index} className="flex gap-2 items-start mb-2">
+              <div style={{ flex: 1 }}>
+                <input
+                  value={condition}
+                  onChange={(e) => updateMedicalCondition(index, e.target.value)}
+                  placeholder="Enter medical condition or select from common conditions"
+                  className="input"
+                />
+                
+                {/* Common conditions dropdown */}
+                {condition === '' && (
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {commonMedicalConditions.map((commonCondition) => (
+                      <button
+                        key={commonCondition}
+                        type="button"
+                        onClick={() => selectCommonCondition(commonCondition, index)}
+                        style={{
+                          padding: '0.25rem 0.5rem',
+                          fontSize: 'var(--text-xs)',
+                          backgroundColor: 'var(--gray-100)',
+                          border: 'none',
+                          borderRadius: 'var(--radius-sm)',
+                          cursor: 'pointer',
+                          transition: 'background-color 0.2s'
+                        }}
+                        onMouseOver={(e) => (e.target as HTMLButtonElement).style.backgroundColor = 'var(--gray-200)'}
+                        onMouseOut={(e) => (e.target as HTMLButtonElement).style.backgroundColor = 'var(--gray-100)'}
+                      >
+                        {commonCondition}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+              
+              {formData.medicalConditions.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => removeMedicalCondition(index)}
+                  className="btn btn-sm btn-secondary"
+                >
+                  <X style={{ width: '1rem', height: '1rem' }} />
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Family Access */}
+        <div className="mb-3">
+          <div className="flex items-center justify-between mb-2">
+            <h3 style={{ fontSize: 'var(--text-lg)', fontWeight: '600' }}>Family Access (Optional)</h3>
+            <button
+              type="button"
+              onClick={addFamilyEmail}
+              className="btn btn-sm btn-secondary"
+            >
+              <Plus style={{ width: '1rem', height: '1rem' }} />
+              Add Email
+            </button>
+          </div>
+
+          {formData.familyEmails.map((email, index) => (
+            <div key={index} className="flex gap-2 items-start mb-2">
+              <div style={{ flex: 1 }}>
+                <input
+                  value={email}
+                  onChange={(e) => updateFamilyEmail(index, e.target.value)}
+                  placeholder="Enter family member email address"
+                  type="email"
+                  className={`input ${errors[`familyEmail${index}`] ? 'border-red-500' : ''}`}
+                />
+                {errors[`familyEmail${index}`] && (
+                  <p style={{ color: 'var(--error)', fontSize: 'var(--text-sm)', marginTop: '0.25rem' }}>
+                    {errors[`familyEmail${index}`]}
+                  </p>
+                )}
+              </div>
+              
+              {formData.familyEmails.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => removeFamilyEmail(index)}
+                  className="btn btn-sm btn-secondary"
+                >
+                  <X style={{ width: '1rem', height: '1rem' }} />
+                </button>
+              )}
+            </div>
+          ))}
+          
+          <p style={{ fontSize: 'var(--text-xs)', color: 'var(--gray-500)', marginTop: '0.5rem' }}>
+            Family members with these email addresses will receive access to view the resident's care information.
+          </p>
+        </div>
+
+        {/* Emergency Contact */}
+        <div className="mb-3">
+          <h3 style={{ fontSize: 'var(--text-lg)', fontWeight: '600', marginBottom: 'var(--space-2)' }}>Emergency Contact (Optional)</h3>
+          
+          <div className="grid grid-3 mb-2">
+            {/* Contact Name */}
+            <div className="form-group">
+              <label htmlFor="emergencyContactName" className="label">Contact Name</label>
+              <input
+                id="emergencyContactName"
+                type="text"
+                value={formData.emergencyContact.name}
+                onChange={(e) => handleEmergencyContactChange('name', e.target.value)}
+                placeholder="Enter contact name"
+                className={`input ${errors.emergencyContactName ? 'border-red-500' : ''}`}
+              />
+              {errors.emergencyContactName && (
+                <p style={{ color: 'var(--error)', fontSize: 'var(--text-sm)', marginTop: '0.25rem' }}>
+                  {errors.emergencyContactName}
+                </p>
+              )}
+            </div>
+
+            {/* Contact Phone */}
+            <div className="form-group">
+              <label htmlFor="emergencyContactPhone" className="label">Phone Number</label>
+              <input
+                id="emergencyContactPhone"
+                type="tel"
+                value={formData.emergencyContact.phone}
+                onChange={(e) => handleEmergencyContactChange('phone', e.target.value)}
+                placeholder="Enter phone number"
+                className={`input ${errors.emergencyContactPhone ? 'border-red-500' : ''}`}
+              />
+              {errors.emergencyContactPhone && (
+                <p style={{ color: 'var(--error)', fontSize: 'var(--text-sm)', marginTop: '0.25rem' }}>
+                  {errors.emergencyContactPhone}
+                </p>
+              )}
+            </div>
+
+            {/* Relationship */}
+            <div className="form-group">
+              <label htmlFor="emergencyContactRelationship" className="label">Relationship</label>
+              <input
+                id="emergencyContactRelationship"
+                type="text"
+                value={formData.emergencyContact.relationship}
+                onChange={(e) => handleEmergencyContactChange('relationship', e.target.value)}
+                placeholder="e.g., Son, Daughter, Spouse"
+                className={`input ${errors.emergencyContactRelationship ? 'border-red-500' : ''}`}
+              />
+              {errors.emergencyContactRelationship && (
+                <p style={{ color: 'var(--error)', fontSize: 'var(--text-sm)', marginTop: '0.25rem' }}>
+                  {errors.emergencyContactRelationship}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Notes */}
+        <div className="form-group">
+          <label htmlFor="notes" className="label">Additional Notes (Optional)</label>
+          <textarea
+            id="notes"
+            value={formData.notes}
+            onChange={(e) => handleInputChange('notes', e.target.value)}
+            placeholder="Enter any additional notes about the resident..."
+            rows={3}
+            className="input textarea"
+            style={{ minHeight: '80px', resize: 'vertical' }}
+          />
+        </div>
+
+        <div className="flex justify-end gap-2 pt-2">
+          <button
+            type="button"
+            onClick={onCancel}
+            disabled={isLoading}
+            className="btn btn-secondary"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="btn btn-primary"
+          >
+            {isLoading ? (isEditing ? 'Updating...' : 'Adding Resident...') : (isEditing ? 'Update Resident' : 'Add Resident')}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}
