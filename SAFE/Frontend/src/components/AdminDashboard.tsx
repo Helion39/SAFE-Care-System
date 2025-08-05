@@ -24,6 +24,16 @@ export function AdminDashboard({ data, setData, onTriggerAlert, onResolveInciden
   const [activeTab, setActiveTab] = useState('residents');
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
+  // Listen for sidebar toggle from navbar
+  useEffect(() => {
+    const handleToggleSidebar = () => {
+      setSidebarOpen(prev => !prev);
+    };
+
+    window.addEventListener('toggleSidebar', handleToggleSidebar);
+    return () => window.removeEventListener('toggleSidebar', handleToggleSidebar);
+  }, []);
+
   // Tambahkan useEffect berikut:
   useEffect(() => {
     if (onDataChange) {
@@ -52,42 +62,34 @@ export function AdminDashboard({ data, setData, onTriggerAlert, onResolveInciden
   };
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="bg-gray-50" style={{ minHeight: 'calc(100vh - 80px)' }}>
       {/* Sidebar */}
-      <div className={`${sidebarOpen ? 'w-64' : 'w-16'} transition-all duration-300`} style={{ backgroundColor: '#E3F2FD' }}>
-        {/* SAFE Logo/Header */}
+      <div className={`${sidebarOpen ? 'w-64' : 'w-16'} transition-all duration-300 fixed left-0 flex flex-col z-40`} style={{ backgroundColor: '#E3F2FD', height: 'calc(100vh - 80px)', top: '80px' }}>
+        {/* Sidebar Header */}
         <div className="p-4 border-b border-blue-200">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <div className="w-6 h-6 bg-blue-500 rounded mr-2 flex items-center justify-center">
-                <span className="text-white text-xs font-bold">+</span>
-              </div>
-              {sidebarOpen && <span className="text-blue-600 font-semibold">SAFE</span>}
-            </div>
-            <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="p-1 rounded hover:bg-blue-100 transition-colors"
-            >
-              {sidebarOpen ? (
-                <X className="w-4 h-4 text-blue-600" />
-              ) : (
-                <Menu className="w-4 h-4 text-blue-600" />
-              )}
-            </button>
+          <div className={`flex items-center transition-all duration-300 ${sidebarOpen ? '' : 'justify-center'}`}>
+            <Home className="w-5 h-5 text-blue-600 flex-shrink-0" />
+            <span className={`text-blue-600 font-semibold transition-all duration-300 ${
+              sidebarOpen ? 'ml-2 opacity-100 w-auto' : 'ml-0 opacity-0 w-0 overflow-hidden'
+            }`}>
+              Dashboard
+            </span>
           </div>
         </div>
         
         {/* Navigation */}
-        <nav className="py-4">
+        <nav className="flex-1 overflow-y-auto">
           {sidebarOpen && (
-            <div className="px-4 mb-2">
-              <span className="text-xs text-gray-500 uppercase tracking-wide">Dashboard Admin</span>
+            <div className="px-4 py-2">
+              <span className="text-xs text-gray-500 uppercase tracking-wide">
+                Dashboard Admin
+              </span>
             </div>
           )}
           
           <div className="space-y-1">
             <button 
-              className={`w-full flex items-center ${sidebarOpen ? 'px-4' : 'px-2 justify-center'} py-2 text-sm text-left transition-colors ${
+              className={`w-full flex items-center transition-all duration-300 ${sidebarOpen ? 'px-4' : 'px-2 justify-center'} py-2 text-sm text-left ${
                 activeTab === 'users' 
                   ? 'bg-blue-100 text-blue-700 border-r-2 border-blue-500' 
                   : 'text-gray-600 hover:bg-blue-50'
@@ -95,12 +97,16 @@ export function AdminDashboard({ data, setData, onTriggerAlert, onResolveInciden
               onClick={() => setActiveTab('users')}
               title={!sidebarOpen ? 'Manage Users' : ''}
             >
-              <Users className={`w-4 h-4 ${sidebarOpen ? 'mr-3' : ''}`} />
-              {sidebarOpen && 'Manage Users'}
+              <Users className="w-4 h-4 flex-shrink-0" />
+              <span className={`transition-all duration-300 ${
+                sidebarOpen ? 'ml-3 opacity-100 w-auto' : 'ml-0 opacity-0 w-0 overflow-hidden'
+              }`}>
+                Manage Users
+              </span>
             </button>
             
             <button 
-              className={`w-full flex items-center ${sidebarOpen ? 'px-4' : 'px-2 justify-center'} py-2 text-sm text-left transition-colors ${
+              className={`w-full flex items-center transition-all duration-300 ${sidebarOpen ? 'px-4' : 'px-2 justify-center'} py-2 text-sm text-left ${
                 activeTab === 'residents' 
                   ? 'bg-blue-100 text-blue-700 border-r-2 border-blue-500' 
                   : 'text-gray-600 hover:bg-blue-50'
@@ -108,12 +114,16 @@ export function AdminDashboard({ data, setData, onTriggerAlert, onResolveInciden
               onClick={() => setActiveTab('residents')}
               title={!sidebarOpen ? 'Residents' : ''}
             >
-              <Users className={`w-4 h-4 ${sidebarOpen ? 'mr-3' : ''}`} />
-              {sidebarOpen && 'Residents'}
+              <Users className="w-4 h-4 flex-shrink-0" />
+              <span className={`transition-all duration-300 ${
+                sidebarOpen ? 'ml-3 opacity-100 w-auto' : 'ml-0 opacity-0 w-0 overflow-hidden'
+              }`}>
+                Residents
+              </span>
             </button>
             
             <button 
-              className={`w-full flex items-center ${sidebarOpen ? 'px-4' : 'px-2 justify-center'} py-2 text-sm text-left transition-colors ${
+              className={`w-full flex items-center transition-all duration-300 ${sidebarOpen ? 'px-4' : 'px-2 justify-center'} py-2 text-sm text-left ${
                 activeTab === 'incidents' 
                   ? 'bg-blue-100 text-blue-700 border-r-2 border-blue-500' 
                   : 'text-gray-600 hover:bg-blue-50'
@@ -121,12 +131,16 @@ export function AdminDashboard({ data, setData, onTriggerAlert, onResolveInciden
               onClick={() => setActiveTab('incidents')}
               title={!sidebarOpen ? 'Incidents' : ''}
             >
-              <AlertTriangle className={`w-4 h-4 ${sidebarOpen ? 'mr-3' : ''}`} />
-              {sidebarOpen && 'Incidents'}
+              <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+              <span className={`transition-all duration-300 ${
+                sidebarOpen ? 'ml-3 opacity-100 w-auto' : 'ml-0 opacity-0 w-0 overflow-hidden'
+              }`}>
+                Incidents
+              </span>
             </button>
             
             <button 
-              className={`w-full flex items-center ${sidebarOpen ? 'px-4' : 'px-2 justify-center'} py-2 text-sm text-left transition-colors ${
+              className={`w-full flex items-center transition-all duration-300 ${sidebarOpen ? 'px-4' : 'px-2 justify-center'} py-2 text-sm text-left ${
                 activeTab === 'status' 
                   ? 'bg-blue-100 text-blue-700 border-r-2 border-blue-500' 
                   : 'text-gray-600 hover:bg-blue-50'
@@ -134,12 +148,16 @@ export function AdminDashboard({ data, setData, onTriggerAlert, onResolveInciden
               onClick={() => setActiveTab('status')}
               title={!sidebarOpen ? 'Analytics' : ''}
             >
-              <Clock className={`w-4 h-4 ${sidebarOpen ? 'mr-3' : ''}`} />
-              {sidebarOpen && 'Analytics'}
+              <Clock className="w-4 h-4 flex-shrink-0" />
+              <span className={`transition-all duration-300 ${
+                sidebarOpen ? 'ml-3 opacity-100 w-auto' : 'ml-0 opacity-0 w-0 overflow-hidden'
+              }`}>
+                Analytics
+              </span>
             </button>
             
             <button 
-              className={`w-full flex items-center ${sidebarOpen ? 'px-4' : 'px-2 justify-center'} py-2 text-sm text-left transition-colors ${
+              className={`w-full flex items-center transition-all duration-300 ${sidebarOpen ? 'px-4' : 'px-2 justify-center'} py-2 text-sm text-left ${
                 activeTab === 'cameras' 
                   ? 'bg-blue-100 text-blue-700 border-r-2 border-blue-500' 
                   : 'text-gray-600 hover:bg-blue-50'
@@ -147,16 +165,20 @@ export function AdminDashboard({ data, setData, onTriggerAlert, onResolveInciden
               onClick={() => setActiveTab('cameras')}
               title={!sidebarOpen ? 'Cameras' : ''}
             >
-              <Camera className={`w-4 h-4 ${sidebarOpen ? 'mr-3' : ''}`} />
-              {sidebarOpen && 'Cameras'}
+              <Camera className="w-4 h-4 flex-shrink-0" />
+              <span className={`transition-all duration-300 ${
+                sidebarOpen ? 'ml-3 opacity-100 w-auto' : 'ml-0 opacity-0 w-0 overflow-hidden'
+              }`}>
+                Cameras
+              </span>
             </button>
           </div>
         </nav>
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <div className="flex-1 overflow-auto p-6">
+      <div className="transition-all duration-300" style={{ marginLeft: sidebarOpen ? '256px' : '64px' }}>
+        <div className="p-6">
           <div className="flex flex-col gap-3">
 
 
