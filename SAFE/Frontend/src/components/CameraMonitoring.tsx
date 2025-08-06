@@ -1,229 +1,283 @@
-import React, { useState, useEffect } from 'react';
-import { Camera, Play, Pause, AlertTriangle, Maximize2, Volume2, VolumeX } from 'lucide-react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { Camera, AlertTriangle } from 'lucide-react';
 
-interface CameraMonitoringProps {
-  data: any;
-  onTriggerAlert: (residentId: string) => void;
+// --- INTERFACE & TIPE DATA (Tidak ada perubahan) ---
+interface CameraInfo {
+  id: string;
+  room_number: string;
+  status: 'active' | 'offline';
+  last_checked: string;
+}
+interface Resident {
+  id: string;
+  _id: string;
+  name: string;
+  room_number?: string;
+}
+interface Detection {
+    box: [number, number, number, number];
+    track_id: number;
+    status: string;
 }
 
-export function CameraMonitoring({ data, onTriggerAlert }: CameraMonitoringProps) {
-  const [selectedCamera, setSelectedCamera] = useState<string | null>(null);
-  const [isRecording, setIsRecording] = useState<{ [key: string]: boolean }>({});
-  const [isMuted, setIsMuted] = useState<{ [key: string]: boolean }>({});
-  const [fallDetectionEnabled, setFallDetectionEnabled] = useState<{ [key: string]: boolean }>({});
+// --- Komponen Kartu Kamera (Tidak ada perubahan signifikan) ---
+// Komponen ini sudah siap menerima stream dinamis dari parent.
+function CameraCard({ camera, resident, stream, onConfirmNeeded }: {
+    camera: CameraInfo;
+    resident?: Resident;
+    stream: MediaStream | null;
+    onConfirmNeeded: (cameraId: string, trackId: number) => void;
+}) {
+    const videoRef = useRef<HTMLVideoElement>(null);
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+    const [fallDetectionEnabled, setFallDetectionEnabled] = useState(false);
+    const detectionInterval = useRef<NodeJS.Timeout | null>(null);
 
-  const cameras = data.camera_info || [];
-  const residents = data.residents || [];
+    useEffect(() => {
+        if (videoRef.current && stream) {
+            videoRef.current.srcObject = stream;
+        }
+    }, [stream]);
 
-  const getCameraResident = (roomNumber: string) => {
-    return residents.find((r: any) => (r.room || r.room_number) === roomNumber);
-  };
+    const processFrame = async () => {
+        if (!videoRef.current || videoRef.current.readyState < 2) return;
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = videoRef.current.videoWidth;
+        tempCanvas.height = videoRef.current.videoHeight;
+        const ctx = tempCanvas.getContext('2d');
+        if (!ctx) return;
+        ctx.drawImage(videoRef.current, 0, 0, tempCanvas.width, tempCanvas.height);
+        const imageBase64 = tempCanvas.toDataURL('image/jpeg');
+        try {
+            const response = await fetch('http://localhost:5001/api/detect', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ image: imageBase64 }),
+            });
+            const result = await response.json();
+            if (canvasRef.current && videoRef.current && result.detections) {
+                const canvasCtx = canvasRef.current.getContext('2d');
+                if(!canvasCtx) return;
+                canvasRef.current.width = videoRef.current.clientWidth;
+                canvasRef.current.height = videoRef.current.clientHeight;
+                const scaleX = canvasRef.current.width / videoRef.current.videoWidth;
+                const scaleY = canvasRef.current.height / videoRef.current.videoHeight;
+                canvasCtx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+                result.detections.forEach((det: Detection) => {
+                    const [x1, y1, x2, y2] = det.box;
+                    canvasCtx.strokeStyle = '#34C759';
+                    canvasCtx.lineWidth = 2;
+                    canvasCtx.strokeRect(x1 * scaleX, y1 * scaleY, (x2 - x1) * scaleX, (y2 - y1) * scaleY);
+                });
+            }
+            if (result.pending_id) {
+                onConfirmNeeded(camera.id, result.pending_id);
+            }
+        } catch (error) {
+            console.error('Error deteksi:', error);
+        }
+    };
 
-  const toggleRecording = (cameraId: string) => {
-    setIsRecording(prev => ({ ...prev, [cameraId]: !prev[cameraId] }));
-  };
+    useEffect(() => {
+        if (fallDetectionEnabled && camera.status === 'active' && stream) {
+            detectionInterval.current = setInterval(processFrame, 1000);
+        } else {
+            if (detectionInterval.current) clearInterval(detectionInterval.current);
+            const ctx = canvasRef.current?.getContext('2d');
+            ctx?.clearRect(0, 0, canvasRef.current?.width || 0, canvasRef.current?.height || 0);
+        }
+        return () => {
+            if (detectionInterval.current) clearInterval(detectionInterval.current);
+        };
+    }, [fallDetectionEnabled, camera.status, stream, processFrame]);
 
-  const toggleMute = (cameraId: string) => {
-    setIsMuted(prev => ({ ...prev, [cameraId]: !prev[cameraId] }));
-  };
-
-  const toggleFallDetection = (cameraId: string) => {
-    setFallDetectionEnabled(prev => ({ ...prev, [cameraId]: !prev[cameraId] }));
-  };
-
-  const simulateFallDetection = (cameraId: string) => {
-    const camera = cameras.find((c: any) => c.id === cameraId);
-    const resident = getCameraResident(camera?.room_number);
-    if (resident) {
-      onTriggerAlert(resident.id || resident._id);
-    }
-  };
-
-  return (
-    <div className="flex flex-col gap-3">
-      {/* Header */}
-      <div className="card-header">
-        <Camera />
-        Camera Monitoring System
-      </div>
-
-      {/* Camera Grid */}
-      <div className="grid grid-2">
-        {cameras.map((camera: any) => {
-          const resident = getCameraResident(camera.room_number);
-          const isActive = camera.status === 'active';
-          const isSelected = selectedCamera === camera.id.toString();
-          
-          return (
-            <div key={camera.id} className="card">
-              {/* Camera Header */}
-              <div className="flex justify-between items-center mb-2">
+    return (
+        <div className="card" style={{ margin: '0', display: 'flex', flexDirection: 'column' }}>
+            <div className="flex justify-between items-start mb-2">
                 <div>
-                  <h3 style={{ fontSize: 'var(--text-lg)', fontWeight: '600' }}>
-                    Room {camera.room_number}
-                  </h3>
-                  {resident && (
-                    <p style={{ fontSize: 'var(--text-sm)', color: 'var(--gray-600)' }}>
-                      {resident.name}
-                    </p>
-                  )}
+                    <p style={{ fontWeight: '600' }}>Room {camera.room_number}</p>
+                    {resident && <p className="text-sm text-gray-500">{resident.name}</p>}
                 </div>
-                <span className={`badge ${isActive ? 'badge-success' : 'badge-error'}`}>
-                  {isActive ? 'Online' : 'Offline'}
+                {/* [KUNCI] Status badge sekarang dinamis berdasarkan 'stream' */}
+                <span className={`badge ${stream ? 'badge-success' : 'badge-error'}`}>
+                    {stream ? 'Online' : 'Offline'}
                 </span>
-              </div>
-
-              {/* Camera Feed */}
-              <div 
-                className={`relative bg-gray-100 rounded-lg overflow-hidden cursor-pointer ${
-                  isSelected ? 'ring-2 ring-primary' : ''
-                }`}
-                style={{ aspectRatio: '16/9' }}
-                onClick={() => setSelectedCamera(isSelected ? null : camera.id.toString())}
-              >
-                {isActive ? (
-                  <div className="flex items-center justify-center h-full bg-gray-800 text-white">
-                    <div className="text-center">
-                      <Camera style={{ width: '3rem', height: '3rem', margin: '0 auto 1rem' }} />
-                      <p>Camera Feed</p>
-                      <p style={{ fontSize: 'var(--text-sm)', opacity: 0.7 }}>
-                        Room {camera.room_number}
-                      </p>
-                    </div>
-                  </div>
+            </div>
+            <div className="relative w-full bg-gray-200 rounded overflow-hidden" style={{ aspectRatio: '16/9', marginTop: 'auto' }}>
+                {stream ? (
+                    <>
+                        <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
+                        <canvas ref={canvasRef} className="absolute top-0 left-0 w-full h-full pointer-events-none" />
+                    </>
                 ) : (
-                  <div className="flex items-center justify-center h-full bg-gray-300 text-gray-600">
-                    <div className="text-center">
-                      <AlertTriangle style={{ width: '3rem', height: '3rem', margin: '0 auto 1rem' }} />
-                      <p>Camera Offline</p>
+                    <div className="w-full h-full flex items-center justify-center">
+                        <AlertTriangle className="w-8 h-8 text-gray-500" />
                     </div>
-                  </div>
                 )}
-
-                {/* Camera Controls Overlay */}
-                {isActive && (
-                  <div className="absolute bottom-2 left-2 right-2 flex justify-between items-center">
-                    <div className="flex gap-1">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleRecording(camera.id.toString());
-                        }}
-                        className={`btn btn-sm ${isRecording[camera.id] ? 'btn-error' : 'btn-secondary'}`}
-                        style={{ minWidth: 'auto', padding: '0.25rem' }}
-                      >
-                        {isRecording[camera.id] ? (
-                          <Pause style={{ width: '1rem', height: '1rem' }} />
-                        ) : (
-                          <Play style={{ width: '1rem', height: '1rem' }} />
-                        )}
-                      </button>
-                      
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleMute(camera.id.toString());
-                        }}
-                        className="btn btn-sm btn-secondary"
-                        style={{ minWidth: 'auto', padding: '0.25rem' }}
-                      >
-                        {isMuted[camera.id] ? (
-                          <VolumeX style={{ width: '1rem', height: '1rem' }} />
-                        ) : (
-                          <Volume2 style={{ width: '1rem', height: '1rem' }} />
-                        )}
-                      </button>
-                    </div>
-
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedCamera(camera.id.toString());
-                      }}
-                      className="btn btn-sm btn-secondary"
-                      style={{ minWidth: 'auto', padding: '0.25rem' }}
-                    >
-                      <Maximize2 style={{ width: '1rem', height: '1rem' }} />
-                    </button>
-                  </div>
-                )}
-              </div>
-
-              {/* Fall Detection Controls */}
-              {isActive && (
+            </div>
+            {camera.status === 'active' && (
                 <div className="mt-2 p-2 bg-gray-50 rounded">
-                  <div className="flex justify-between items-center mb-2">
-                    <span style={{ fontSize: 'var(--text-sm)', fontWeight: '500' }}>
-                      Fall Detection AI
-                    </span>
-                    <label className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        checked={fallDetectionEnabled[camera.id] || false}
-                        onChange={() => toggleFallDetection(camera.id.toString())}
-                        className="w-4 h-4"
-                      />
-                      <span style={{ fontSize: 'var(--text-sm)' }}>Enabled</span>
-                    </label>
-                  </div>
-                  
-                  {fallDetectionEnabled[camera.id] && (
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => simulateFallDetection(camera.id)}
-                        className="btn btn-sm btn-warning"
-                        style={{ fontSize: 'var(--text-xs)' }}
-                      >
-                        Test Fall Detection
-                      </button>
-                      <span className="badge badge-success" style={{ fontSize: 'var(--text-xs)' }}>
-                        AI Active
-                      </span>
+                    <div className="flex justify-between items-center">
+                        <span style={{ fontSize: 'var(--text-sm)', fontWeight: '500' }}>Fall Detection AI</span>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" checked={fallDetectionEnabled} onChange={(e) => setFallDetectionEnabled(e.target.checked)} className="w-4 h-4" disabled={!stream} />
+                            <span style={{ fontSize: 'var(--text-sm)' }}>{fallDetectionEnabled ? 'Enabled' : 'Disabled'}</span>
+                        </label>
                     </div>
-                  )}
                 </div>
-              )}
+            )}
+        </div>
+    );
+}
 
-              {/* Camera Info */}
-              <div className="mt-2 text-xs text-gray-500">
-                Last checked: {new Date(camera.last_checked).toLocaleString()}
-              </div>
+
+// --- Komponen Utama dengan Logika Dinamis ---
+export function CameraMonitoring({ data, onTriggerAlert }: { data: { camera_info: CameraInfo[], residents: Resident[] }, onTriggerAlert: (residentId: string) => void }) {
+    const { camera_info = [], residents = [] } = data;
+    const [streams, setStreams] = useState<{ [key: string]: MediaStream | null }>({});
+    const [pendingConfirmation, setPendingConfirmation] = useState<{ cameraId: string; trackId: number } | null>(null);
+    
+    // [KUNCI 1] Gunakan ref untuk menyimpan stream saat ini tanpa memicu render ulang
+    const audioRef = useRef<HTMLAudioElement | null>(null);
+    const streamsRef = useRef(streams);
+    streamsRef.current = streams;
+
+    // [KUNCI 2] Hapus 'streams' dari dependensi useCallback. Gunakan ref untuk cleanup.
+    const refreshCameraStreams = useCallback(async () => {
+        console.log("Memeriksa ulang perangkat kamera...");
+        try {
+            // Hentikan stream lama menggunakan ref
+            Object.values(streamsRef.current).forEach(stream => stream?.getTracks().forEach(track => track.stop()));
+
+            await navigator.mediaDevices.getUserMedia({ video: true });
+            const allDevices = await navigator.mediaDevices.enumerateDevices();
+            const videoDevices = allDevices.filter(device => device.kind === 'videoinput');
+            
+            console.log(`Ditemukan ${videoDevices.length} kamera fisik.`);
+
+            const newStreams: { [key: string]: MediaStream | null } = {};
+            const activeCameras = camera_info.filter(c => c.status === 'active');
+            
+            for (let i = 0; i < activeCameras.length; i++) {
+                const uiCamera = activeCameras[i];
+                const physicalDevice = videoDevices[i];
+                
+                if (physicalDevice) {
+                    try {
+                        const stream = await navigator.mediaDevices.getUserMedia({
+                            video: { deviceId: { exact: physicalDevice.deviceId } }
+                        });
+                        newStreams[uiCamera.id] = stream;
+                    } catch (err) {
+                        console.error(`Gagal memulai stream untuk ${uiCamera.room_number}`, err);
+                        newStreams[uiCamera.id] = null;
+                    }
+                } else {
+                    newStreams[uiCamera.id] = null;
+                }
+            }
+            setStreams(newStreams);
+        } catch (error) {
+            console.error("Gagal mengakses perangkat media:", error);
+            setStreams({});
+        }
+    }, [camera_info]); // Sekarang hanya bergantung pada camera_info
+
+    // [KUNCI 3] Hapus 'streams' dari dependensi useEffect
+    useEffect(() => {
+        refreshCameraStreams();
+        navigator.mediaDevices.addEventListener('devicechange', refreshCameraStreams);
+        return () => {
+            navigator.mediaDevices.removeEventListener('devicechange', refreshCameraStreams);
+            Object.values(streamsRef.current).forEach(stream => stream?.getTracks().forEach(track => track.stop()));
+        };
+    }, [refreshCameraStreams]); // Dependensi sekarang sudah aman
+
+    useEffect(() => {
+        if (!audioRef.current) {
+            audioRef.current = new Audio('/alarm.mp3'); // Pastikan file ada di /public/alarm.mp3
+            audioRef.current.loop = true;
+        }
+
+        if (pendingConfirmation) {
+            audioRef.current.play().catch(e => console.error("Gagal memutar audio:", e));
+        } else {
+            audioRef.current.pause();
+            audioRef.current.currentTime = 0; // Reset audio ke awal
+        }
+
+        // Cleanup saat komponen unmount
+        return () => {
+            audioRef.current?.pause();
+        };
+    }, [pendingConfirmation]);
+
+    const handleConfirmNeeded = (cameraId: string, trackId: number) => {
+        if (!pendingConfirmation) setPendingConfirmation({ cameraId, trackId });
+    };
+    const handleConfirmFall = () => {
+        if (!pendingConfirmation) return;
+
+        // Cari penghuni berdasarkan kamera tempat insiden terjadi
+        const camera = data.camera_info.find(c => c.id === pendingConfirmation.cameraId);
+        const resident = residents.find(r => r.room_number === camera?.room_number);
+        
+        if (resident) {
+            // Panggil fungsi onTriggerAlert yang diberikan dari AdminDashboard
+            onTriggerAlert(resident.id);
+        }
+
+        // Hentikan alarm dan tutup modal
+        setPendingConfirmation(null);
+    };
+    
+    const handleDenyFall = () => { 
+        // Cukup hentikan alarm dan tutup modal
+        setPendingConfirmation(null);
+    };
+  
+    return (
+        <>
+            <div style={{ backgroundColor: 'white', borderRadius: '12px', overflow: 'hidden' }}>
+                <div style={{ backgroundColor: '#E3F2FD', padding: '16px 24px' }}>
+                    <h3 style={{ color: '#1565C0', fontSize: '16px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <Camera style={{ width: '16px', height: '16px' }} />
+                        Camera System Status
+                    </h3>
+                </div>
+                <div style={{ padding: '24px' }}>
+                    <div className="grid grid-3">
+                        {camera_info.map(camera => (
+                            <CameraCard 
+                                key={camera.id} 
+                                camera={camera} 
+                                resident={residents.find(r => r.room_number === camera.room_number)}
+                                stream={streams[camera.id] || null}
+                                onConfirmNeeded={handleConfirmNeeded}
+                            />
+                        ))}
+                    </div>
+                </div>
             </div>
-          );
-        })}
-      </div>
-
-      {/* Selected Camera Full View */}
-      {selectedCamera && (
-        <div className="card">
-          <div className="flex justify-between items-center mb-3">
-            <h3 style={{ fontSize: 'var(--text-xl)', fontWeight: '600' }}>
-              Room {cameras.find((c: any) => c.id.toString() === selectedCamera)?.room_number} - Full View
-            </h3>
-            <button
-              onClick={() => setSelectedCamera(null)}
-              className="btn btn-sm btn-secondary"
-            >
-              Close
-            </button>
-          </div>
-          
-          <div 
-            className="bg-gray-800 rounded-lg overflow-hidden"
-            style={{ aspectRatio: '16/9', minHeight: '400px' }}
-          >
-            <div className="flex items-center justify-center h-full text-white">
-              <div className="text-center">
-                <Camera style={{ width: '4rem', height: '4rem', margin: '0 auto 1rem' }} />
-                <p style={{ fontSize: 'var(--text-lg)' }}>Full Screen Camera Feed</p>
-                <p style={{ fontSize: 'var(--text-sm)', opacity: 0.7 }}>
-                  Room {cameras.find((c: any) => c.id.toString() === selectedCamera)?.room_number}
+            
+      {/* Modal Konfirmasi dari CameraMonitoring */}
+      {pendingConfirmation && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="card w-96">
+                <h3 className="text-lg font-bold">Konfirmasi Diperlukan!</h3>
+                <p className="py-4">
+                    Sistem mendeteksi potensi insiden jatuh di 
+                    <strong> Room {data.camera_info.find(c => c.id === pendingConfirmation.cameraId)?.room_number}</strong>.
+                    <br/>
+                    Apakah Anda ingin mengonfirmasi dan mengirim peringatan?
                 </p>
-              </div>
+                <div className="flex justify-end gap-2">
+                    <button onClick={handleDenyFall} className="btn btn-secondary">Tolak (Salah Alarm)</button>
+                    <button onClick={handleConfirmFall} className="btn btn-error">Ya, Konfirmasi Jatuh</button>
+                </div>
             </div>
-          </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
