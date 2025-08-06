@@ -79,6 +79,7 @@ export function CameraMonitoring({ data, onTriggerAlert }: CameraMonitoringProps
   const [isMuted, setIsMuted] = useState<{ [key: string]: boolean }>({});
   const [fallDetectionEnabled, setFallDetectionEnabled] = useState<{ [key: string]: boolean }>({});
   const [streams, setStreams] = useState<{ [key: string]: MediaStream | null }>({});
+  const [isAudioUnlocked, setIsAudioUnlocked] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   
   // --- STATE BARU UNTUK DETEKSI ---
@@ -229,26 +230,24 @@ useEffect(() => {
 
 useEffect(() => {
     // Buat elemen audio sekali saja dan simpan di ref
-    if (!audioRef.current) {
-        audioRef.current = new Audio('/alarm.mp3'); // Path ke file di folder public
-        audioRef.current.loop = true; // Agar suara berulang
+   if (!audioRef.current) {
+        audioRef.current = new Audio('/alarm.mp3');
+        audioRef.current.loop = true;
     }
 
-    // Mainkan atau hentikan suara berdasarkan state 'pendingConfirmation'
-    if (pendingConfirmation) {
-        audioRef.current?.play().catch(error => console.error("Audio play failed:", error));
-    } else {
-        audioRef.current?.pause();
-        if (audioRef.current) {
-            audioRef.current.currentTime = 0; // Reset audio ke awal
-        }
+    if (pendingConfirmation && audioRef.current) {
+        // --- INI BAGIAN PENTINGNYA ---
+        audioRef.current.muted = false; // Pastikan suara tidak dibisukan lagi
+        audioRef.current.play().catch(error => console.error("Audio play failed:", error));
+    } else if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
     }
 
-    // Cleanup: pastikan suara berhenti jika komponen di-unmount
     return () => {
         audioRef.current?.pause();
     };
-  }, [pendingConfirmation]);
+}, [pendingConfirmation, isAudioUnlocked]);
 
   // --- FUNGSI BARU: MENGIRIM FRAME KE BACKEND ---
   const processFrame = async (cameraId: string) => {
@@ -318,11 +317,11 @@ useEffect(() => {
   const toggleFallDetection = (cameraId: string) => {
     // --- TAMBAHAN: Logika untuk "membuka kunci" audio ---
     // Browser modern memblokir audio otomatis. Ini trik untuk mengizinkannya.
-    if (audioRef.current && audioRef.current.paused) {
-        audioRef.current.play().catch(() => {});
-        audioRef.current.pause();
+    if (!isAudioUnlocked && audioRef.current) {
+        audioRef.current.muted = true; // Pastikan dibisukan
+        audioRef.current.play().catch(e => console.error("Initial audio unlock failed:", e));
+        setIsAudioUnlocked(true); // Tandai bahwa audio sudah "terbuka"
     }
-    // --- AKHIR TAMBAHAN ---
 
     setFallDetectionEnabled(prev => ({ ...prev, [cameraId]: !prev[cameraId] }));
   };

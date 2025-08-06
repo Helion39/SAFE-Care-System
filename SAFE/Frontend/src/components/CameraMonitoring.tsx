@@ -215,24 +215,56 @@ export function CameraMonitoring({ data, onTriggerAlert }: { data: { camera_info
     const handleConfirmNeeded = (cameraId: string, trackId: number) => {
         if (!pendingConfirmation) setPendingConfirmation({ cameraId, trackId });
     };
-    const handleConfirmFall = () => {
+    const handleConfirmFall = async () => {
         if (!pendingConfirmation) return;
+        try {
+            // Mengirim request POST ke backend dengan track_id di dalam body
+            const response = await fetch('http://localhost:5001/api/confirm_fall', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ track_id: pendingConfirmation.trackId }),
+            });
 
-        // Cari penghuni berdasarkan kamera tempat insiden terjadi
-        const camera = data.camera_info.find(c => c.id === pendingConfirmation.cameraId);
-        const resident = residents.find(r => r.room_number === camera?.room_number);
-        
-        if (resident) {
-            // Panggil fungsi onTriggerAlert yang diberikan dari AdminDashboard
-            onTriggerAlert(resident.id);
+            if (!response.ok) {
+                // Menangani jika backend merespons dengan error
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to confirm fall');
+            }
+
+            console.log("Fall confirmed successfully.");
+
+        } catch (error) {
+            console.error('Error confirming fall:', error);
         }
-
-        // Hentikan alarm dan tutup modal
+        // Hentikan suara dan tutup modal setelah aksi
         setPendingConfirmation(null);
     };
-    
-    const handleDenyFall = () => { 
-        // Cukup hentikan alarm dan tutup modal
+        
+    const handleDenyFall = async () => {
+        if (!pendingConfirmation) return;
+        try {
+            // Mengirim request POST ke backend dengan track_id di dalam body
+            const response = await fetch('http://localhost:5001/api/deny_fall', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ track_id: pendingConfirmation.trackId }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to deny fall');
+            }
+
+            console.log("Fall denied successfully.");
+
+        } catch (error) {
+            console.error('Error denying fall:', error);
+        }
+        // Hentikan suara dan tutup modal setelah aksi
         setPendingConfirmation(null);
     };
   
