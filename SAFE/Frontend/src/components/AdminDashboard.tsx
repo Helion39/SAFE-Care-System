@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { VitalsChart } from './VitalsChart';
 import { UserManagement } from './UserManagement';
 import { ResidentManagement } from './ResidentManagement';
+import { CameraMonitoring } from './CameraMonitoring';
 import apiService from '../services/api';
 import { 
   Users, 
@@ -456,68 +457,7 @@ export function AdminDashboard({ data, setData, onTriggerAlert, onResolveInciden
             )}
 
             {activeTab === 'cameras' && (
-              <div style={{ 
-                backgroundColor: 'white', 
-                borderRadius: '12px', 
-                overflow: 'hidden'
-              }}>
-                <div style={{ 
-                  backgroundColor: '#E3F2FD', 
-                  padding: '16px 24px'
-                }}>
-                  <div style={{ 
-                    display: 'flex', 
-                    justifyContent: 'space-between', 
-                    alignItems: 'center' 
-                  }}>
-                    <h3 style={{ 
-                      color: '#1565C0', 
-                      fontSize: '16px', 
-                      fontWeight: '600', 
-                      margin: 0,
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px'
-                    }}>
-                      <Camera style={{ width: '16px', height: '16px' }} />
-                      Camera System Status
-                    </h3>
-                    <span style={{ 
-                      color: '#1565C0', 
-                      fontSize: '12px' 
-                    }}>
-                      All systems operational
-                    </span>
-                  </div>
-                </div>
-                <div style={{ padding: '24px' }}>
-                <div className="grid grid-3">
-                  {(data.camera_info || []).map(camera => (
-                    <div key={camera.id} className="card" style={{ margin: '0' }}>
-                      <div className="flex justify-between items-center mb-2">
-                        <div>
-                          <p style={{ fontWeight: '600' }}>Room {camera.room_number}</p>
-                          <p style={{ fontSize: 'var(--text-sm)', color: 'var(--gray-500)' }}>
-                            Last checked: {new Date(camera.last_checked).toLocaleString()}
-                          </p>
-                        </div>
-                        <span className={`badge ${camera.status === 'active' ? 'badge-success' : 'badge-error'}`}>
-                          {camera.status === 'active' ? 'Active' : 'Maintenance Required'}
-                        </span>
-                      </div>
-                      <div style={{ 
-                        padding: 'var(--space-1)', 
-                        backgroundColor: 'var(--gray-100)', 
-                        borderRadius: 'var(--radius)', 
-                        fontSize: 'var(--text-sm)' 
-                      }}>
-                        📹 Camera feed available - AI monitoring enabled
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                </div>
-              </div>
+              <CameraMonitoring data={data} onTriggerAlert={onTriggerAlert} />
             )}
           </div>
         </div>
