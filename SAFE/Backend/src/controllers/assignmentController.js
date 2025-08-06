@@ -37,20 +37,37 @@ const createAssignment = async (req, res, next) => {
       });
     }
 
-    // Handle existing assignments at application level
-    const existingAssignment = await Assignment.findOne({
+    // Check for existing assignments (1:1 validation)
+    const existingResidentAssignment = await Assignment.findOne({
       residentId,
       isActive: true
     });
 
-    if (existingAssignment) {
-      console.log('🔍 Existing assignment found, ending it first');
-      // End existing assignment before creating new one
-      await Assignment.findByIdAndUpdate(existingAssignment._id, {
+    const existingCaregiverAssignment = await Assignment.findOne({
+      caregiverId,
+      isActive: true
+    });
+
+    if (existingResidentAssignment) {
+      console.log('🔍 Existing resident assignment found, ending it first');
+      await Assignment.findByIdAndUpdate(existingResidentAssignment._id, {
         isActive: false,
         endDate: new Date()
       });
-      console.log('✅ Previous assignment ended');
+      console.log('✅ Previous resident assignment ended');
+    }
+
+    if (existingCaregiverAssignment) {
+      console.log('🔍 Existing caregiver assignment found, ending it first');
+      await Assignment.findByIdAndUpdate(existingCaregiverAssignment._id, {
+        isActive: false,
+        endDate: new Date()
+      });
+      // Remove caregiver from previous resident
+      await Resident.findByIdAndUpdate(existingCaregiverAssignment.residentId, {
+        assignedCaregiver: null
+      });
+      console.log('✅ Previous caregiver assignment ended');
     }
 
     // Create assignment
@@ -107,10 +124,23 @@ const createAssignment = async (req, res, next) => {
     }
     
     if (error.code === 11000) {
-      return res.status(400).json({
-        success: false,
-        error: 'Resident already has an active assignment'
-      });
+      // Check which unique constraint was violated
+      if (error.message.includes('resident_active_unique_idx')) {
+        return res.status(400).json({
+          success: false,
+          error: 'This resident already has an active caregiver assignment'
+        });
+      } else if (error.message.includes('caregiver_active_unique_idx')) {
+        return res.status(400).json({
+          success: false,
+          error: 'This caregiver is already assigned to another resident'
+        });
+      } else {
+        return res.status(400).json({
+          success: false,
+          error: 'Assignment conflict: 1:1 assignment rule violated'
+        });
+      }
     }
     
     next(error);

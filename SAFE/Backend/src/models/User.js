@@ -41,7 +41,7 @@ const UserSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['admin', 'caregiver'],
+    enum: ['admin', 'caregiver', 'family'],
     required: [true, 'Please specify a role']
   },
   isActive: {
@@ -54,6 +54,15 @@ const UserSchema = new mongoose.Schema({
   isOnline: {
     type: Boolean,
     default: false
+  },
+  googleId: {
+    type: String,
+    sparse: true
+  },
+  assignedResidentId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Resident',
+    required: false
   },
   refreshToken: {
     type: String,
