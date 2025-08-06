@@ -76,16 +76,6 @@ AssignmentSchema.index(
   }
 );
 
-// Ensure only one active assignment per caregiver (1:1 assignment)
-AssignmentSchema.index(
-  { caregiverId: 1, isActive: 1 },
-  { 
-    unique: true,
-    partialFilterExpression: { isActive: true },
-    name: 'caregiver_active_unique_idx'
-  }
-);
-
 // Simplified pre-save middleware
 AssignmentSchema.pre('save', async function(next) {
   // Only set end date when deactivating

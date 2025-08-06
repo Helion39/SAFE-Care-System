@@ -8,7 +8,7 @@ const logger = require('../utils/logger');
 // @access  Private/Admin
 const createResident = async (req, res, next) => {
   try {
-    const { residentId, name, room, age, medicalConditions, emergencyContact, familyEmails, notes } = req.body;
+    const { name, room, age, medicalConditions, emergencyContact, familyEmails, notes } = req.body;
 
     // Check if room number already exists
     const existingResident = await Resident.findOne({ room });
@@ -20,7 +20,6 @@ const createResident = async (req, res, next) => {
     }
 
     const resident = await Resident.create({
-      residentId,
       name,
       room,
       age,
@@ -395,36 +394,6 @@ const getResidentStats = async (req, res, next) => {
   }
 };
 
-// @desc    Check room availability
-// @route   GET /api/residents/check-room/:roomNumber
-// @access  Private/Admin
-const checkRoomAvailability = async (req, res, next) => {
-  try {
-    const { roomNumber } = req.params;
-    const { excludeId } = req.query; // For editing existing resident
-    
-    let query = { room: roomNumber, isActive: true };
-    if (excludeId) {
-      query._id = { $ne: excludeId };
-    }
-    
-    const existingResident = await Resident.findOne(query);
-    
-    res.status(200).json({
-      success: true,
-      available: !existingResident,
-      occupiedBy: existingResident ? {
-        id: existingResident._id,
-        name: existingResident.name,
-        residentId: existingResident.residentId
-      } : null
-    });
-  } catch (error) {
-    logger.error('Check room availability error:', error);
-    next(error);
-  }
-};
-
 module.exports = {
   createResident,
   getResidents,
@@ -433,6 +402,5 @@ module.exports = {
   deleteResident,
   searchResidents,
   getUnassignedResidents,
-  getResidentStats,
-  checkRoomAvailability
+  getResidentStats
 };

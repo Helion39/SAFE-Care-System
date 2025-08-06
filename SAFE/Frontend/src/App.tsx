@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AdminDashboard } from './components/AdminDashboard';
+import { AdminDashboard } from './components/AdminDashboard1';
 import CaregiverDashboard from './components/CaregiverDashboard';
 import { EmergencyAlert } from './components/EmergencyAlert';
 import { FamilyLoginPage } from './components/FamilyLoginPage';
@@ -373,23 +373,23 @@ function StaffLogin() {
 
       {/* Main Content */}
       {currentUser.role === 'admin' ? (
-        <AdminDashboard 
-          data={data} 
-          setData={setData}
-          onTriggerAlert={triggerEmergencyAlert}
-          onResolveIncident={resolveIncident}
-          onDataChange={loadData}
-        />
-      ) : (
-        <CaregiverDashboard 
-          data={data} 
-          setData={setData}
-          currentUser={currentUser}
-          onTriggerAlert={triggerEmergencyAlert}
-          onResolveIncident={resolveIncident}
-          onDataChange={loadData}
-        />
-      )}
+  <AdminDashboard 
+    data={data} 
+    setData={setData}
+    onTriggerAlert={triggerEmergencyAlert}
+    onResolveIncident={resolveIncident}
+    onDataChange={loadData}
+  />
+) : (
+  <CaregiverDashboard 
+    data={data} 
+    setData={setData}
+    currentUser={currentUser}
+    onTriggerAlert={triggerEmergencyAlert}
+    onResolveIncident={resolveIncident}
+    onDataChange={loadData}
+  />
+)}
       
       <Modal
         isOpen={modalState.isOpen}
@@ -617,10 +617,9 @@ function FamilyPortal() {
       {/* Main Content */}
       <div className="container mx-auto px-6 py-6">
         <FamilyDashboard 
-          userData={currentUser}
-          data={data} 
-          currentUser={currentUser}
-          onLogout={handleFamilyLogout}
+  data={data} 
+  currentUser={currentUser}
+  onLogout={handleFamilyLogout}
         />
       </div>
       

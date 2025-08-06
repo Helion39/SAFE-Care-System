@@ -68,7 +68,6 @@ const userSchemas = {
 // Resident validation schemas
 const residentSchemas = {
   create: Joi.object({
-    residentId: Joi.string().min(3).max(20).optional(),
     name: Joi.string().min(2).max(100).required(),
     room: Joi.string().min(1).max(20).required(),
     age: Joi.number().integer().min(1).max(150).required(),
@@ -83,7 +82,6 @@ const residentSchemas = {
   }),
   
   update: Joi.object({
-    residentId: Joi.string().min(3).max(20).optional(),
     name: Joi.string().min(2).max(100).optional(),
     room: Joi.string().min(1).max(20).optional(),
     age: Joi.number().integer().min(1).max(150).optional(),

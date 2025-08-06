@@ -28,6 +28,16 @@ export function CaregiverDashboard({ data, setData, currentUser, onTriggerAlert,
   const [activeTab, setActiveTab] = useState('overview');
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
+  // Listen for sidebar toggle from navbar
+  React.useEffect(() => {
+    const handleToggleSidebar = () => {
+      setSidebarOpen(prev => !prev);
+    };
+
+    window.addEventListener('toggleSidebar', handleToggleSidebar);
+    return () => window.removeEventListener('toggleSidebar', handleToggleSidebar);
+  }, []);
+
   // Find assigned resident by looking through assignments data
   const caregiverId = currentUser._id || currentUser.id;
   const activeAssignment = data.assignments?.find(assignment => {
@@ -117,85 +127,77 @@ export function CaregiverDashboard({ data, setData, currentUser, onTriggerAlert,
   const latestVitals = residentVitals[0];
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      {/* Sidebar */}
-      <div className={`${sidebarOpen ? 'w-64' : 'w-16'} transition-all duration-300`} style={{ backgroundColor: '#E3F2FD' }}>
-        {/* SAFE Logo/Header */}
-        <div className="p-4 border-b border-blue-200">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <div className="w-6 h-6 bg-blue-500 rounded mr-2 flex items-center justify-center">
-                <span className="text-white text-xs font-bold">+</span>
-              </div>
-              {sidebarOpen && <span className="text-blue-600 font-semibold">SAFE</span>}
-            </div>
-            <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="p-1 rounded hover:bg-blue-100 transition-colors"
-            >
-              {sidebarOpen ? (
-                <X className="w-4 h-4 text-blue-600" />
-              ) : (
-                <Menu className="w-4 h-4 text-blue-600" />
-              )}
-            </button>
-          </div>
-        </div>
-        
-        {/* Navigation */}
-        <nav className="py-4">
-          {sidebarOpen && (
-            <div className="px-4 mb-2">
-              <span className="text-xs text-gray-500 uppercase tracking-wide">Caregiver Panel</span>
-            </div>
-          )}
-          
-          <div className="space-y-1">
-            <button 
-              className={`w-full flex items-center ${sidebarOpen ? 'px-4' : 'px-2 justify-center'} py-2 text-sm text-left transition-colors ${
-                activeTab === 'overview' 
-                  ? 'bg-blue-100 text-blue-700 border-r-2 border-blue-500' 
-                  : 'text-gray-600 hover:bg-blue-50'
-              }`}
-              onClick={() => setActiveTab('overview')}
-              title={!sidebarOpen ? 'Care Overview' : ''}
-            >
-              <Stethoscope className={`w-4 h-4 ${sidebarOpen ? 'mr-3' : ''}`} />
-              {sidebarOpen && 'Care Overview'}
-            </button>
-            
-            <button 
-              className={`w-full flex items-center ${sidebarOpen ? 'px-4' : 'px-2 justify-center'} py-2 text-sm text-left transition-colors ${
-                activeTab === 'checklists' 
-                  ? 'bg-blue-100 text-blue-700 border-r-2 border-blue-500' 
-                  : 'text-gray-600 hover:bg-blue-50'
-              }`}
-              onClick={() => setActiveTab('checklists')}
-              title={!sidebarOpen ? 'Daily Tasks' : ''}
-            >
-              <ClipboardList className={`w-4 h-4 ${sidebarOpen ? 'mr-3' : ''}`} />
-              {sidebarOpen && 'Daily Tasks'}
-            </button>
-
-            <button 
-              className={`w-full flex items-center ${sidebarOpen ? 'px-4' : 'px-2 justify-center'} py-2 text-sm text-left transition-colors ${
-                activeTab === 'vitals' 
-                  ? 'bg-blue-100 text-blue-700 border-r-2 border-blue-500' 
-                  : 'text-gray-600 hover:bg-blue-50'
-              }`}
-              onClick={() => setActiveTab('vitals')}
-              title={!sidebarOpen ? 'Vitals History' : ''}
-            >
-              <Activity className={`w-4 h-4 ${sidebarOpen ? 'mr-3' : ''}`} />
-              {sidebarOpen && 'Vitals History'}
-            </button>
-          </div>
-        </nav>
+    <div className="bg-gray-50" style={{ minHeight: 'calc(100vh - 80px)' }}>
+{/* Sidebar */}
+<div className={`${sidebarOpen ? 'w-64' : 'w-16'} transition-all duration-300 fixed left-0 flex flex-col z-40`} style={{ backgroundColor: '#E3F2FD', height: 'calc(100vh - 80px)', top: '80px' }}>
+  {/* Sidebar Header */}
+  <div className="p-4 border-b border-blue-200">
+    <div className={`flex items-center transition-all duration-300 ${sidebarOpen ? '' : 'justify-center'}`}>
+      <Stethoscope className="w-5 h-5 text-blue-600 flex-shrink-0" />
+      <span className={`text-blue-600 font-semibold transition-all duration-300 ${
+        sidebarOpen ? 'ml-2 opacity-100 w-auto' : 'ml-0 opacity-0 w-0 overflow-hidden'
+      }`}>
+        Caregiver
+      </span>
+    </div>
+  </div>
+  
+  {/* Navigation */}
+  <nav className="flex-1 overflow-y-auto">
+    {sidebarOpen && (
+      <div className="px-4 py-2">
+        <span className="text-xs text-gray-500 uppercase tracking-wide">
+          Caregiver Panel
+        </span>
       </div>
+    )}
+    
+    <div className="space-y-1">
+      <button 
+        className={`w-full flex items-center ${sidebarOpen ? 'px-4' : 'px-2 justify-center'} py-2 text-sm text-left transition-colors ${
+          activeTab === 'overview' 
+            ? 'bg-blue-100 text-blue-700 border-r-2 border-blue-500' 
+            : 'text-gray-600 hover:bg-blue-50'
+        }`}
+        onClick={() => setActiveTab('overview')}
+        title={!sidebarOpen ? 'Care Overview' : ''}
+      >
+        <Stethoscope className={`w-4 h-4 ${sidebarOpen ? 'mr-3' : ''}`} />
+        {sidebarOpen && 'Care Overview'}
+      </button>
+      
+      <button 
+        className={`w-full flex items-center ${sidebarOpen ? 'px-4' : 'px-2 justify-center'} py-2 text-sm text-left transition-colors ${
+          activeTab === 'checklists' 
+            ? 'bg-blue-100 text-blue-700 border-r-2 border-blue-500' 
+            : 'text-gray-600 hover:bg-blue-50'
+        }`}
+        onClick={() => setActiveTab('checklists')}
+        title={!sidebarOpen ? 'Daily Tasks' : ''}
+      >
+        <ClipboardList className={`w-4 h-4 ${sidebarOpen ? 'mr-3' : ''}`} />
+        {sidebarOpen && 'Daily Tasks'}
+      </button>
+
+      <button 
+        className={`w-full flex items-center ${sidebarOpen ? 'px-4' : 'px-2 justify-center'} py-2 text-sm text-left transition-colors ${
+          activeTab === 'vitals' 
+            ? 'bg-blue-100 text-blue-700 border-r-2 border-blue-500' 
+            : 'text-gray-600 hover:bg-blue-50'
+        }`}
+        onClick={() => setActiveTab('vitals')}
+        title={!sidebarOpen ? 'Vitals History' : ''}
+      >
+        <Activity className={`w-4 h-4 ${sidebarOpen ? 'mr-3' : ''}`} />
+        {sidebarOpen && 'Vitals History'}
+      </button>
+    </div>
+  </nav>
+</div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <div className="flex-1 overflow-auto p-6">
+      <div className="transition-all duration-300" style={{ marginLeft: sidebarOpen ? '256px' : '64px' }}>
+        <div className="p-6">
           <div className="flex flex-col gap-3">
             {/* Incident Response Section - Always visible */}
             {claimedIncidents.length > 0 && (

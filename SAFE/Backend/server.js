@@ -29,7 +29,7 @@ const server = createServer(app);
 // Socket.IO setup
 const io = new Server(server, {
   cors: {
-    origin: process.env.FRONTEND_URL || "http://localhost:3000/pp-login",
+    origin: process.env.FRONTEND_URL || "http://localhost:3000",
     methods: ["GET", "POST"]
   }
 });
@@ -48,7 +48,7 @@ app.use(compression());
 
 // CORS configuration
 app.use(cors({
-  origin: process.env.FRONTEND_URL || "http://localhost:3000/pp-login",
+  origin: process.env.FRONTEND_URL || "http://localhost:3000",
   credentials: true
 }));
 
@@ -65,13 +65,13 @@ if (process.env.NODE_ENV !== 'test') {
 const initializeDatabase = async () => {
   try {
     await connectDB();
-    
+
     // Setup database indexes after connection
     await setupIndexes();
-    
+
     // Seed initial data
     await seedData();
-    
+
     logger.info('✅ Database initialization completed');
   } catch (error) {
     logger.error('❌ Database initialization failed:', error);

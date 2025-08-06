@@ -1,8 +1,5 @@
 import React, { useState } from 'react';
 import { CreateResidentForm } from './CreateResidentForm';
-import { Modal } from './Modal';
-import { InputModal } from './InputModal';
-import { useModal } from '../hooks/useModal';
 import apiService from '../services/api';
 import { 
   Users, 
@@ -34,7 +31,6 @@ export function ResidentManagement({ data, setData, onDataChange }: ResidentMana
   const [searchTerm, setSearchTerm] = useState('');
   const [filterAssignment, setFilterAssignment] = useState('all');
   const [showFamilyEmails, setShowFamilyEmails] = useState<string | null>(null);
-  const { modalState, inputModalState, showAlert, showConfirm, showInput, closeModal, closeInputModal } = useModal();
 
   const residents = data.residents || [];
   const caregivers = data.users.filter((user: any) => user.role === 'caregiver');
@@ -66,29 +62,22 @@ export function ResidentManagement({ data, setData, onDataChange }: ResidentMana
       }
     } catch (error) {
       console.error('Failed to create resident:', error);
-      showAlert('Error', `Failed to create resident: ${error.message}`, 'error');
+      alert('Failed to create resident: ' + error.message);
     }
   };
 
   const handleDeleteResident = async (residentId: number) => {
-    showConfirm(
-      'Delete Resident',
-      'Are you sure you want to delete this resident? This action cannot be undone and will remove all associated data.',
-      async () => {
-        try {
-          const response = await apiService.deleteResident(residentId);
-          if (response.success) {
-            await onDataChange();
-            showAlert('Success', 'Resident deleted successfully', 'success');
-          }
-        } catch (error) {
-          console.error('Failed to delete resident:', error);
-          showAlert('Error', `Failed to delete resident: ${error.message}`, 'error');
+    if (window.confirm('Are you sure you want to delete this resident? This action cannot be undone and will remove all associated data.')) {
+      try {
+        const response = await apiService.deleteResident(residentId);
+        if (response.success) {
+          await onDataChange(); // Refresh data
         }
-      },
-      'Delete',
-      'Cancel'
-    );
+      } catch (error) {
+        console.error('Failed to delete resident:', error);
+        alert('Failed to delete resident: ' + error.message);
+      }
+    }
   };
 
   const handleAssignCaregiver = async (residentId: string, caregiverId: string) => {
@@ -133,53 +122,33 @@ export function ResidentManagement({ data, setData, onDataChange }: ResidentMana
       }
     } catch (error) {
       console.error('Failed to assign/unassign caregiver:', error);
-      showAlert('Error', `Failed to assign/unassign caregiver: ${error.message}`, 'error');
+      alert('Failed to assign/unassign caregiver: ' + error.message);
     }
   };
 
   const handleManageFamilyEmails = async (residentId: string, action: 'add' | 'remove', email?: string) => {
     try {
       if (action === 'add') {
-        showInput(
-          'Add Family Email',
-          'Enter family member email address',
-          async (newEmail: string) => {
-            try {
-              const response = await apiService.addFamilyEmail(residentId, newEmail);
-              if (response.success) {
-                await onDataChange();
-                showAlert('Success', 'Family email added successfully', 'success');
-              }
-            } catch (error: any) {
-              showAlert('Error', `Failed to add family email: ${error.message}`, 'error');
-            }
-          },
-          'email',
-          (value: string) => {
-            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-              return 'Please enter a valid email address';
-            }
-            return null;
+        const newEmail = prompt('Enter family member email address:');
+        if (newEmail && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail)) {
+          const response = await apiService.addFamilyEmail(residentId, newEmail);
+          if (response.success) {
+            await onDataChange();
           }
-        );
+        } else if (newEmail) {
+          alert('Please enter a valid email address');
+        }
       } else if (action === 'remove' && email) {
-        showConfirm(
-          'Remove Family Access',
-          `Remove ${email} from family access?`,
-          async () => {
-            const response = await apiService.removeFamilyEmail(residentId, email);
-            if (response.success) {
-              await onDataChange();
-              showAlert('Success', 'Family email removed successfully', 'success');
-            }
-          },
-          'Remove',
-          'Cancel'
-        );
+        if (window.confirm(`Remove ${email} from family access?`)) {
+          const response = await apiService.removeFamilyEmail(residentId, email);
+          if (response.success) {
+            await onDataChange();
+          }
+        }
       }
     } catch (error) {
       console.error('Failed to manage family email:', error);
-      showAlert('Error', `Failed to manage family email: ${error.message}`, 'error');
+      alert('Failed to manage family email: ' + error.message);
     }
   };
 
@@ -204,7 +173,7 @@ export function ResidentManagement({ data, setData, onDataChange }: ResidentMana
       }
     } catch (error) {
       console.error('Failed to update resident:', error);
-      showAlert('Error', `Failed to update resident: ${error.message}`, 'error');
+      alert('Failed to update resident: ' + error.message);
     }
   };
 
@@ -235,13 +204,6 @@ export function ResidentManagement({ data, setData, onDataChange }: ResidentMana
           initialData={editingResident}
           isEditing={!!editingResident}
         />
-        
-        <style>{`
-          @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-          }
-        `}</style>
       </div>
     );
   }
@@ -396,7 +358,6 @@ export function ResidentManagement({ data, setData, onDataChange }: ResidentMana
             <table className="table">
               <thead>
                 <tr>
-                  <th>Resident ID</th>
                   <th>Resident</th>
                   <th>Room</th>
                   <th>Age</th>
@@ -415,11 +376,6 @@ export function ResidentManagement({ data, setData, onDataChange }: ResidentMana
                   
                   return (
                     <tr key={residentId}>
-                      <td>
-                        <span className="badge badge-info" style={{ fontFamily: 'monospace', fontSize: 'var(--text-xs)' }}>
-                          {resident.residentId || resident.resident_id || 'N/A'}
-                        </span>
-                      </td>
                       <td>
                         <div>
                           <div style={{ fontWeight: '500' }}>{resident.name}</div>
@@ -532,21 +488,7 @@ export function ResidentManagement({ data, setData, onDataChange }: ResidentMana
                           >
                             <option value="">Unassigned</option>
                             {caregivers
-                              .filter((caregiver: any) => {
-                                const isActive = caregiver.isActive !== undefined ? caregiver.isActive : (caregiver.status === 'active');
-                                const caregiverId = caregiver._id || caregiver.id;
-                                
-                                // Show caregiver if:
-                                // 1. They are active AND
-                                // 2. They are not assigned to any other resident OR they are assigned to current resident
-                                const isAssignedToOtherResident = residents.some((r: any) => {
-                                  const rId = r._id || r.id;
-                                  const rAssignedCaregiverId = r.assignedCaregiver?._id || r.assignedCaregiver || r.assigned_caregiver_id;
-                                  return rId !== residentId && rAssignedCaregiverId === caregiverId;
-                                });
-                                
-                                return isActive && !isAssignedToOtherResident;
-                              })
+                              .filter((caregiver: any) => caregiver.isActive !== undefined ? caregiver.isActive : (caregiver.status === 'active'))
                               .map((caregiver: any) => {
                                 const caregiverId = caregiver._id || caregiver.id;
                                 return (
@@ -619,27 +561,6 @@ export function ResidentManagement({ data, setData, onDataChange }: ResidentMana
         )}
         </div>
       </div>
-      
-      <Modal
-        isOpen={modalState.isOpen}
-        onClose={closeModal}
-        title={modalState.title}
-        message={modalState.message}
-        type={modalState.type}
-        onConfirm={modalState.onConfirm}
-        confirmText={modalState.confirmText}
-        cancelText={modalState.cancelText}
-      />
-      
-      <InputModal
-        isOpen={inputModalState.isOpen}
-        onClose={closeInputModal}
-        onSubmit={inputModalState.onSubmit!}
-        title={inputModalState.title}
-        placeholder={inputModalState.placeholder}
-        inputType={inputModalState.inputType}
-        validation={inputModalState.validation}
-      />
     </div>
   );
 }

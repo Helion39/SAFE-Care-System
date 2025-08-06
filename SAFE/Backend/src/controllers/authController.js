@@ -401,103 +401,6 @@ const familyLogin = async (req, res, next) => {
   }
 };
 
-// @desc    Family Google login
-// @route   POST /api/auth/family-google-login
-// @access  Public
-const familyGoogleLogin = async (req, res, next) => {
-  try {
-    const { googleToken } = req.body;
-    
-    const { OAuth2Client } = require('google-auth-library');
-    const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-    
-    const ticket = await client.verifyIdToken({
-      idToken: googleToken,
-      audience: process.env.GOOGLE_CLIENT_ID,
-    });
-    
-    const payload = ticket.getPayload();
-    const email = payload.email;
-    
-    const Resident = require('../models/Resident');
-    const resident = await Resident.findOne({ 
-      familyEmails: { $in: [email.toLowerCase()] },
-      isActive: true 
-    });
-
-    if (!resident) {
-      return res.status(404).json({
-        success: false,
-        message: 'No resident found for this email'
-      });
-    }
-
-    const familyUser = {
-      id: `family_${resident._id}`,
-      name: payload.name,
-      email: email,
-      role: 'family',
-      assignedResidentId: resident._id
-    };
-
-    const jwt = require('jsonwebtoken');
-    const token = jwt.sign(
-      { id: familyUser.id, email: familyUser.email, role: 'family', residentId: resident._id },
-      process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRE }
-    );
-
-    res.status(200).json({
-      success: true,
-      data: { user: familyUser, token }
-    });
-  } catch (error) {
-    logger.error('Family Google login error:', error);
-    next(error);
-  }
-};
-
-// @desc    Get family data by email
-// @route   GET /api/auth/family/data/:email
-// @access  Private
-const getFamilyDataByEmail = async (req, res, next) => {
-  try {
-    const email = req.params.email;
-    
-    const Resident = require('../models/Resident');
-    const Vitals = require('../models/Vitals');
-    const Incident = require('../models/Incident');
-    
-    const resident = await Resident.findOne({ 
-      familyEmails: { $in: [email.toLowerCase()] },
-      isActive: true 
-    });
-
-    if (!resident) {
-      return res.status(404).json({
-        success: false,
-        message: 'No resident found for this email'
-      });
-    }
-
-    const vitals = await Vitals.find({ residentId: resident._id })
-      .sort({ timestamp: -1 })
-      .limit(10);
-      
-    const incidents = await Incident.find({ residentId: resident._id })
-      .sort({ createdAt: -1 })
-      .limit(5);
-
-    res.status(200).json({
-      success: true,
-      data: { resident, vitals, incidents }
-    });
-  } catch (error) {
-    logger.error('Get family data error:', error);
-    next(error);
-  }
-};
-
 module.exports = {
   register,
   login,
@@ -506,7 +409,5 @@ module.exports = {
   refreshToken,
   updateProfile,
   changePassword,
-  familyLogin,
-  familyGoogleLogin,
-  getFamilyDataByEmail
+  familyLogin
 };

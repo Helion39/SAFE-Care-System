@@ -9,9 +9,7 @@ const {
   refreshToken,
   updateProfile,
   changePassword,
-  familyLogin,
-  familyGoogleLogin,
-  getFamilyDataByEmail
+  familyLogin
 } = require('../controllers/authController');
 const { protect, authorize, devAdminHeader } = require('../middleware/auth');
 const { validate, userSchemas } = require('../middleware/validation');
@@ -29,8 +27,6 @@ router.use((req, res, next) => {
 // Public routes
 router.post('/login', validate(userSchemas.login), login);
 router.post('/family-login', familyLogin);
-router.post('/family-google-login', familyGoogleLogin);
-router.get('/family/data/:email', protect, getFamilyDataByEmail);
 router.post('/refresh', refreshToken);
 
 
@@ -71,24 +67,18 @@ passport.use(new GoogleStrategy({
       return done(new Error('No resident found for this email'), null);
     }
     
-    console.log('🔍 Found resident for OAuth:', { id: resident._id, name: resident.name, email: email });
-    
-    // Create new family user WITHOUT assignedResidentId (we use familyEmails now)
+    // Create new family user with resident connection
     const username = email.split('@')[0].substring(0, 20);
     
-    const userData = {
+    user = await User.create({
       name: profile.displayName,
       email: email,
       username: username,
       password: 'google_oauth_' + Date.now(),
       role: 'family',
-      googleId: profile.id
-      // Remove assignedResidentId - we use familyEmails system now
-    };
-    
-    console.log('🔍 Creating user with data:', userData);
-    
-    user = await User.create(userData);
+      googleId: profile.id,
+      assignedResidentId: resident._id
+    });
     
     return done(null, user);
   } catch (error) {
@@ -142,14 +132,14 @@ router.get('/google/callback',
         id: user._id,
         name: user.name,
         email: user.email,
-        role: user.role
-        // Remove assignedResidentId - we use familyEmails system now
+        role: user.role,
+        assignedResidentId: user.assignedResidentId
       };
       
       console.log('🔍 OAuth callback - final user payload:', userPayload);
       
       // Redirect to frontend with token and user data
-      const redirectUrl = `http://localhost:3000/family-login?token=${token}&user=${encodeURIComponent(JSON.stringify(userPayload))}`;
+      const redirectUrl = `http://localhost:3000?token=${token}&user=${encodeURIComponent(JSON.stringify(userPayload))}`;
       console.log('🔍 OAuth redirect URL:', redirectUrl);
       res.redirect(redirectUrl);
     } catch (error) {

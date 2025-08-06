@@ -1,8 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { UserPlus, Plus, X, AlertCircle, CheckCircle } from 'lucide-react';
-import { Modal } from './Modal';
-import { useModal } from '../hooks/useModal';
-import apiService from '../services/api';
+import React, { useState } from 'react';
+import { UserPlus, Plus, X } from 'lucide-react';
 
 interface CreateResidentFormProps {
   onCreateResident: (residentData: any) => void;
@@ -14,7 +11,6 @@ interface CreateResidentFormProps {
 
 export function CreateResidentForm({ onCreateResident, onCancel, existingRooms, initialData, isEditing }: CreateResidentFormProps) {
   const [formData, setFormData] = useState({
-    residentId: initialData?.residentId || '',
     name: initialData?.name || '',
     roomNumber: initialData?.room_number || initialData?.room || '',
     age: initialData?.age?.toString() || '',
@@ -29,64 +25,6 @@ export function CreateResidentForm({ onCreateResident, onCancel, existingRooms, 
   });
   const [errors, setErrors] = useState<any>({});
   const [isLoading, setIsLoading] = useState(false);
-  const [roomCheckStatus, setRoomCheckStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle');
-  const [roomCheckMessage, setRoomCheckMessage] = useState('');
-  const [roomCheckTimeout, setRoomCheckTimeout] = useState<NodeJS.Timeout | null>(null);
-  const { modalState, showAlert, closeModal } = useModal();
-
-  // Debounced room availability check
-  const checkRoomAvailability = useCallback(async (roomNumber: string) => {
-    if (!roomNumber.trim()) {
-      setRoomCheckStatus('idle');
-      setRoomCheckMessage('');
-      return;
-    }
-
-    setRoomCheckStatus('checking');
-    setRoomCheckMessage('Checking availability...');
-
-    try {
-      const excludeId = isEditing && initialData?.id ? initialData.id : null;
-      const response = await apiService.checkRoomAvailability(roomNumber.trim(), excludeId);
-      
-      if (response.success) {
-        if (response.available) {
-          setRoomCheckStatus('available');
-          setRoomCheckMessage('Room available');
-        } else {
-          setRoomCheckStatus('taken');
-          setRoomCheckMessage(`Room occupied by ${response.occupiedBy?.name} (${response.occupiedBy?.residentId})`);
-        }
-      }
-    } catch (error) {
-      setRoomCheckStatus('idle');
-      setRoomCheckMessage('');
-    }
-  }, [isEditing, initialData?.id]);
-
-  // Effect for debounced room checking
-  useEffect(() => {
-    if (roomCheckTimeout) {
-      clearTimeout(roomCheckTimeout);
-    }
-
-    if (formData.roomNumber.trim()) {
-      const timeout = setTimeout(() => {
-        checkRoomAvailability(formData.roomNumber);
-      }, 500); // 500ms debounce
-      
-      setRoomCheckTimeout(timeout);
-    } else {
-      setRoomCheckStatus('idle');
-      setRoomCheckMessage('');
-    }
-
-    return () => {
-      if (roomCheckTimeout) {
-        clearTimeout(roomCheckTimeout);
-      }
-    };
-  }, [formData.roomNumber, checkRoomAvailability]);
 
   const commonMedicalConditions = [
     'Diabetes',
@@ -106,8 +44,6 @@ export function CreateResidentForm({ onCreateResident, onCancel, existingRooms, 
   const validateForm = () => {
     const newErrors: any = {};
 
-    // Resident ID is auto-generated, no validation needed
-
     // Name validation
     if (!formData.name.trim()) {
       newErrors.name = 'Resident name is required';
@@ -118,10 +54,8 @@ export function CreateResidentForm({ onCreateResident, onCancel, existingRooms, 
     // Room number validation
     if (!formData.roomNumber.trim()) {
       newErrors.roomNumber = 'Room number is required';
-    } else if (roomCheckStatus === 'taken') {
-      newErrors.roomNumber = 'Room number already assigned to another resident';
-    } else if (roomCheckStatus === 'checking') {
-      newErrors.roomNumber = 'Please wait while we check room availability';
+    } else if (existingRooms.includes(formData.roomNumber.trim())) {
+      newErrors.roomNumber = 'Room number already exists';
     }
 
     // Age validation
@@ -176,7 +110,7 @@ export function CreateResidentForm({ onCreateResident, onCancel, existingRooms, 
       // Simulate API call delay
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      const residentData: any = {
+      const residentData = {
         name: formData.name.trim(),
         room: formData.roomNumber.trim(),
         age: parseInt(formData.age),
@@ -189,17 +123,11 @@ export function CreateResidentForm({ onCreateResident, onCancel, existingRooms, 
         } : null,
         notes: formData.notes.trim() || null
       };
-      
-      // Only include residentId if editing and it exists
-      if (isEditing && formData.residentId) {
-        residentData.residentId = formData.residentId.trim();
-      }
 
       onCreateResident(residentData);
       
       // Reset form
       setFormData({
-        residentId: '',
         name: '',
         roomNumber: '',
         age: '',
@@ -214,7 +142,7 @@ export function CreateResidentForm({ onCreateResident, onCancel, existingRooms, 
       });
       
     } catch (error) {
-      showAlert('Error', 'Failed to create resident. Please try again.', 'error');
+      setErrors({ submit: 'Failed to create resident. Please try again.' });
     } finally {
       setIsLoading(false);
     }
@@ -316,17 +244,6 @@ export function CreateResidentForm({ onCreateResident, onCancel, existingRooms, 
           <h3 style={{ fontSize: 'var(--text-lg)', fontWeight: '600', marginBottom: 'var(--space-2)' }}>Basic Information</h3>
           
           <div className="grid grid-3 mb-2">
-            {/* Resident ID - Auto Generated */}
-            <div className="form-group">
-              <label className="label">Resident ID</label>
-              <div className="input" style={{ backgroundColor: 'var(--gray-50)', color: 'var(--gray-500)' }}>
-                {isEditing ? (formData.residentId || 'Auto-Generated') : 'Auto-Generated'}
-              </div>
-              <p style={{ fontSize: 'var(--text-xs)', color: 'var(--gray-500)', marginTop: '0.25rem' }}>
-                Resident ID will be automatically generated in sequence
-              </p>
-            </div>
-
             {/* Name */}
             <div className="form-group">
               <label htmlFor="name" className="label">Full Name *</label>
@@ -348,61 +265,17 @@ export function CreateResidentForm({ onCreateResident, onCancel, existingRooms, 
             {/* Room Number */}
             <div className="form-group">
               <label htmlFor="roomNumber" className="label">Room Number *</label>
-              <div style={{ position: 'relative' }}>
-                <input
-                  id="roomNumber"
-                  type="text"
-                  value={formData.roomNumber}
-                  onChange={(e) => handleInputChange('roomNumber', e.target.value)}
-                  placeholder="e.g., 101, A-205"
-                  className={`input ${
-                    errors.roomNumber ? 'border-red-500' : 
-                    roomCheckStatus === 'taken' ? 'border-red-500' :
-                    roomCheckStatus === 'available' ? 'border-green-500' : ''
-                  }`}
-                  style={{ paddingRight: '2.5rem' }}
-                />
-                {roomCheckStatus !== 'idle' && (
-                  <div style={{
-                    position: 'absolute',
-                    right: '0.75rem',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    display: 'flex',
-                    alignItems: 'center'
-                  }}>
-                    {roomCheckStatus === 'checking' && (
-                      <div style={{
-                        width: '1rem',
-                        height: '1rem',
-                        border: '2px solid var(--gray-300)',
-                        borderTop: '2px solid var(--primary)',
-                        borderRadius: '50%',
-                        animation: 'spin 1s linear infinite'
-                      }} />
-                    )}
-                    {roomCheckStatus === 'available' && (
-                      <CheckCircle style={{ width: '1rem', height: '1rem', color: 'var(--success)' }} />
-                    )}
-                    {roomCheckStatus === 'taken' && (
-                      <AlertCircle style={{ width: '1rem', height: '1rem', color: 'var(--error)' }} />
-                    )}
-                  </div>
-                )}
-              </div>
+              <input
+                id="roomNumber"
+                type="text"
+                value={formData.roomNumber}
+                onChange={(e) => handleInputChange('roomNumber', e.target.value)}
+                placeholder="e.g., 101, A-205"
+                className={`input ${errors.roomNumber ? 'border-red-500' : ''}`}
+              />
               {errors.roomNumber && (
                 <p style={{ color: 'var(--error)', fontSize: 'var(--text-sm)', marginTop: '0.25rem' }}>
                   {errors.roomNumber}
-                </p>
-              )}
-              {roomCheckMessage && !errors.roomNumber && (
-                <p style={{ 
-                  color: roomCheckStatus === 'available' ? 'var(--success)' : 
-                         roomCheckStatus === 'taken' ? 'var(--error)' : 'var(--gray-500)',
-                  fontSize: 'var(--text-sm)', 
-                  marginTop: '0.25rem' 
-                }}>
-                  {roomCheckMessage}
                 </p>
               )}
             </div>
@@ -634,17 +507,6 @@ export function CreateResidentForm({ onCreateResident, onCancel, existingRooms, 
           </button>
         </div>
       </form>
-      
-      <Modal
-        isOpen={modalState.isOpen}
-        onClose={closeModal}
-        title={modalState.title}
-        message={modalState.message}
-        type={modalState.type}
-        onConfirm={modalState.onConfirm}
-        confirmText={modalState.confirmText}
-        cancelText={modalState.cancelText}
-      />
     </div>
   );
 }
