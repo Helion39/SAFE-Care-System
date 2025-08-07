@@ -24,11 +24,11 @@ except Exception as e:
 # GANTI DENGAN KREDENSIAL DARI SKRIP LAMA ANDA
 TWILIO_ACCOUNT_SID = "*"
 TWILIO_AUTH_TOKEN = "*"
-TWILIO_PHONE_NUMBER = "+*"
-TWILIO_WHATSAPP_NUMBER = 'whatsapp:+*'
+TWILIO_PHONE_NUMBER = "*"
+TWILIO_WHATSAPP_NUMBER = 'whatsapp:*'
 
-CAREGIVER_WHATSAPP_NUMBER = 'whatsapp:+*'
-CAREGIVER_PHONE_LIST = ["+*"]
+CAREGIVER_WHATSAPP_NUMBER = 'whatsapp:*'
+CAREGIVER_PHONE_LIST = ["*"]
 current_caregiver_index = 0
 
 # Variabel State untuk Logika Deteksi

@@ -30,9 +30,8 @@ const VitalsSchema = new mongoose.Schema({
     max: [200, 'Heart rate cannot exceed 200']
   },
   temperature: {
-    type: Number,
-    min: [90, 'Temperature must be at least 90°F'],
-    max: [110, 'Temperature cannot exceed 110°F']
+    type: Number
+    // No min/max limits - accepting Celsius values
   },
   oxygenSaturation: {
     type: Number,
@@ -128,8 +127,8 @@ VitalsSchema.pre('save', function(next) {
     });
   }
 
-  // Temperature alerts
-  if (this.temperature && this.temperature >= 101) {
+  // Temperature alerts (Celsius)
+  if (this.temperature && this.temperature >= 38.0) {
     this.alerts.push({
       type: 'fever',
       message: 'Fever detected',
