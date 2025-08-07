@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Modal } from './Modal';
 import { useModal } from '../hooks/useModal';
+import { Users, UserPlus } from 'lucide-react';
 
 export function FamilyLoginPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -30,16 +31,16 @@ export function FamilyLoginPage() {
           <div style={{ 
             width: '5rem', 
             height: '5rem', 
-            backgroundColor: 'var(--info)', 
+            backgroundColor: '#1565C0', 
             borderRadius: '50%', 
             margin: '0 auto 1.5rem',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center'
           }}>
-            <span style={{ fontSize: '2rem' }}>👨‍👩‍👧‍👦</span>
+            <Users style={{ width: '2rem', height: '2rem', color: 'white' }} />
           </div>
-          <h1 className="login-title" style={{ color: 'var(--info)' }}>Family Portal</h1>
+          <h1 className="login-title" style={{ color: '#1565C0' }}>Family Portal</h1>
           <p className="login-subtitle" style={{ fontSize: 'var(--text-base)' }}>
             Stay connected with your loved one's care
           </p>
@@ -56,7 +57,7 @@ export function FamilyLoginPage() {
               justifyContent: 'center',
               gap: '0.75rem',
               padding: '1rem',
-              backgroundColor: 'var(--info)',
+              backgroundColor: '#1565C0',
               color: 'white',
               fontSize: 'var(--text-base)'
             }}
@@ -91,13 +92,13 @@ export function FamilyLoginPage() {
               justifyContent: 'center',
               gap: '0.75rem',
               padding: '1rem',
-              backgroundColor: 'var(--pastel-secondary)',
-              color: 'var(--info)',
-              border: '1px solid var(--info)',
+              backgroundColor: '#E3F2FD',
+              color: '#1565C0',
+              border: '1px solid #1565C0',
               fontSize: 'var(--text-base)'
             }}
           >
-            <span style={{ fontSize: '1.2rem' }}>📝</span>
+            <UserPlus style={{ width: '1.2rem', height: '1.2rem' }} />
             Request Family Access
           </button>
         </div>
@@ -106,13 +107,13 @@ export function FamilyLoginPage() {
           textAlign: 'center', 
           marginTop: '2rem',
           padding: '1.5rem',
-          backgroundColor: 'var(--pastel-secondary)',
+          backgroundColor: '#E3F2FD',
           borderRadius: 'var(--radius-lg)',
-          border: '1px solid var(--info)'
+          border: '1px solid #1565C0'
         }}>
           <h3 style={{ 
             fontSize: 'var(--text-base)', 
-            color: 'var(--info)',
+            color: '#1565C0',
             margin: '0 0 1rem 0',
             fontWeight: '600'
           }}>How to Get Access</h3>

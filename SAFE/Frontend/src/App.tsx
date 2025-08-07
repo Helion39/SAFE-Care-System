@@ -5,6 +5,7 @@ import CaregiverDashboard from './components/CaregiverDashboard';
 import { EmergencyAlert } from './components/EmergencyAlert';
 import { FamilyLoginPage } from './components/FamilyLoginPage';
 import { FamilyDashboard } from './components/FamilyDashboard';
+import { UnauthorizedPage } from './components/UnauthorizedPage';
 import { Modal } from './components/Modal';
 import { useModal } from './hooks/useModal';
 import apiService from './services/api';
@@ -430,6 +431,7 @@ function FamilyPortal() {
     assignments: []
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [isUnauthorized, setIsUnauthorized] = useState(false);
   const { modalState: familyModalState, showConfirm: showFamilyConfirm, closeModal: closeFamilyModal } = useModal();
 
   useEffect(() => {
@@ -446,6 +448,9 @@ function FamilyPortal() {
 
       if (error) {
         console.error('OAuth error:', error);
+        if (error.includes('No resident found for this email')) {
+          setIsUnauthorized(true);
+        }
         setIsLoading(false);
         return;
       }
@@ -469,6 +474,7 @@ function FamilyPortal() {
             if (!user.assignedResidentId) {
               console.error('Family user has no assigned resident');
               localStorage.removeItem('authToken');
+              setIsUnauthorized(true);
               setIsLoading(false);
               return;
             }
@@ -480,6 +486,9 @@ function FamilyPortal() {
     } catch (error) {
       console.error('Family auth check failed:', error);
       localStorage.removeItem('authToken');
+      if (error.message && error.message.includes('No resident found for this email')) {
+        setIsUnauthorized(true);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -537,14 +546,9 @@ function FamilyPortal() {
         });
       } else {
         console.log('❌ No resident linked to email:', user.email);
-        // No resident linked to this email - return empty data
-        setData({
-          users: [],
-          residents: [],
-          vitals: [],
-          incidents: [],
-          assignments: []
-        });
+        // No resident linked to this email - show unauthorized
+        setIsUnauthorized(true);
+        return;
       }
     } catch (error) {
       console.error('Failed to load family data:', error);
@@ -585,6 +589,14 @@ function FamilyPortal() {
         </div>
       </div>
     );
+  }
+
+  if (isUnauthorized) {
+    return <UnauthorizedPage onBackToLogin={() => {
+      setIsUnauthorized(false);
+      // Clear any URL parameters
+      window.history.replaceState({}, document.title, '/family-login');
+    }} />;
   }
 
   if (!currentUser) {
