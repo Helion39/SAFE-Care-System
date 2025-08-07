@@ -44,7 +44,6 @@ export function Chatbot({ currentUser }: ChatbotProps) {
       throw new Error('API response failed');
     } catch (error) {
       console.error('Chatbot API error:', error);
-      // Fallback to local responses
       const message = userMessage.toLowerCase();
       
       if (message.includes('blood pressure') || message.includes('bp')) {
@@ -73,7 +72,6 @@ export function Chatbot({ currentUser }: ChatbotProps) {
     setInputText('');
     setIsTyping(true);
 
-    // Get AI response
     setTimeout(async () => {
       try {
         const responseText = await generateBotResponse(inputText);
