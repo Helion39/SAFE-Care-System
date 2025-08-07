@@ -5,6 +5,7 @@ import CaregiverDashboard from './components/CaregiverDashboard';
 import { EmergencyAlert } from './components/EmergencyAlert';
 import { FamilyLoginPage } from './components/FamilyLoginPage';
 import { FamilyDashboard } from './components/FamilyDashboard';
+import { UnauthorizedPage } from './components/UnauthorizedPage';
 import { Modal } from './components/Modal';
 import { useModal } from './hooks/useModal';
 import apiService from './services/api';
@@ -135,11 +136,11 @@ function StaffLogin() {
         
         // Validate that user role matches selected role
         if (selectedRole === 'admin' && user.role !== 'admin') {
-          setLoginError('user not found');
+          setLoginError('Invalid credentials for admin login. Please use admin credentials.');
           return;
         }
         if (selectedRole === 'caregiver' && user.role !== 'caregiver') {
-          setLoginError('user not found');
+          setLoginError('Invalid credentials for caregiver login. Please use caregiver credentials.');
           return;
         }
         
@@ -222,13 +223,18 @@ function StaffLogin() {
 
   const resolveIncident = async (incidentId: any, isTrueEmergency: any, adminAction: any = null) => {
     try {
+      console.log('🔍 Resolving incident:', { incidentId, isTrueEmergency, adminAction });
       const resolution = isTrueEmergency ? 'true_emergency' : 'false_alarm';
       const response = await apiService.resolveIncident(incidentId, resolution, '', adminAction);
+      console.log('🔍 Resolve incident response:', response);
       if (response.success) {
+        console.log('✅ Incident resolved successfully, refreshing data...');
         await loadData(); // Refresh data
+      } else {
+        console.error('❌ Failed to resolve incident:', response);
       }
     } catch (error) {
-      console.error('Failed to resolve incident:', error);
+      console.error('❌ Error resolving incident:', error);
     }
   };
 
@@ -344,8 +350,8 @@ function StaffLogin() {
       ))}
 
       {/* Header */}
-      <nav className="bg-pastel-white border-b border-gray-200 px-6 py-2">
-        <div className="flex justify-between items-center">
+      <nav className="bg-pastel-white border-b border-gray-200 px-6 py-2 fixed top-0 left-0 right-0 z-50" style={{ height: '64px' }}>
+        <div className="flex justify-between items-center h-full">
           <div className="flex items-center gap-3">
             <span className="text-lg font-bold text-info">SAFE Care System</span>
             <span className={`badge ${currentUser.role === 'admin' ? 'badge-primary' : 'badge-secondary'}`}>
@@ -425,6 +431,7 @@ function FamilyPortal() {
     assignments: []
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [isUnauthorized, setIsUnauthorized] = useState(false);
   const { modalState: familyModalState, showConfirm: showFamilyConfirm, closeModal: closeFamilyModal } = useModal();
 
   useEffect(() => {
@@ -441,6 +448,9 @@ function FamilyPortal() {
 
       if (error) {
         console.error('OAuth error:', error);
+        if (error.includes('No resident found for this email')) {
+          setIsUnauthorized(true);
+        }
         setIsLoading(false);
         return;
       }
@@ -464,6 +474,7 @@ function FamilyPortal() {
             if (!user.assignedResidentId) {
               console.error('Family user has no assigned resident');
               localStorage.removeItem('authToken');
+              setIsUnauthorized(true);
               setIsLoading(false);
               return;
             }
@@ -475,6 +486,9 @@ function FamilyPortal() {
     } catch (error) {
       console.error('Family auth check failed:', error);
       localStorage.removeItem('authToken');
+      if (error.message && error.message.includes('No resident found for this email')) {
+        setIsUnauthorized(true);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -532,14 +546,9 @@ function FamilyPortal() {
         });
       } else {
         console.log('❌ No resident linked to email:', user.email);
-        // No resident linked to this email - return empty data
-        setData({
-          users: [],
-          residents: [],
-          vitals: [],
-          incidents: [],
-          assignments: []
-        });
+        // No resident linked to this email - show unauthorized
+        setIsUnauthorized(true);
+        return;
       }
     } catch (error) {
       console.error('Failed to load family data:', error);
@@ -582,6 +591,14 @@ function FamilyPortal() {
     );
   }
 
+  if (isUnauthorized) {
+    return <UnauthorizedPage onBackToLogin={() => {
+      setIsUnauthorized(false);
+      // Clear any URL parameters
+      window.history.replaceState({}, document.title, '/family-login');
+    }} />;
+  }
+
   if (!currentUser) {
     return <FamilyLoginPage />;
   }
@@ -589,8 +606,8 @@ function FamilyPortal() {
   return (
     <div className="min-h-screen bg-pastel-background">
       {/* Header */}
-      <nav className="bg-pastel-white border-b border-gray-200 px-6 py-2">
-        <div className="flex justify-between items-center">
+      <nav className="bg-pastel-white border-b border-gray-200 px-6 py-2 fixed top-0 left-0 right-0 z-50" style={{ height: '64px' }}>
+        <div className="flex justify-between items-center h-full">
           <div className="flex items-center gap-3">
             <span className="text-lg font-bold text-info">SAFE Care System</span>
             <span className="badge badge-info">Family Portal</span>
@@ -607,7 +624,7 @@ function FamilyPortal() {
       </nav>
 
       {/* Main Content */}
-      <div className="container mx-auto px-6 py-6">
+      <div className="container mx-auto px-6 py-6" style={{ paddingTop: '88px' }}>
         <FamilyDashboard 
           userData={currentUser}
           data={data} 
@@ -634,7 +651,7 @@ export default function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Navigate to="/family-login" replace />} />
+        <Route path="/" element={<NotFoundPage />} />
         <Route path="/pp-login" element={<StaffLogin />} />
         <Route path="/family-login" element={<FamilyPortal />} />
         <Route path="*" element={<NotFoundPage />} />
