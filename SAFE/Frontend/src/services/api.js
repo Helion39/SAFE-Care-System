@@ -1,6 +1,7 @@
 import { transformApiResponse } from '../utils/dataTransform.js';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+
 class ApiService {
   constructor() {
     this.token = localStorage.getItem('authToken');
@@ -55,7 +56,7 @@ class ApiService {
     }
   }
 
-  // Authentication
+  // ---------------- AUTH ----------------
   async login(credentials) {
     console.log('🔍 Frontend sending login credentials:', credentials);
     const response = await this.request('/auth/login', {
@@ -85,7 +86,7 @@ class ApiService {
     return this.request('/auth/me');
   }
 
-  // Users Management
+  // ---------------- USERS ----------------
   async getUsers() {
     const response = await this.request('/users');
     return transformApiResponse(response, 'users');
@@ -129,7 +130,7 @@ class ApiService {
     });
   }
 
-  // Residents Management
+  // ---------------- RESIDENTS ----------------
   async getResidents() {
     const response = await this.request('/residents');
     console.log('Residents API response:', response);
@@ -168,7 +169,7 @@ class ApiService {
     return this.request(`/residents/check-room/${encodeURIComponent(roomNumber)}${params}`);
   }
 
-  // Assignments
+  // ---------------- ASSIGNMENTS ----------------
   async getAssignments() {
     const response = await this.request('/assignments');
     return transformApiResponse(response, 'assignments');
@@ -195,7 +196,7 @@ class ApiService {
     });
   }
 
-  // Vitals
+  // ---------------- VITALS ----------------
   async getVitals(residentId = null) {
     const endpoint = residentId ? `/vitals/resident/${residentId}` : '/vitals';
     const response = await this.request(endpoint);
@@ -210,7 +211,7 @@ class ApiService {
     return transformApiResponse(response, 'vitals');
   }
 
-  // Incidents
+  // ---------------- INCIDENTS ----------------
   async getIncidents() {
     const response = await this.request('/incidents');
     return transformApiResponse(response, 'incidents');
@@ -244,7 +245,7 @@ class ApiService {
     });
   }
 
-  // Analytics
+  // ---------------- ANALYTICS ----------------
   async getDashboardAnalytics() {
     return this.request('/analytics/dashboard');
   }
@@ -259,7 +260,7 @@ class ApiService {
     return this.request('/analytics/resident-health');
   }
 
-  // Chatbot
+  // ---------------- CHAT ----------------
   async sendChatMessage(message) {
     return this.request('/chatbot/message', {
       method: 'POST',
@@ -267,7 +268,14 @@ class ApiService {
     });
   }
 
-  // Family Login
+  async chatWithAI(message, history) {
+    return this.request('/chat/send', {
+      method: 'POST',
+      body: JSON.stringify({ message, history }),
+    });
+  }
+
+  // ---------------- FAMILY ----------------
   async familyLogin(credentials) {
     const response = await this.request('/auth/family-login', {
       method: 'POST',
@@ -298,7 +306,6 @@ class ApiService {
     return this.request(`/family/data/${encodeURIComponent(email)}`);
   }
 
-  // Family Access Management
   async addFamilyEmail(residentId, email) {
     return this.request(`/residents/${residentId}/family-emails`, {
       method: 'POST',
@@ -313,7 +320,6 @@ class ApiService {
     });
   }
 
-  // Family-specific data access
   async getFamilyResidentData(residentId) {
     const response = await this.request(`/family/resident/${residentId}`);
     return transformApiResponse(response, 'residents');

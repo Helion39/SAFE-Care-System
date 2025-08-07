@@ -651,7 +651,7 @@ export default function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<NotFoundPage />} />
+        <Route path="/" element={<Navigate to="/family-login" replace />} />
         <Route path="/pp-login" element={<StaffLogin />} />
         <Route path="/family-login" element={<FamilyPortal />} />
         <Route path="*" element={<NotFoundPage />} />

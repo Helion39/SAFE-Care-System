@@ -21,7 +21,8 @@ export function CaregiverDashboard({ data, setData, currentUser, onTriggerAlert,
   const [vitalsForm, setVitalsForm] = useState({
     systolic_bp: '',
     diastolic_bp: '',
-    heart_rate: ''
+    heart_rate: '',
+    temperature: ''
   });
   const [showAISummary, setShowAISummary] = useState(false);
   const [aiSummary, setAiSummary] = useState('');
@@ -74,13 +75,33 @@ export function CaregiverDashboard({ data, setData, currentUser, onTriggerAlert,
     e.preventDefault();
     if (!assignedResident) return;
 
-    const vitalsData = {
+    // Validate form inputs
+    const systolic = parseInt(vitalsForm.systolic_bp);
+    const diastolic = parseInt(vitalsForm.diastolic_bp);
+    const heartRate = parseInt(vitalsForm.heart_rate);
+
+    if (isNaN(systolic) || isNaN(diastolic) || isNaN(heartRate)) {
+      alert('Please enter valid numbers for all required fields');
+      return;
+    }
+
+    const vitalsData: any = {
       residentId: assignedResident._id || assignedResident.id,
-      systolicBP: parseInt(vitalsForm.systolic_bp),
-      diastolicBP: parseInt(vitalsForm.diastolic_bp),
-      heartRate: parseInt(vitalsForm.heart_rate)
+      systolicBP: systolic,
+      diastolicBP: diastolic,
+      heartRate: heartRate
       // Note: caregiverId is automatically set by backend from req.user.id
     };
+
+    // Only add temperature if it has a value
+    if (vitalsForm.temperature && vitalsForm.temperature.trim() !== '') {
+      const temp = parseFloat(vitalsForm.temperature);
+      if (!isNaN(temp)) {
+        vitalsData.temperature = temp;
+      }
+    }
+
+    console.log('🔍 Sending vitals data:', vitalsData);
 
     try {
       const response = await apiService.createVitals(vitalsData);
@@ -89,12 +110,20 @@ export function CaregiverDashboard({ data, setData, currentUser, onTriggerAlert,
         setVitalsForm({
           systolic_bp: '',
           diastolic_bp: '',
-          heart_rate: ''
+          heart_rate: '',
+          temperature: ''
         });
       }
     } catch (error) {
       console.error('Failed to record vitals:', error);
-      alert('Failed to record vitals: ' + error.message);
+      console.error('Error details:', error);
+      
+      // Try to get more detailed error information
+      if (error.message === 'Validation Error') {
+        alert('Validation Error: Please check that all required fields are filled correctly. Systolic BP (50-300), Diastolic BP (30-200), Heart Rate (30-200), Temperature (30-45°C if provided).');
+      } else {
+        alert('Failed to record vitals: ' + error.message);
+      }
     }
   };
 
@@ -127,9 +156,9 @@ export function CaregiverDashboard({ data, setData, currentUser, onTriggerAlert,
   const latestVitals = residentVitals[0];
 
   return (
-    <div className="bg-gray-50" style={{ minHeight: 'calc(100vh - 80px)' }}>
+    <div className="bg-gray-50" style={{ minHeight: '100vh', paddingTop: '64px' }}>
 {/* Sidebar */}
-<div className={`${sidebarOpen ? 'w-64' : 'w-16'} transition-all duration-300 fixed left-0 flex flex-col z-40`} style={{ backgroundColor: '#E3F2FD', height: 'calc(100vh - 80px)', top: '80px' }}>
+<div className={`${sidebarOpen ? 'w-64' : 'w-16'} transition-all duration-300 fixed left-0 flex flex-col z-40`} style={{ backgroundColor: '#E3F2FD', height: '100vh', top: '0', paddingTop: '64px' }}>
   {/* Sidebar Header */}
   <div className="p-4 border-b border-blue-200">
     <div className={`flex items-center transition-all duration-300 ${sidebarOpen ? '' : 'justify-center'}`}>
@@ -196,7 +225,7 @@ export function CaregiverDashboard({ data, setData, currentUser, onTriggerAlert,
 </div>
 
       {/* Main Content */}
-      <div className="transition-all duration-300" style={{ marginLeft: sidebarOpen ? '256px' : '64px' }}>
+      <div className="transition-all duration-300" style={{ marginLeft: sidebarOpen ? '256px' : '64px', minHeight: 'calc(100vh - 64px)' }}>
         <div className="p-6">
           <div className="flex flex-col gap-3">
             {/* Incident Response Section - Always visible */}
@@ -305,6 +334,9 @@ export function CaregiverDashboard({ data, setData, currentUser, onTriggerAlert,
                       <div style={{ fontSize: 'var(--text-sm)' }}>
                         <div>BP: {latestVitals.systolic_bp}/{latestVitals.diastolic_bp} mmHg</div>
                         <div>HR: {latestVitals.heart_rate} bpm</div>
+                        {latestVitals.temperature && (
+                          <div>Temp: {latestVitals.temperature}°C</div>
+                        )}
                         <div style={{ fontSize: 'var(--text-xs)', color: 'var(--gray-500)' }}>
                           {new Date(latestVitals.timestamp).toLocaleString()}
                         </div>
@@ -378,20 +410,37 @@ export function CaregiverDashboard({ data, setData, currentUser, onTriggerAlert,
                             />
                           </div>
                         </div>
-                        <div className="form-group">
-                          <label className="label" htmlFor="heartRate">Heart Rate (bpm)</label>
-                          <input
-                            id="heartRate"
-                            type="number"
-                            placeholder="72"
-                            className="input"
-                            value={vitalsForm.heart_rate}
-                            onChange={(e) => setVitalsForm(prev => ({
-                              ...prev,
-                              heart_rate: e.target.value
-                            }))}
-                            required
-                          />
+                        <div className="grid grid-2 mb-2">
+                          <div className="form-group">
+                            <label className="label" htmlFor="heartRate">Heart Rate (bpm)</label>
+                            <input
+                              id="heartRate"
+                              type="number"
+                              placeholder="72"
+                              className="input"
+                              value={vitalsForm.heart_rate}
+                              onChange={(e) => setVitalsForm(prev => ({
+                                ...prev,
+                                heart_rate: e.target.value
+                              }))}
+                              required
+                            />
+                          </div>
+                          <div className="form-group">
+                            <label className="label" htmlFor="temperature">Temperature (°C)</label>
+                            <input
+                              id="temperature"
+                              type="number"
+                              step="0.1"
+                              placeholder="36.5"
+                              className="input"
+                              value={vitalsForm.temperature}
+                              onChange={(e) => setVitalsForm(prev => ({
+                                ...prev,
+                                temperature: e.target.value
+                              }))}
+                            />
+                          </div>
                         </div>
                         <button type="submit" className="btn btn-primary w-full">
                           <CheckCircle style={{ width: '1rem', height: '1rem' }} />
@@ -523,6 +572,7 @@ export function CaregiverDashboard({ data, setData, currentUser, onTriggerAlert,
                           <tr>
                             <th>Blood Pressure</th>
                             <th>Heart Rate</th>
+                            <th>Temperature</th>
                             <th>Date/Time</th>
                             <th>Status</th>
                           </tr>
@@ -535,6 +585,9 @@ export function CaregiverDashboard({ data, setData, currentUser, onTriggerAlert,
                               </td>
                               <td style={{ fontWeight: '500' }}>
                                 {vital.heart_rate} bpm
+                              </td>
+                              <td style={{ fontWeight: '500' }}>
+                                {vital.temperature ? `${vital.temperature}°C` : '--'}
                               </td>
                               <td style={{ fontSize: 'var(--text-sm)', color: 'var(--gray-500)' }}>
                                 {new Date(vital.timestamp).toLocaleString()}
