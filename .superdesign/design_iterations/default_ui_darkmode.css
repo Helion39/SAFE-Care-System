@@ -308,9 +308,9 @@ html.dark {
 }
 
 .tab-button.active {
-    background-color: #f8f9fa !important;
+    background-color: #f5f9ff !important;
     color: #1a1a1a !important;
-    border-color: #f8f9fa !important;
+    border-color: #f5f9ff !important;
     font-weight: 600;
 }
 

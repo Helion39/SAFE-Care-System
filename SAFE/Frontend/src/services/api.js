@@ -40,7 +40,8 @@ class ApiService {
 
       if (!response.ok) {
         const data = await response.json().catch(() => ({ error: 'Server error' }));
-        throw new Error(data.error || `HTTP error! status: ${response.status}`);
+        console.error('API Error Response:', data);
+        throw new Error(data.details || data.error || `HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
@@ -233,6 +234,13 @@ class ApiService {
     return this.request(`/incidents/${incidentId}/resolve`, {
       method: 'PUT',
       body: JSON.stringify({ resolution, notes, adminAction }),
+    });
+  }
+
+  async adminCloseIncident(incidentId, adminAction = 'Incident closed by admin') {
+    return this.request(`/incidents/${incidentId}/admin-close`, {
+      method: 'PUT',
+      body: JSON.stringify({ adminAction }),
     });
   }
 

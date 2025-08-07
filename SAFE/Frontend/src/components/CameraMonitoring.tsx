@@ -218,7 +218,7 @@ export function CameraMonitoring({ data, onTriggerAlert }: { data: { camera_info
     const handleConfirmFall = async () => {
         if (!pendingConfirmation) return;
         try {
-            // Mengirim request POST ke backend dengan track_id di dalam body
+            // First, confirm with AI backend
             const response = await fetch('http://localhost:5001/api/confirm_fall', {
                 method: 'POST',
                 headers: {
@@ -228,17 +228,29 @@ export function CameraMonitoring({ data, onTriggerAlert }: { data: { camera_info
             });
 
             if (!response.ok) {
-                // Menangani jika backend merespons dengan error
                 const errorData = await response.json();
                 throw new Error(errorData.error || 'Failed to confirm fall');
             }
 
-            console.log("Fall confirmed successfully.");
+            console.log("Fall confirmed successfully with AI backend.");
+
+            // Now create an incident in the main system
+            const camera = camera_info.find(c => c.id === pendingConfirmation.cameraId);
+            const resident = residents.find(r => r.room_number === camera?.room_number);
+            
+            if (resident) {
+                console.log("🔍 Creating incident for resident:", resident.name, "in room:", camera?.room_number);
+                // Use the resident's _id or id for the incident
+                const residentId = resident._id || resident.id;
+                onTriggerAlert(residentId);
+            } else {
+                console.error("❌ No resident found for room:", camera?.room_number);
+            }
 
         } catch (error) {
             console.error('Error confirming fall:', error);
         }
-        // Hentikan suara dan tutup modal setelah aksi
+        // Stop sound and close modal after action
         setPendingConfirmation(null);
     };
         

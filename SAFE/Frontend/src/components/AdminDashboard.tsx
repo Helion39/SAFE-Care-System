@@ -63,9 +63,9 @@ export function AdminDashboard({ data, setData, onTriggerAlert, onResolveInciden
   };
 
   return (
-    <div className="bg-gray-50" style={{ minHeight: 'calc(100vh - 80px)' }}>
+    <div className="bg-gray-50" style={{ minHeight: '100vh', paddingTop: '64px' }}>
       {/* Sidebar */}
-      <div className={`${sidebarOpen ? 'w-64' : 'w-16'} transition-all duration-300 fixed left-0 flex flex-col z-40`} style={{ backgroundColor: '#E3F2FD', height: 'calc(100vh - 80px)', top: '80px' }}>
+      <div className={`${sidebarOpen ? 'w-64' : 'w-16'} transition-all duration-300 fixed left-0 flex flex-col z-40`} style={{ backgroundColor: '#E3F2FD', height: '100vh', top: '0', paddingTop: '64px' }}>
         {/* Sidebar Header */}
         <div className="p-4 border-b border-blue-200">
           <div className={`flex items-center transition-all duration-300 ${sidebarOpen ? '' : 'justify-center'}`}>
@@ -178,7 +178,7 @@ export function AdminDashboard({ data, setData, onTriggerAlert, onResolveInciden
       </div>
 
       {/* Main Content */}
-      <div className="transition-all duration-300" style={{ marginLeft: sidebarOpen ? '256px' : '64px' }}>
+      <div className="transition-all duration-300" style={{ marginLeft: sidebarOpen ? '256px' : '64px', minHeight: 'calc(100vh - 64px)' }}>
         <div className="p-6">
           <div className="flex flex-col gap-3">
 
@@ -258,15 +258,45 @@ export function AdminDashboard({ data, setData, onTriggerAlert, onResolveInciden
                               )}
                             </div>
                           </div>
-                          {incident.status === 'claimed' && (
-                            <button
-                              onClick={() => handleConfirmEmergency(incident.id)}
-                              className="btn btn-outline"
+                          <div className="flex gap-2">
+                            {incident.status === 'claimed' && (
+                              <button
+                                onClick={() => handleConfirmEmergency(incident.id)}
+                                className="btn btn-outline"
+                              >
+                                <Phone style={{ width: '1rem', height: '1rem' }} />
+                                Call Hospital
+                              </button>
+                            )}
+                            <span 
+                              onClick={async () => {
+                                console.log('🔍 Admin closing incident:', incident.id);
+                                try {
+                                  // Use admin-specific close endpoint
+                                  const response = await apiService.adminCloseIncident(incident.id, "Incident closed by admin");
+                                  console.log('🔍 Admin close response:', response);
+                                  if (response.success) {
+                                    console.log('✅ Incident closed by admin, refreshing data...');
+                                    onDataChange(); // Refresh the data
+                                  } else {
+                                    console.error('❌ Failed to close incident:', response);
+                                  }
+                                } catch (error) {
+                                  console.error('❌ Error closing incident:', error);
+                                }
+                              }}
+                              title="Close this incident"
+                              style={{ cursor: 'pointer' }}
                             >
-                              <Phone style={{ width: '1rem', height: '1rem' }} />
-                              Call Hospital
-                            </button>
-                          )}
+                              <X 
+                                style={{ 
+                                  width: '1.5rem', 
+                                  height: '1.5rem', 
+                                  color: '#dc2626'
+                                }}
+                              />
+                            </span>
+                          </div>
                         </div>
                       </div>
                     );
@@ -448,7 +478,7 @@ export function AdminDashboard({ data, setData, onTriggerAlert, onResolveInciden
                         const vitals = getResidentVitals(resident.id);
                         return (
                           <div key={resident.id} style={{ 
-                            backgroundColor: '#F8F9FA', 
+                            backgroundColor: '#f5f9ff', 
                             borderRadius: '8px', 
                             padding: '16px',
                             marginBottom: '16px'

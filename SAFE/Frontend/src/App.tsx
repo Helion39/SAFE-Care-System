@@ -222,13 +222,18 @@ function StaffLogin() {
 
   const resolveIncident = async (incidentId: any, isTrueEmergency: any, adminAction: any = null) => {
     try {
+      console.log('🔍 Resolving incident:', { incidentId, isTrueEmergency, adminAction });
       const resolution = isTrueEmergency ? 'true_emergency' : 'false_alarm';
       const response = await apiService.resolveIncident(incidentId, resolution, '', adminAction);
+      console.log('🔍 Resolve incident response:', response);
       if (response.success) {
+        console.log('✅ Incident resolved successfully, refreshing data...');
         await loadData(); // Refresh data
+      } else {
+        console.error('❌ Failed to resolve incident:', response);
       }
     } catch (error) {
-      console.error('Failed to resolve incident:', error);
+      console.error('❌ Error resolving incident:', error);
     }
   };
 
@@ -344,8 +349,8 @@ function StaffLogin() {
       ))}
 
       {/* Header */}
-      <nav className="bg-pastel-white border-b border-gray-200 px-6 py-2">
-        <div className="flex justify-between items-center">
+      <nav className="bg-pastel-white border-b border-gray-200 px-6 py-2 fixed top-0 left-0 right-0 z-50" style={{ height: '64px' }}>
+        <div className="flex justify-between items-center h-full">
           <div className="flex items-center gap-3">
             <span className="text-lg font-bold text-info">SAFE Care System</span>
             <span className={`badge ${currentUser.role === 'admin' ? 'badge-primary' : 'badge-secondary'}`}>
@@ -589,8 +594,8 @@ function FamilyPortal() {
   return (
     <div className="min-h-screen bg-pastel-background">
       {/* Header */}
-      <nav className="bg-pastel-white border-b border-gray-200 px-6 py-2">
-        <div className="flex justify-between items-center">
+      <nav className="bg-pastel-white border-b border-gray-200 px-6 py-2 fixed top-0 left-0 right-0 z-50" style={{ height: '64px' }}>
+        <div className="flex justify-between items-center h-full">
           <div className="flex items-center gap-3">
             <span className="text-lg font-bold text-info">SAFE Care System</span>
             <span className="badge badge-info">Family Portal</span>
@@ -607,7 +612,7 @@ function FamilyPortal() {
       </nav>
 
       {/* Main Content */}
-      <div className="container mx-auto px-6 py-6">
+      <div className="container mx-auto px-6 py-6" style={{ paddingTop: '88px' }}>
         <FamilyDashboard 
           userData={currentUser}
           data={data} 

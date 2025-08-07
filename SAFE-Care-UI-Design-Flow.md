@@ -821,7 +821,7 @@ The SAFE (Smart Assisted Fall Emergency) elderly care monitoring system is a com
 ### Primary Colors
 - **Healthcare Blue**: #2c73b8 (primary actions, links)
 - **Clean White**: #ffffff (backgrounds, cards)
-- **Soft Gray**: #f8f9fa (secondary backgrounds)
+- **Soft Gray**: #f5f9ff (secondary backgrounds)
 - **Text Gray**: #343a40 (primary text)
 
 ### Status Colors

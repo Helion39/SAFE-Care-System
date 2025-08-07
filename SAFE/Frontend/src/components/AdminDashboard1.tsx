@@ -248,15 +248,45 @@ export function AdminDashboard({ data, setData, onTriggerAlert, onResolveInciden
                               )}
                             </div>
                           </div>
-                          {incident.status === 'claimed' && (
-                            <button
-                              onClick={() => handleConfirmEmergency(incident.id)}
-                              className="btn btn-outline"
+                          <div className="flex gap-2">
+                            {incident.status === 'claimed' && (
+                              <button
+                                onClick={() => handleConfirmEmergency(incident.id)}
+                                className="btn btn-outline"
+                              >
+                                <Phone style={{ width: '1rem', height: '1rem' }} />
+                                Call Hospital
+                              </button>
+                            )}
+                            <span 
+                              onClick={async () => {
+                                console.log('🔍 Admin closing incident:', incident.id);
+                                try {
+                                  // Use admin-specific close endpoint
+                                  const response = await apiService.adminCloseIncident(incident.id, "Incident closed by admin");
+                                  console.log('🔍 Admin close response:', response);
+                                  if (response.success) {
+                                    console.log('✅ Incident closed by admin, refreshing data...');
+                                    onDataChange(); // Refresh the data
+                                  } else {
+                                    console.error('❌ Failed to close incident:', response);
+                                  }
+                                } catch (error) {
+                                  console.error('❌ Error closing incident:', error);
+                                }
+                              }}
+                              title="Close this incident"
+                              style={{ cursor: 'pointer' }}
                             >
-                              <Phone style={{ width: '1rem', height: '1rem' }} />
-                              Call Hospital
-                            </button>
-                          )}
+                              <X 
+                                style={{ 
+                                  width: '1.5rem', 
+                                  height: '1.5rem', 
+                                  color: '#dc2626'
+                                }}
+                              />
+                            </span>
+                          </div>
                         </div>
                       </div>
                     );
@@ -438,7 +468,7 @@ export function AdminDashboard({ data, setData, onTriggerAlert, onResolveInciden
                         const vitals = getResidentVitals(resident.id);
                         return (
                           <div key={resident.id} style={{ 
-                            backgroundColor: '#F8F9FA', 
+                            backgroundColor: '#f5f9ff', 
                             borderRadius: '8px', 
                             padding: '16px',
                             marginBottom: '16px'
