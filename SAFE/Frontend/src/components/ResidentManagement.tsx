@@ -417,7 +417,7 @@ export function ResidentManagement({ data, setData, onDataChange }: ResidentMana
                     <tr key={residentId}>
                       <td>
                         <span className="badge badge-info" style={{ fontFamily: 'monospace', fontSize: 'var(--text-xs)' }}>
-                          {resident.residentId || resident.resident_id || 'N/A'}
+                          {resident.id || resident._id || 'N/A'}
                         </span>
                       </td>
                       <td>
