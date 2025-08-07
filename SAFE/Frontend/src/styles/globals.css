@@ -1,41 +1,34 @@
-/* SAFE Healthcare System - Global Styles */
-
-/* Import Tailwind CSS */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Import minimalist healthcare design system */
 @import './minimalist-healthcare.css';
 
-/* Pastel Color System CSS Custom Properties */
 :root {
-  /* Pastel Primary Colors */
-  --pastel-primary: #C6E7FF;      /* Light blue - primary backgrounds */
-  --pastel-secondary: #D4F6FF;    /* Lighter blue - secondary elements */
-  --pastel-background: #FBFBFB;   /* Off-white - main background */
-  --pastel-white: #FFFFFF;        /* Pure white - cards, forms */
+  /* Pastel Theme Colors */
+  --pastel-primary: #C6E7FF;      
+  --pastel-secondary: #D4F6FF;    
+  --pastel-background: #FBFBFB;   
+  --pastel-white: #FFFFFF;        
   
-  /* Enhanced Gray Scale */
-  --gray-50: #f5f9ff;   /* Lightest blue-gray - subtle backgrounds */
-  --gray-100: #F1F3F4;  /* Light gray - borders, dividers */
-  --gray-200: #E8EAED;  /* Medium light gray - inactive states */
-  --gray-300: #DADCE0;  /* Medium gray - borders */
-  --gray-400: #BDC1C6;  /* Dark gray - secondary text */
-  --gray-500: #9AA0A6;  /* Darker gray - labels */
-  --gray-600: #80868B;  /* Dark gray - primary text */
-  --gray-700: #5F6368;  /* Very dark gray - headings */
-  --gray-800: #3C4043;  /* Almost black - important text */
+  --gray-50: #f5f9ff;   
+  --gray-100: #F1F3F4;  
+  --gray-200: #E8EAED;  
+  --gray-300: #DADCE0;  
+  --gray-400: #BDC1C6;  
+  --gray-500: #9AA0A6;  
+  --gray-600: #80868B;  
+  --gray-700: #5F6368;  
+  --gray-800: #3C4043;  
   
-  /* Status Colors (Pastel Variants) */
-  --success-light: #E8F5E8;      /* Light green background */
-  --success: #2E7D32;            /* Green text */
-  --warning-light: #FFF8E1;      /* Light yellow background */
-  --warning: #F57F17;            /* Orange text */
-  --error-light: #FFEBEE;        /* Light red background */
-  --error: #C62828;              /* Red text */
-  --info-light: #E3F2FD;         /* Light blue background */
-  --info: #1565C0;               /* Blue text */
+  --success-light: #E8F5E8;      
+  --success: #2E7D32;            
+  --warning-light: #FFF8E1;      
+  --warning: #F57F17;            
+  --error-light: #FFEBEE;        
+  --error: #C62828;             
+  --info-light: #E3F2FD;        
+  --info: #1565C0;               
   
   /* Legacy color support (for gradual migration) */
   --color-background: var(--pastel-background);
@@ -67,7 +60,7 @@
 
 /* Base Styles with Pastel Theme */
 html {
-  font-size: 16px; /* Updated to 16px base for better accessibility */
+  font-size: 16px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -131,7 +124,7 @@ body {
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
-  min-height: 44px; /* Touch target accessibility */
+  min-height: 44px;
 }
 
 .login-button-primary {
@@ -141,7 +134,7 @@ body {
 }
 
 .login-button-primary:hover {
-  background-color: #B3DDFF; /* Slightly darker pastel-primary */
+  background-color: #B3DDFF;
   transform: translateY(-1px);
 }
 

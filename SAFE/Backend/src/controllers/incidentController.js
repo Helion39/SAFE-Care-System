@@ -3,9 +3,6 @@ const Resident = require('../models/Resident');
 const User = require('../models/User');
 const logger = require('../utils/logger');
 
-// @desc    Create new incident
-// @route   POST /api/incidents
-// @access  Private
 const createIncident = async (req, res, next) => {
   try {
     const { residentId, type, severity, description, location, detectionMethod } = req.body;
@@ -62,9 +59,6 @@ const createIncident = async (req, res, next) => {
   }
 };
 
-// @desc    Get all incidents
-// @route   GET /api/incidents
-// @access  Private
 const getIncidents = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page, 10) || 1;
@@ -143,9 +137,6 @@ const getIncidents = async (req, res, next) => {
   }
 };
 
-// @desc    Get active incidents
-// @route   GET /api/incidents/active
-// @access  Private
 const getActiveIncidents = async (req, res, next) => {
   try {
     const incidents = await Incident.getByStatus('active', 50);
@@ -168,9 +159,6 @@ const getActiveIncidents = async (req, res, next) => {
   }
 };
 
-// @desc    Claim incident
-// @route   PUT /api/incidents/:id/claim
-// @access  Private/Caregiver
 const claimIncident = async (req, res, next) => {
   try {
     const incident = await Incident.findById(req.params.id);
@@ -222,9 +210,6 @@ const claimIncident = async (req, res, next) => {
   }
 };
 
-// @desc    Resolve incident
-// @route   PUT /api/incidents/:id/resolve
-// @access  Private
 const resolveIncident = async (req, res, next) => {
   try {
     const { resolution, notes, adminAction } = req.body;
@@ -324,9 +309,6 @@ const resolveIncident = async (req, res, next) => {
   }
 };
 
-// @desc    Get incident statistics
-// @route   GET /api/incidents/stats
-// @access  Private/Admin
 const getIncidentStats = async (req, res, next) => {
   try {
     const days = parseInt(req.query.days, 10) || 30;
@@ -381,9 +363,6 @@ const getIncidentStats = async (req, res, next) => {
   }
 };
 
-// @desc    Simulate fall detection (for testing)
-// @route   POST /api/incidents/simulate-fall
-// @access  Private/Admin
 const simulateFallDetection = async (req, res, next) => {
   try {
     const { residentId } = req.body;
@@ -439,9 +418,6 @@ const simulateFallDetection = async (req, res, next) => {
   }
 };
 
-// @desc    Get overdue incidents (no response within timeout)
-// @route   GET /api/incidents/overdue
-// @access  Private/Admin
 const getOverdueIncidents = async (req, res, next) => {
   try {
     const timeoutMinutes = parseInt(req.query.timeout, 10) || 5;

@@ -9,7 +9,7 @@ async function cleanupDatabase() {
         await mongoose.connect(process.env.MONGODB_URI);
         console.log('✅ Connected to MongoDB');
 
-        // 1. Backup current data
+        // Backup current data
         console.log('\n📦 Creating data backup...');
         const assignments = await mongoose.connection.db.collection('assignments').find({}).toArray();
         const residents = await mongoose.connection.db.collection('residents').find({}).toArray();
@@ -19,7 +19,7 @@ async function cleanupDatabase() {
         console.log(`   - Residents: ${residents.length}`);
         console.log(`   - Users: ${users.length}`);
 
-        // 2. Drop problematic assignment indexes
+        // Drop problematic assignment indexes
         console.log('\n🗑️ Dropping assignment collection indexes...');
         try {
             await mongoose.connection.db.collection('assignments').dropIndexes();
@@ -28,12 +28,12 @@ async function cleanupDatabase() {
             console.log('   ⚠️ No assignment indexes to drop (collection might not exist)');
         }
 
-        // 3. Clear any corrupted assignment records
+        // Clear any corrupted assignment records
         console.log('\n🧹 Clearing assignment collection...');
         await mongoose.connection.db.collection('assignments').deleteMany({});
         console.log('   ✅ Assignment collection cleared');
 
-        // 4. Reset resident assignments to clean state
+        // Reset resident assignments to clean state
         console.log('\n🔄 Resetting resident assignments...');
         await mongoose.connection.db.collection('residents').updateMany(
             {},

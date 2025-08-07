@@ -5,9 +5,6 @@ const Assignment = require('../models/Assignment');
 const User = require('../models/User');
 const asyncHandler = require('../middleware/asyncHandler');
 
-// @desc    Generate custom report
-// @route   POST /api/reports/generate
-// @access  Private (Admin)
 const generateReport = asyncHandler(async (req, res) => {
   const {
     reportType,
@@ -200,9 +197,6 @@ const generateReport = asyncHandler(async (req, res) => {
   });
 });
 
-// @desc    Schedule automated report
-// @route   POST /api/reports/schedule
-// @access  Private (Admin)
 const scheduleReport = asyncHandler(async (req, res) => {
   const {
     name,
@@ -211,9 +205,6 @@ const scheduleReport = asyncHandler(async (req, res) => {
     recipients,
     isActive = true
   } = req.body;
-
-  // In a real implementation, this would integrate with a job scheduler like node-cron
-  // For now, we'll just store the schedule configuration
   
   const scheduledReport = {
     id: Date.now().toString(),
@@ -227,9 +218,6 @@ const scheduleReport = asyncHandler(async (req, res) => {
     lastRun: null,
     nextRun: calculateNextRun(schedule)
   };
-
-  // In a real app, this would be stored in the database
-  // For demo purposes, we'll just return the configuration
   
   res.status(201).json({
     success: true,
@@ -238,11 +226,7 @@ const scheduleReport = asyncHandler(async (req, res) => {
   });
 });
 
-// @desc    Get scheduled reports
-// @route   GET /api/reports/scheduled
-// @access  Private (Admin)
 const getScheduledReports = asyncHandler(async (req, res) => {
-  // In a real implementation, this would fetch from database
   const scheduledReports = [
     {
       id: '1',
@@ -268,21 +252,15 @@ const getScheduledReports = asyncHandler(async (req, res) => {
   });
 });
 
-// @desc    Export report data
-// @route   GET /api/reports/export/:reportId
-// @access  Private (Admin)
 const exportReport = asyncHandler(async (req, res) => {
   const { reportId } = req.params;
   const { format = 'csv' } = req.query;
-
-  // In a real implementation, this would fetch the report data and convert to requested format
-  // For demo purposes, we'll return a sample CSV structure
   
   if (format === 'csv') {
     const csvData = `Name,Room,Age,Last Vitals,Incidents This Week
-John Doe,101,75,2024-01-15 10:30,0
-Jane Smith,102,82,2024-01-15 09:15,1
-Bob Johnson,103,68,2024-01-14 16:45,0`;
+                      John Doe,101,75,2024-01-15 10:30,0
+                      Jane Smith,102,82,2024-01-15 09:15,1
+                      Bob Johnson,103,68,2024-01-14 16:45,0`;
 
     res.setHeader('Content-Type', 'text/csv');
     res.setHeader('Content-Disposition', `attachment; filename=report-${reportId}.csv`);

@@ -128,6 +128,13 @@ class ApiService {
     });
   }
 
+  async chatWithAI(message, history) {
+    return this.request('/chat/send', { 
+      method: 'POST',
+      body: JSON.stringify({ message, history }),
+    });
+  }
+
   // Residents Management
   async getResidents() {
     const response = await this.request('/residents');

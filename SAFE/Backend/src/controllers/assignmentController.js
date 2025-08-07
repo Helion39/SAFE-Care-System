@@ -3,9 +3,6 @@ const User = require('../models/User');
 const Resident = require('../models/Resident');
 const logger = require('../utils/logger');
 
-// @desc    Create new assignment
-// @route   POST /api/assignments
-// @access  Private/Admin
 const createAssignment = async (req, res, next) => {
   try {
     const { caregiverId, residentId, shift, priority, specialInstructions, notes } = req.body;
@@ -147,9 +144,6 @@ const createAssignment = async (req, res, next) => {
   }
 };
 
-// @desc    Get all assignments
-// @route   GET /api/assignments
-// @access  Private
 const getAssignments = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page, 10) || 1;
@@ -163,7 +157,7 @@ const getAssignments = async (req, res, next) => {
     if (req.query.isActive !== undefined) {
       query.isActive = req.query.isActive === 'true';
     } else {
-      query.isActive = true; // Default to active assignments
+      query.isActive = true;
     }
 
     // Filter by caregiver
@@ -212,9 +206,6 @@ const getAssignments = async (req, res, next) => {
   }
 };
 
-// @desc    Get assignments for specific caregiver
-// @route   GET /api/assignments/caregiver/:id
-// @access  Private
 const getCaregiverAssignments = async (req, res, next) => {
   try {
     const caregiverId = req.params.id;
@@ -263,9 +254,6 @@ const getCaregiverAssignments = async (req, res, next) => {
   }
 };
 
-// @desc    Update assignment
-// @route   PUT /api/assignments/:id
-// @access  Private/Admin
 const updateAssignment = async (req, res, next) => {
   try {
     const { shift, priority, specialInstructions, notes, endDate } = req.body;
@@ -323,9 +311,6 @@ const updateAssignment = async (req, res, next) => {
   }
 };
 
-// @desc    Delete assignment
-// @route   DELETE /api/assignments/:id
-// @access  Private/Admin
 const deleteAssignment = async (req, res, next) => {
   try {
     const assignment = await Assignment.findById(req.params.id);
@@ -359,9 +344,6 @@ const deleteAssignment = async (req, res, next) => {
   }
 };
 
-// @desc    Transfer assignment to another caregiver
-// @route   POST /api/assignments/:id/transfer
-// @access  Private/Admin
 const transferAssignment = async (req, res, next) => {
   try {
     const { newCaregiverId, notes } = req.body;
@@ -411,9 +393,6 @@ const transferAssignment = async (req, res, next) => {
   }
 };
 
-// @desc    Get caregiver workload statistics
-// @route   GET /api/assignments/workload
-// @access  Private/Admin
 const getCaregiverWorkload = async (req, res, next) => {
   try {
     const workload = await Assignment.getCaregiverWorkload();
@@ -441,9 +420,6 @@ const getCaregiverWorkload = async (req, res, next) => {
   }
 };
 
-// @desc    Get assignment statistics
-// @route   GET /api/assignments/stats
-// @access  Private/Admin
 const getAssignmentStats = async (req, res, next) => {
   try {
     const stats = await Assignment.getStatistics();

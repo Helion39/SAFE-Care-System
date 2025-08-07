@@ -1,19 +1,7 @@
-/**
- * Utility functions for consistent class name management
- * in the SAFE healthcare system
- */
-
-/**
- * Combines class names conditionally
- * Similar to the popular 'clsx' library but lightweight
- */
 export function cn(...classes: (string | undefined | null | false)[]): string {
   return classes.filter(Boolean).join(' ');
 }
 
-/**
- * Predefined component class combinations for consistency
- */
 export const componentClasses = {
   // Card variants
   card: {
@@ -87,13 +75,7 @@ export const componentClasses = {
   },
 };
 
-/**
- * Helper functions for common patterns
- */
 export const patterns = {
-  /**
-   * Creates a metric card with consistent styling
-   */
   metricCard: (variant: 'default' | 'interactive' = 'default') => {
     return cn(
       componentClasses.card.metric,
@@ -101,9 +83,6 @@ export const patterns = {
     );
   },
   
-  /**
-   * Creates a button with size and variant
-   */
   button: (
     variant: keyof typeof componentClasses.button = 'primary',
     size?: 'small' | 'large'
@@ -115,16 +94,10 @@ export const patterns = {
     );
   },
   
-  /**
-   * Creates an input with error state
-   */
   input: (hasError: boolean = false) => {
     return hasError ? componentClasses.form.inputError : componentClasses.form.input;
   },
   
-  /**
-   * Creates a badge with healthcare-specific styling
-   */
   healthcareBadge: (type: 'vitals' | 'incident', status: string) => {
     if (type === 'vitals') {
       switch (status.toLowerCase()) {
@@ -152,9 +125,6 @@ export const patterns = {
     return componentClasses.badge.secondary;
   },
   
-  /**
-   * Creates a responsive grid with specified columns
-   */
   grid: (columns: 2 | 3 | 4 = 4) => {
     switch (columns) {
       case 2:
@@ -168,9 +138,6 @@ export const patterns = {
   },
 };
 
-/**
- * Spacing utilities based on 8px grid
- */
 export const spacing = {
   // Margin utilities
   margin: {
@@ -209,9 +176,6 @@ export const spacing = {
   },
 };
 
-/**
- * Typography utilities
- */
 export const typography = {
   heading: {
     h1: 'text-2xl font-bold text-gray-800',
@@ -232,9 +196,6 @@ export const typography = {
   },
 };
 
-/**
- * Color utilities for consistent theming
- */
 export const colors = {
   text: {
     primary: 'text-gray-800',
@@ -265,24 +226,3 @@ export const colors = {
     info: 'border-info/20',
   },
 };
-
-/**
- * Example usage:
- * 
- * import { cn, patterns, componentClasses, spacing, typography } from '@/utils/classNames';
- * 
- * // Basic usage
- * <div className={cn('card-base', isActive && 'border-info')}>
- * 
- * // Using patterns
- * <button className={patterns.button('primary', 'large')}>
- * 
- * // Using component classes
- * <div className={componentClasses.card.interactive}>
- * 
- * // Using spacing
- * <div className={spacing.padding.md}>
- * 
- * // Using typography
- * <h1 className={typography.heading.h1}>
- */

@@ -2,9 +2,6 @@ const Vitals = require('../models/Vitals');
 const Resident = require('../models/Resident');
 const logger = require('../utils/logger');
 
-// @desc    Record new vital signs
-// @route   POST /api/vitals
-// @access  Private/Caregiver
 const recordVitals = async (req, res, next) => {
   try {
     const { residentId, systolicBP, diastolicBP, heartRate, temperature, oxygenSaturation, notes } = req.body;
@@ -60,9 +57,6 @@ const recordVitals = async (req, res, next) => {
   }
 };
 
-// @desc    Get vitals history for specific resident
-// @route   GET /api/vitals/resident/:id
-// @access  Private
 const getResidentVitals = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -117,9 +111,6 @@ const getResidentVitals = async (req, res, next) => {
   }
 };
 
-// @desc    Get recent vitals with time-based indicators
-// @route   GET /api/vitals/recent
-// @access  Private
 const getRecentVitals = async (req, res, next) => {
   try {
     const limit = parseInt(req.query.limit, 10) || 50;
@@ -171,9 +162,6 @@ const getRecentVitals = async (req, res, next) => {
   }
 };
 
-// @desc    Get residents with overdue vitals checks
-// @route   GET /api/vitals/overdue
-// @access  Private
 const getOverdueVitals = async (req, res, next) => {
   try {
     const hoursThreshold = parseInt(req.query.hours, 10) || 8; // Default 8 hours
@@ -233,9 +221,6 @@ const getOverdueVitals = async (req, res, next) => {
   }
 };
 
-// @desc    Update vitals entry
-// @route   PUT /api/vitals/:id
-// @access  Private/Caregiver
 const updateVitals = async (req, res, next) => {
   try {
     const { systolicBP, diastolicBP, heartRate, temperature, oxygenSaturation, notes } = req.body;
@@ -302,9 +287,6 @@ const updateVitals = async (req, res, next) => {
   }
 };
 
-// @desc    Get vitals statistics
-// @route   GET /api/vitals/stats
-// @access  Private/Admin
 const getVitalsStats = async (req, res, next) => {
   try {
     const days = parseInt(req.query.days, 10) || 30;
@@ -404,9 +386,6 @@ const getVitalsStats = async (req, res, next) => {
   }
 };
 
-// @desc    Batch record vitals for multiple residents
-// @route   POST /api/vitals/batch
-// @access  Private/Caregiver
 const batchRecordVitals = async (req, res, next) => {
   try {
     const { vitalsData } = req.body; // Array of vitals objects
@@ -486,9 +465,6 @@ const batchRecordVitals = async (req, res, next) => {
   }
 };
 
-// @desc    Get all vitals
-// @route   GET /api/vitals
-// @access  Private
 const getAllVitals = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page, 10) || 1;

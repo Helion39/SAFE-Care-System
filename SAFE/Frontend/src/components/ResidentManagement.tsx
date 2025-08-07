@@ -108,7 +108,7 @@ export function ResidentManagement({ data, setData, onDataChange }: ResidentMana
           const response = await apiService.deleteAssignment(currentAssignment._id || currentAssignment.id);
           if (response.success) {
             console.log('✅ Successfully unassigned caregiver');
-            await onDataChange(); // Refresh data
+            await onDataChange();
           }
         } else {
           console.log('ℹ️ No active assignment found to remove');
@@ -129,7 +129,7 @@ export function ResidentManagement({ data, setData, onDataChange }: ResidentMana
       
       const response = await apiService.createAssignment(assignmentData);
       if (response.success) {
-        await onDataChange(); // Refresh data
+        await onDataChange();
       }
     } catch (error) {
       console.error('Failed to assign/unassign caregiver:', error);
@@ -183,8 +183,6 @@ export function ResidentManagement({ data, setData, onDataChange }: ResidentMana
     }
   };
 
-
-
   const getExistingRooms = () => {
     return residents.map((resident: any) => resident.room_number || resident.room);
   };
@@ -198,7 +196,7 @@ export function ResidentManagement({ data, setData, onDataChange }: ResidentMana
     try {
       const response = await apiService.updateResident(editingResident.id, residentData);
       if (response.success) {
-        await onDataChange(); // Refresh data
+        await onDataChange();
         setShowCreateForm(false);
         setEditingResident(null);
       }

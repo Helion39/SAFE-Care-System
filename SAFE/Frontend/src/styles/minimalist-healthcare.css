@@ -1,6 +1,3 @@
-/* SAFE Healthcare System - Minimalist Flat Design System */
-
-/* ===== DESIGN TOKENS ===== */
 :root {
   /* Primary Healthcare Color Palette */
   --primary: #04AEEC;
@@ -163,7 +160,7 @@ p {
   }
 }
 
-/* ===== CARD COMPONENT (Updated for Pastel Theme) ===== */
+/* ===== CARD COMPONENT ===== */
 .card {
   background-color: var(--pastel-white);
   border: 1px solid var(--gray-200);
@@ -188,7 +185,7 @@ p {
   color: var(--info);
 }
 
-/* ===== BUTTON COMPONENTS (Updated for Pastel Theme) ===== */
+/* ===== BUTTON COMPONENTS ===== */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -203,7 +200,6 @@ p {
   cursor: pointer;
   transition: all 0.2s ease-in-out;
   min-height: 44px;
-  /* Touch target */
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
 }
 
@@ -220,7 +216,6 @@ p {
 
 .btn-primary:hover:not(:disabled) {
   background-color: #B3DDFF;
-  /* Slightly darker pastel-primary */
   transform: translateY(-1px);
 }
 
@@ -285,7 +280,7 @@ p {
   min-height: 52px;
 }
 
-/* ===== FORM COMPONENTS (Updated for Pastel Theme) ===== */
+/* ===== FORM COMPONENTS ===== */
 .form-group {
   margin-bottom: 16px;
 }
@@ -307,7 +302,6 @@ p {
   background-color: var(--pastel-white);
   transition: all 0.2s ease-in-out;
   min-height: 44px;
-  /* Touch target */
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
 }
 
@@ -328,7 +322,7 @@ p {
   resize: vertical;
 }
 
-/* ===== BADGE COMPONENT (Updated for Pastel Theme) ===== */
+/* ===== BADGE COMPONENT ===== */
 .badge {
   display: inline-flex;
   align-items: center;
@@ -458,7 +452,7 @@ p {
   border-bottom-color: var(--primary);
 }
 
-/* ===== METRIC CARDS (Updated for Pastel Theme) ===== */
+/* ===== METRIC CARDS ===== */
 .metric-card {
   background-color: var(--pastel-white);
   border: 1px solid var(--gray-200);
@@ -989,7 +983,7 @@ p {
   color: var(--gray-600);
 }
 
-/* New Refined Metric Cards (matching first image design) */
+/* Refined Metric Cards */
 .metric-card-refined {
   background-color: var(--pastel-white);
   border-radius: 16px;
@@ -1308,8 +1302,7 @@ p {
   }
 }
 
-/* Additi
-onal utility classes for common patterns */
+/* Additional utility classes for common patterns */
 .hover-lift {
   transition: transform 0.2s ease-in-out;
 }

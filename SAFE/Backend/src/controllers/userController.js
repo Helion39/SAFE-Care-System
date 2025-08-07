@@ -2,9 +2,6 @@ const User = require('../models/User');
 const logger = require('../utils/logger');
 const bcrypt = require('bcryptjs');
 
-// @desc    Create new caregiver account (Admin only)
-// @route   POST /api/users/create-caregiver
-// @access  Private/Admin
 const createCaregiver = async (req, res, next) => {
   try {
     const { name, email, username, password, temporaryPassword, phone } = req.body;
@@ -33,7 +30,7 @@ const createCaregiver = async (req, res, next) => {
     const userData = {
       name,
       username,
-      password: password || temporaryPassword || 'TempPass123!', // Default temp password
+      password: password || temporaryPassword || 'TempPass123!',
       role: 'caregiver',
       isActive: true
     };
@@ -71,12 +68,9 @@ const createCaregiver = async (req, res, next) => {
   }
 };
 
-// @desc    Create multiple caregiver accounts (Bulk creation)
-// @route   POST /api/users/bulk-create-caregivers
-// @access  Private/Admin
 const bulkCreateCaregivers = async (req, res, next) => {
   try {
-    const { caregivers } = req.body; // Array of caregiver objects
+    const { caregivers } = req.body;
 
     if (!Array.isArray(caregivers) || caregivers.length === 0) {
       return res.status(400).json({
@@ -140,9 +134,6 @@ const bulkCreateCaregivers = async (req, res, next) => {
   }
 };
 
-// @desc    Reset caregiver password (Admin only)
-// @route   PUT /api/users/:id/reset-password
-// @access  Private/Admin
 const resetCaregiverPassword = async (req, res, next) => {
   try {
     const { newPassword } = req.body;
@@ -188,9 +179,6 @@ const resetCaregiverPassword = async (req, res, next) => {
   }
 };
 
-// @desc    Get all users
-// @route   GET /api/users
-// @access  Private/Admin
 const getUsers = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page, 10) || 1;
@@ -255,9 +243,6 @@ const getUsers = async (req, res, next) => {
   }
 };
 
-// @desc    Get single user
-// @route   GET /api/users/:id
-// @access  Private/Admin
 const getUser = async (req, res, next) => {
   try {
     const user = await User.findById(req.params.id).select('-refreshToken');
@@ -279,9 +264,6 @@ const getUser = async (req, res, next) => {
   }
 };
 
-// @desc    Update user
-// @route   PUT /api/users/:id
-// @access  Private/Admin
 const updateUser = async (req, res, next) => {
   try {
     const { name, email, role, isActive } = req.body;
@@ -320,9 +302,6 @@ const updateUser = async (req, res, next) => {
   }
 };
 
-// @desc    Delete user
-// @route   DELETE /api/users/:id
-// @access  Private/Admin
 const deleteUser = async (req, res, next) => {
   try {
     const user = await User.findById(req.params.id);
@@ -359,9 +338,6 @@ const deleteUser = async (req, res, next) => {
   }
 };
 
-// @desc    Get caregivers
-// @route   GET /api/users/caregivers
-// @access  Private
 const getCaregivers = async (req, res, next) => {
   try {
     const caregivers = await User.find({ 
@@ -380,9 +356,6 @@ const getCaregivers = async (req, res, next) => {
   }
 };
 
-// @desc    Get user statistics
-// @route   GET /api/users/stats
-// @access  Private/Admin
 const getUserStats = async (req, res, next) => {
   try {
     const stats = await User.aggregate([
@@ -420,15 +393,6 @@ const getUserStats = async (req, res, next) => {
   }
 };
 
-
-
-
-
-
-
-// @desc    Toggle user active status
-// @route   PUT /api/users/:id/toggle-status
-// @access  Private/Admin
 const toggleUserStatus = async (req, res, next) => {
   try {
     const user = await User.findById(req.params.id);

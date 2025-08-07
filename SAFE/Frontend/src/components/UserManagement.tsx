@@ -45,7 +45,7 @@ export function UserManagement({ data, setData, onDataChange }: UserManagementPr
       });
       
       if (response.success) {
-        await onDataChange(); // Refresh data
+        await onDataChange();
         setShowCreateForm(false);
       }
     } catch (error) {
@@ -58,7 +58,7 @@ export function UserManagement({ data, setData, onDataChange }: UserManagementPr
     try {
       const response = await apiService.toggleUserStatus(userId);
       if (response.success) {
-        await onDataChange(); // Refresh data
+        await onDataChange();
       }
     } catch (error) {
       console.error('Failed to toggle user status:', error);
@@ -71,7 +71,7 @@ export function UserManagement({ data, setData, onDataChange }: UserManagementPr
       try {
         const response = await apiService.deleteUser(userId);
         if (response.success) {
-          await onDataChange(); // Refresh data
+          await onDataChange();
         }
       } catch (error) {
         console.error('Failed to delete user:', error);

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { VitalsChart } from './VitalsChart';
 import { generateHealthSummary } from './mockData';
 import apiService from '../services/api';
+import { ChatbotWidget } from './ChatbotWidget'; 
 import { 
   Activity, 
   TrendingUp, 
@@ -28,7 +29,6 @@ export function CaregiverDashboard({ data, setData, currentUser, onTriggerAlert,
   const [activeTab, setActiveTab] = useState('overview');
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
-  // Listen for sidebar toggle from navbar
   React.useEffect(() => {
     const handleToggleSidebar = () => {
       setSidebarOpen(prev => !prev);
@@ -38,7 +38,6 @@ export function CaregiverDashboard({ data, setData, currentUser, onTriggerAlert,
     return () => window.removeEventListener('toggleSidebar', handleToggleSidebar);
   }, []);
 
-  // Find assigned resident by looking through assignments data
   const caregiverId = currentUser._id || currentUser.id;
   const activeAssignment = data.assignments?.find(assignment => {
     const assignmentCaregiverId = assignment.caregiverId?._id || assignment.caregiverId?.id || assignment.caregiverId;
@@ -52,10 +51,9 @@ export function CaregiverDashboard({ data, setData, currentUser, onTriggerAlert,
         return residentId === assignmentResidentId;
       })
     : data.residents.find(r => {
-        // Fallback: Check if resident has this caregiver assigned directly
         const assignedCaregiverId = r.assignedCaregiver?._id || r.assignedCaregiver || r.assigned_caregiver_id;
         return assignedCaregiverId === caregiverId;
-      }) || data.residents.find(r => r.id === currentUser.assigned_resident_id); // Final fallback
+      }) || data.residents.find(r => r.id === currentUser.assigned_resident_id);
   
   const residentVitals = assignedResident 
     ? data.vitals
@@ -79,13 +77,12 @@ export function CaregiverDashboard({ data, setData, currentUser, onTriggerAlert,
       systolicBP: parseInt(vitalsForm.systolic_bp),
       diastolicBP: parseInt(vitalsForm.diastolic_bp),
       heartRate: parseInt(vitalsForm.heart_rate)
-      // Note: caregiverId is automatically set by backend from req.user.id
     };
 
     try {
       const response = await apiService.createVitals(vitalsData);
       if (response.success) {
-        await onDataChange(); // Refresh data
+        await onDataChange();
         setVitalsForm({
           systolic_bp: '',
           diastolic_bp: '',
@@ -142,6 +139,9 @@ export function CaregiverDashboard({ data, setData, currentUser, onTriggerAlert,
     </div>
   </div>
   
+  {/*Chatbot*/}
+  <ChatbotWidget />
+
   {/* Navigation */}
   <nav className="flex-1 overflow-y-auto">
     {sidebarOpen && (

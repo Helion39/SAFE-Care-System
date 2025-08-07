@@ -10,13 +10,6 @@ import {
   TrendingUp
 } from 'lucide-react';
 
-/**
- * PatternShowcase Component
- * 
- * This component demonstrates all the available Tailwind-based patterns
- * for the SAFE healthcare system. Use this as a reference for implementing
- * consistent design patterns throughout the application.
- */
 export function PatternShowcase() {
   return (
     <div className="page-container">

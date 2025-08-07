@@ -25,7 +25,6 @@ export function AdminDashboard({ data, setData, onTriggerAlert, onResolveInciden
   const [activeTab, setActiveTab] = useState('residents');
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
-  // Listen for sidebar toggle from navbar
   useEffect(() => {
     const handleToggleSidebar = () => {
       setSidebarOpen(prev => !prev);
@@ -35,12 +34,10 @@ export function AdminDashboard({ data, setData, onTriggerAlert, onResolveInciden
     return () => window.removeEventListener('toggleSidebar', handleToggleSidebar);
   }, []);
 
-  // Tambahkan useEffect berikut:
   useEffect(() => {
     if (onDataChange) {
       onDataChange();
     }
-    // eslint-disable-next-line
   }, []);
 
   const activeIncidents = data.incidents.filter(i => i.status === 'active' || i.status === 'claimed');
@@ -48,8 +45,6 @@ export function AdminDashboard({ data, setData, onTriggerAlert, onResolveInciden
     i.status === 'resolved' && 
     new Date(i.resolved_time).toDateString() === new Date().toDateString()
   );
-
-
 
   const handleConfirmEmergency = (incidentId) => {
     const adminAction = "Hospital contacted - Emergency services dispatched";
@@ -64,8 +59,10 @@ export function AdminDashboard({ data, setData, onTriggerAlert, onResolveInciden
 
   return (
     <div className="bg-gray-50" style={{ minHeight: 'calc(100vh - 80px)' }}>
+      
       {/* Sidebar */}
       <div className={`${sidebarOpen ? 'w-64' : 'w-16'} transition-all duration-300 fixed left-0 flex flex-col z-40`} style={{ backgroundColor: '#E3F2FD', height: 'calc(100vh - 80px)', top: '80px' }}>
+       
         {/* Sidebar Header */}
         <div className="p-4 border-b border-blue-200">
           <div className={`flex items-center transition-all duration-300 ${sidebarOpen ? '' : 'justify-center'}`}>
@@ -411,6 +408,7 @@ export function AdminDashboard({ data, setData, onTriggerAlert, onResolveInciden
 
             {activeTab === 'status' && (
               <div className="space-y-6">
+                
                 {/* Vitals Analytics */}
                 <div style={{ 
                   backgroundColor: 'white', 

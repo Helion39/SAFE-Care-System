@@ -28,10 +28,10 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
         localStorage.setItem('token', data.token);
         onLoginSuccess(data.user);
       } else {
-        setErrorMsg(data.error || 'Login gagal');
+        setErrorMsg(data.error || 'Login failed');
       }
     } catch (err) {
-      setErrorMsg('Gagal terhubung ke server');
+      setErrorMsg('Failed connecting to server');
     }
   };
 

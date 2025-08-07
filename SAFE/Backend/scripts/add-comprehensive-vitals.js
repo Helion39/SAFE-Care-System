@@ -55,10 +55,10 @@ const addComprehensiveVitals = async () => {
         baseHeartRate += 12;
       }
       if (resident.medicalConditions.includes('Diabetes')) {
-        baseTemp += 0.3; // Slightly higher baseline
+        baseTemp += 0.3;
       }
       if (resident.medicalConditions.includes('Parkinson\'s Disease')) {
-        baseHeartRate -= 5; // Often lower due to medication
+        baseHeartRate -= 5;
       }
 
       // Generate 8-12 vitals readings over 10 days (varying frequency)
@@ -83,8 +83,8 @@ const addComprehensiveVitals = async () => {
         }
 
         // Add daily and individual variation
-        const dailyVariation = Math.sin((i / numReadings) * Math.PI * 2) * 0.1; // Cyclical variation
-        const randomVariation = (Math.random() - 0.5) * 0.3; // Random variation
+        const dailyVariation = Math.sin((i / numReadings) * Math.PI * 2) * 0.1;
+        const randomVariation = (Math.random() - 0.5) * 0.3;
         const totalVariation = (dailyVariation + randomVariation) * trendFactor;
 
         // Calculate vitals with realistic ranges
@@ -103,7 +103,7 @@ const addComprehensiveVitals = async () => {
 
         // Generate notes for some readings
         let notes = '';
-        if (Math.random() < 0.3) { // 30% chance of notes
+        if (Math.random() < 0.3) {
           const noteOptions = [
             'Patient resting comfortably',
             'Slight elevation noted',
@@ -122,7 +122,7 @@ const addComprehensiveVitals = async () => {
           systolicBP: finalSystolic,
           diastolicBP: finalDiastolic,
           heartRate: finalHeartRate,
-          temperature: Math.round(finalTemperature * 10) / 10, // Round to 1 decimal
+          temperature: Math.round(finalTemperature * 10) / 10,
           oxygenSaturation: finalO2Sat,
           caregiverId: randomCaregiver._id,
           timestamp: date,

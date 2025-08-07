@@ -12,7 +12,6 @@ interface FamilyDashboardProps {
 export function FamilyDashboard({ userData, data, currentUser, onLogout }: FamilyDashboardProps) {
   const [loading, setLoading] = useState(false);
 
-  // Use data passed from parent instead of making separate API call
   const residentData = data?.residents?.[0] || null;
   const vitals = data?.vitals || [];
   const incidents = data?.incidents || [];

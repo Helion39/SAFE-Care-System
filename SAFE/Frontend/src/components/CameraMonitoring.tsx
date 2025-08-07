@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Camera, AlertTriangle } from 'lucide-react';
 
-// --- INTERFACE & TIPE DATA (Tidak ada perubahan) ---
 interface CameraInfo {
   id: string;
   room_number: string;
@@ -20,8 +19,6 @@ interface Detection {
     status: string;
 }
 
-// --- Komponen Kartu Kamera (Tidak ada perubahan signifikan) ---
-// Komponen ini sudah siap menerima stream dinamis dari parent.
 function CameraCard({ camera, resident, stream, onConfirmNeeded }: {
     camera: CameraInfo;
     resident?: Resident;
@@ -39,15 +36,18 @@ function CameraCard({ camera, resident, stream, onConfirmNeeded }: {
         }
     }, [stream]);
 
-    const processFrame = async () => {
+    const processFrame = useCallback(async () => {
         if (!videoRef.current || videoRef.current.readyState < 2) return;
+
         const tempCanvas = document.createElement('canvas');
         tempCanvas.width = videoRef.current.videoWidth;
         tempCanvas.height = videoRef.current.videoHeight;
         const ctx = tempCanvas.getContext('2d');
         if (!ctx) return;
+
         ctx.drawImage(videoRef.current, 0, 0, tempCanvas.width, tempCanvas.height);
         const imageBase64 = tempCanvas.toDataURL('image/jpeg');
+
         try {
             const response = await fetch('http://localhost:5001/api/detect', {
                 method: 'POST',
@@ -55,14 +55,19 @@ function CameraCard({ camera, resident, stream, onConfirmNeeded }: {
                 body: JSON.stringify({ image: imageBase64 }),
             });
             const result = await response.json();
+
             if (canvasRef.current && videoRef.current && result.detections) {
                 const canvasCtx = canvasRef.current.getContext('2d');
                 if(!canvasCtx) return;
+
                 canvasRef.current.width = videoRef.current.clientWidth;
                 canvasRef.current.height = videoRef.current.clientHeight;
+
                 const scaleX = canvasRef.current.width / videoRef.current.videoWidth;
                 const scaleY = canvasRef.current.height / videoRef.current.videoHeight;
+
                 canvasCtx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+                
                 result.detections.forEach((det: Detection) => {
                     const [x1, y1, x2, y2] = det.box;
                     canvasCtx.strokeStyle = '#34C759';
@@ -70,13 +75,14 @@ function CameraCard({ camera, resident, stream, onConfirmNeeded }: {
                     canvasCtx.strokeRect(x1 * scaleX, y1 * scaleY, (x2 - x1) * scaleX, (y2 - y1) * scaleY);
                 });
             }
+
             if (result.pending_id) {
                 onConfirmNeeded(camera.id, result.pending_id);
             }
         } catch (error) {
-            console.error('Error deteksi:', error);
+            console.error('Detection error:', error);
         }
-    };
+    }, [camera.id, onConfirmNeeded]);
 
     useEffect(() => {
         if (fallDetectionEnabled && camera.status === 'active' && stream) {
@@ -86,6 +92,7 @@ function CameraCard({ camera, resident, stream, onConfirmNeeded }: {
             const ctx = canvasRef.current?.getContext('2d');
             ctx?.clearRect(0, 0, canvasRef.current?.width || 0, canvasRef.current?.height || 0);
         }
+
         return () => {
             if (detectionInterval.current) clearInterval(detectionInterval.current);
         };
@@ -98,7 +105,6 @@ function CameraCard({ camera, resident, stream, onConfirmNeeded }: {
                     <p style={{ fontWeight: '600' }}>Room {camera.room_number}</p>
                     {resident && <p className="text-sm text-gray-500">{resident.name}</p>}
                 </div>
-                {/* [KUNCI] Status badge sekarang dinamis berdasarkan 'stream' */}
                 <span className={`badge ${stream ? 'badge-success' : 'badge-error'}`}>
                     {stream ? 'Online' : 'Offline'}
                 </span>
@@ -120,7 +126,13 @@ function CameraCard({ camera, resident, stream, onConfirmNeeded }: {
                     <div className="flex justify-between items-center">
                         <span style={{ fontSize: 'var(--text-sm)', fontWeight: '500' }}>Fall Detection AI</span>
                         <label className="flex items-center gap-2 cursor-pointer">
-                            <input type="checkbox" checked={fallDetectionEnabled} onChange={(e) => setFallDetectionEnabled(e.target.checked)} className="w-4 h-4" disabled={!stream} />
+                            <input 
+                                type="checkbox" 
+                                checked={fallDetectionEnabled} 
+                                onChange={(e) => setFallDetectionEnabled(e.target.checked)} 
+                                className="w-4 h-4" 
+                                disabled={!stream} 
+                            />
                             <span style={{ fontSize: 'var(--text-sm)' }}>{fallDetectionEnabled ? 'Enabled' : 'Disabled'}</span>
                         </label>
                     </div>
@@ -130,30 +142,25 @@ function CameraCard({ camera, resident, stream, onConfirmNeeded }: {
     );
 }
 
-
-// --- Komponen Utama dengan Logika Dinamis ---
 export function CameraMonitoring({ data, onTriggerAlert }: { data: { camera_info: CameraInfo[], residents: Resident[] }, onTriggerAlert: (residentId: string) => void }) {
     const { camera_info = [], residents = [] } = data;
     const [streams, setStreams] = useState<{ [key: string]: MediaStream | null }>({});
     const [pendingConfirmation, setPendingConfirmation] = useState<{ cameraId: string; trackId: number } | null>(null);
     
-    // [KUNCI 1] Gunakan ref untuk menyimpan stream saat ini tanpa memicu render ulang
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const streamsRef = useRef(streams);
     streamsRef.current = streams;
 
-    // [KUNCI 2] Hapus 'streams' dari dependensi useCallback. Gunakan ref untuk cleanup.
     const refreshCameraStreams = useCallback(async () => {
-        console.log("Memeriksa ulang perangkat kamera...");
+        console.log("Re-checking camera devices...");
         try {
-            // Hentikan stream lama menggunakan ref
             Object.values(streamsRef.current).forEach(stream => stream?.getTracks().forEach(track => track.stop()));
 
             await navigator.mediaDevices.getUserMedia({ video: true });
             const allDevices = await navigator.mediaDevices.enumerateDevices();
             const videoDevices = allDevices.filter(device => device.kind === 'videoinput');
             
-            console.log(`Ditemukan ${videoDevices.length} kamera fisik.`);
+            console.log(`Found ${videoDevices.length} physical cameras.`);
 
             const newStreams: { [key: string]: MediaStream | null } = {};
             const activeCameras = camera_info.filter(c => c.status === 'active');
@@ -169,7 +176,7 @@ export function CameraMonitoring({ data, onTriggerAlert }: { data: { camera_info
                         });
                         newStreams[uiCamera.id] = stream;
                     } catch (err) {
-                        console.error(`Gagal memulai stream untuk ${uiCamera.room_number}`, err);
+                        console.error(`Failed to start stream for ${uiCamera.room_number}`, err);
                         newStreams[uiCamera.id] = null;
                     }
                 } else {
@@ -178,35 +185,34 @@ export function CameraMonitoring({ data, onTriggerAlert }: { data: { camera_info
             }
             setStreams(newStreams);
         } catch (error) {
-            console.error("Gagal mengakses perangkat media:", error);
+            console.error("Failed to access media devices:", error);
             setStreams({});
         }
-    }, [camera_info]); // Sekarang hanya bergantung pada camera_info
+    }, [camera_info]);
 
-    // [KUNCI 3] Hapus 'streams' dari dependensi useEffect
     useEffect(() => {
         refreshCameraStreams();
         navigator.mediaDevices.addEventListener('devicechange', refreshCameraStreams);
+        
         return () => {
             navigator.mediaDevices.removeEventListener('devicechange', refreshCameraStreams);
             Object.values(streamsRef.current).forEach(stream => stream?.getTracks().forEach(track => track.stop()));
         };
-    }, [refreshCameraStreams]); // Dependensi sekarang sudah aman
+    }, [refreshCameraStreams]);
 
     useEffect(() => {
         if (!audioRef.current) {
-            audioRef.current = new Audio('/alarm.mp3'); // Pastikan file ada di /public/alarm.mp3
+            audioRef.current = new Audio('/alarm.mp3'); 
             audioRef.current.loop = true;
         }
 
         if (pendingConfirmation) {
-            audioRef.current.play().catch(e => console.error("Gagal memutar audio:", e));
+            audioRef.current.play().catch(e => console.error("Failed to play audio:", e));
         } else {
             audioRef.current.pause();
-            audioRef.current.currentTime = 0; // Reset audio ke awal
+            audioRef.current.currentTime = 0;
         }
 
-        // Cleanup saat komponen unmount
         return () => {
             audioRef.current?.pause();
         };
@@ -215,10 +221,10 @@ export function CameraMonitoring({ data, onTriggerAlert }: { data: { camera_info
     const handleConfirmNeeded = (cameraId: string, trackId: number) => {
         if (!pendingConfirmation) setPendingConfirmation({ cameraId, trackId });
     };
+
     const handleConfirmFall = async () => {
         if (!pendingConfirmation) return;
         try {
-            // Mengirim request POST ke backend dengan track_id di dalam body
             const response = await fetch('http://localhost:5001/api/confirm_fall', {
                 method: 'POST',
                 headers: {
@@ -228,7 +234,6 @@ export function CameraMonitoring({ data, onTriggerAlert }: { data: { camera_info
             });
 
             if (!response.ok) {
-                // Menangani jika backend merespons dengan error
                 const errorData = await response.json();
                 throw new Error(errorData.error || 'Failed to confirm fall');
             }
@@ -238,14 +243,12 @@ export function CameraMonitoring({ data, onTriggerAlert }: { data: { camera_info
         } catch (error) {
             console.error('Error confirming fall:', error);
         }
-        // Hentikan suara dan tutup modal setelah aksi
         setPendingConfirmation(null);
     };
         
     const handleDenyFall = async () => {
         if (!pendingConfirmation) return;
         try {
-            // Mengirim request POST ke backend dengan track_id di dalam body
             const response = await fetch('http://localhost:5001/api/deny_fall', {
                 method: 'POST',
                 headers: {
@@ -264,10 +267,9 @@ export function CameraMonitoring({ data, onTriggerAlert }: { data: { camera_info
         } catch (error) {
             console.error('Error denying fall:', error);
         }
-        // Hentikan suara dan tutup modal setelah aksi
         setPendingConfirmation(null);
     };
-  
+
     return (
         <>
             <div style={{ backgroundColor: 'white', borderRadius: '12px', overflow: 'hidden' }}>
@@ -292,24 +294,24 @@ export function CameraMonitoring({ data, onTriggerAlert }: { data: { camera_info
                 </div>
             </div>
             
-      {/* Modal Konfirmasi dari CameraMonitoring */}
-      {pendingConfirmation && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="card w-96">
-                <h3 className="text-lg font-bold">Konfirmasi Diperlukan!</h3>
-                <p className="py-4">
-                    Sistem mendeteksi potensi insiden jatuh di 
-                    <strong> Room {data.camera_info.find(c => c.id === pendingConfirmation.cameraId)?.room_number}</strong>.
-                    <br/>
-                    Apakah Anda ingin mengonfirmasi dan mengirim peringatan?
-                </p>
-                <div className="flex justify-end gap-2">
-                    <button onClick={handleDenyFall} className="btn btn-secondary">Tolak (Salah Alarm)</button>
-                    <button onClick={handleConfirmFall} className="btn btn-error">Ya, Konfirmasi Jatuh</button>
+            {/* Confirmation Modal */}
+            {pendingConfirmation && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="card w-96">
+                        <h3 className="text-lg font-bold">Confirmation Required!</h3>
+                        <p className="py-4">
+                            The system has detected a potential fall incident in 
+                            <strong> Room {data.camera_info.find(c => c.id === pendingConfirmation.cameraId)?.room_number}</strong>.
+                            <br/>
+                            Do you want to confirm and send an alert?
+                        </p>
+                        <div className="flex justify-end gap-2">
+                            <button onClick={handleDenyFall} className="btn btn-secondary">Deny (False Alarm)</button>
+                            <button onClick={handleConfirmFall} className="btn btn-error">Yes, Confirm Fall</button>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-      )}
-    </>
-  );
+            )}
+        </>
+    );
 }

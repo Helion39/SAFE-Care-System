@@ -11,10 +11,10 @@ const connectDB = async () => {
     logger.info('🔄 Attempting to connect to MongoDB...');
     
     const conn = await mongoose.connect(process.env.MONGODB_URI, {
-      serverSelectionTimeoutMS: 10000, // Keep trying to send operations for 10 seconds
-      socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
-      maxPoolSize: 10, // Maintain up to 10 socket connections
-      heartbeatFrequencyMS: 10000, // Send a ping every 10 seconds
+      serverSelectionTimeoutMS: 10000,
+      socketTimeoutMS: 45000,
+      maxPoolSize: 10,
+      heartbeatFrequencyMS: 10000,
       retryWrites: true,
       w: 'majority'
     });
@@ -81,11 +81,11 @@ const connectDB = async () => {
 // Database indexes setup
 const setupIndexes = async () => {
   try {
-    // User indexes - drop existing email index first, then create sparse one
+    // User indexes
     try {
       await mongoose.connection.db.collection('users').dropIndex('email_1');
     } catch (err) {
-      // Index might not exist, ignore error
+
     }
     await mongoose.connection.db.collection('users').createIndex({ email: 1 }, { unique: true, sparse: true });
     
@@ -101,7 +101,7 @@ const setupIndexes = async () => {
     await mongoose.connection.db.collection('incidents').createIndex({ residentId: 1, detectionTime: -1 });
     await mongoose.connection.db.collection('incidents').createIndex({ status: 1, detectionTime: -1 });
     
-    // Assignment indexes - handled by model schema, skip to avoid conflicts
+    // Assignment indexes
     
     logger.info('Database indexes created successfully');
   } catch (error) {

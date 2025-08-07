@@ -5,9 +5,6 @@ const Assignment = require('../models/Assignment');
 const User = require('../models/User');
 const logger = require('../utils/logger');
 
-// @desc    Generate custom report
-// @route   POST /api/reports/generate
-// @access  Private/Admin
 const generateReport = async (req, res, next) => {
   try {
     const {
@@ -154,9 +151,6 @@ const generateReport = async (req, res, next) => {
   }
 };
 
-// @desc    Get vitals report
-// @route   GET /api/reports/vitals
-// @access  Private
 const getVitalsReport = async (req, res, next) => {
   try {
     const days = parseInt(req.query.days, 10) || 30;
@@ -275,9 +269,6 @@ const getVitalsReport = async (req, res, next) => {
   }
 };
 
-// @desc    Get incidents report
-// @route   GET /api/reports/incidents
-// @access  Private
 const getIncidentsReport = async (req, res, next) => {
   try {
     const days = parseInt(req.query.days, 10) || 30;
@@ -394,9 +385,6 @@ const getIncidentsReport = async (req, res, next) => {
   }
 };
 
-// @desc    Get assignments report
-// @route   GET /api/reports/assignments
-// @access  Private/Admin
 const getAssignmentsReport = async (req, res, next) => {
   try {
     const days = parseInt(req.query.days, 10) || 30;

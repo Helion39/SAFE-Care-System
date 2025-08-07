@@ -97,7 +97,7 @@ UserSchema.methods.getRefreshToken = function () {
     { id: this._id },
     process.env.JWT_REFRESH_SECRET,
     {
-      expiresIn: process.env.JWT_REFRESH_EXPIRE || '30d' // pastikan string, misal '30d'
+      expiresIn: process.env.JWT_REFRESH_EXPIRE || '30d'
     }
   );
 };

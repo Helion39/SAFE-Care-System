@@ -3,9 +3,6 @@ const User = require('../models/User');
 const Assignment = require('../models/Assignment');
 const logger = require('../utils/logger');
 
-// @desc    Create new resident
-// @route   POST /api/residents
-// @access  Private/Admin
 const createResident = async (req, res, next) => {
   try {
     const { residentId, name, room, age, medicalConditions, emergencyContact, familyEmails, notes } = req.body;
@@ -43,9 +40,6 @@ const createResident = async (req, res, next) => {
   }
 };
 
-// @desc    Get all residents
-// @route   GET /api/residents
-// @access  Private
 const getResidents = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page, 10) || 1;
@@ -122,9 +116,6 @@ const getResidents = async (req, res, next) => {
   }
 };
 
-// @desc    Get single resident
-// @route   GET /api/residents/:id
-// @access  Private
 const getResident = async (req, res, next) => {
   try {
     const resident = await Resident.findById(req.params.id)
@@ -162,9 +153,6 @@ const getResident = async (req, res, next) => {
   }
 };
 
-// @desc    Update resident
-// @route   PUT /api/residents/:id
-// @access  Private/Admin
 const updateResident = async (req, res, next) => {
   try {
     console.log('🔍 Update resident request:', {
@@ -235,9 +223,6 @@ const updateResident = async (req, res, next) => {
   }
 };
 
-// @desc    Delete resident
-// @route   DELETE /api/residents/:id
-// @access  Private/Admin
 const deleteResident = async (req, res, next) => {
   try {
     const resident = await Resident.findById(req.params.id);
@@ -271,9 +256,6 @@ const deleteResident = async (req, res, next) => {
   }
 };
 
-// @desc    Search residents
-// @route   GET /api/residents/search
-// @access  Private
 const searchResidents = async (req, res, next) => {
   try {
     const { q, room, medicalCondition, caregiverId } = req.query;
@@ -315,9 +297,6 @@ const searchResidents = async (req, res, next) => {
   }
 };
 
-// @desc    Get unassigned residents
-// @route   GET /api/residents/unassigned
-// @access  Private/Admin
 const getUnassignedResidents = async (req, res, next) => {
   try {
     const residents = await Resident.find({
@@ -336,9 +315,6 @@ const getUnassignedResidents = async (req, res, next) => {
   }
 };
 
-// @desc    Get resident statistics
-// @route   GET /api/residents/stats
-// @access  Private/Admin
 const getResidentStats = async (req, res, next) => {
   try {
     const stats = await Resident.aggregate([
@@ -395,13 +371,10 @@ const getResidentStats = async (req, res, next) => {
   }
 };
 
-// @desc    Check room availability
-// @route   GET /api/residents/check-room/:roomNumber
-// @access  Private/Admin
 const checkRoomAvailability = async (req, res, next) => {
   try {
     const { roomNumber } = req.params;
-    const { excludeId } = req.query; // For editing existing resident
+    const { excludeId } = req.query;
     
     let query = { room: roomNumber, isActive: true };
     if (excludeId) {

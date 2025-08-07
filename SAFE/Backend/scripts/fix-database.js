@@ -1,4 +1,3 @@
-// Script to fix the database by clearing and re-seeding with proper usernames
 require('dotenv').config();
 const mongoose = require('mongoose');
 const User = require('../src/models/User');
@@ -18,7 +17,7 @@ async function fixDatabase() {
             name: 'System Administrator',
             email: 'admin@safecare.com',
             username: 'admin',
-            password: 'admin123', // Plain text - User model will hash it
+            password: 'admin123',
             role: 'admin',
             isActive: true,
             isOnline: false
@@ -30,7 +29,7 @@ async function fixDatabase() {
             name: 'Maria Garcia',
             email: 'maria@safecare.com',
             username: 'caregiver1',
-            password: 'password123', // Plain text - User model will hash it
+            password: 'password123',
             role: 'caregiver',
             isActive: true,
             isOnline: false,
@@ -42,7 +41,7 @@ async function fixDatabase() {
             name: 'James Wilson',
             email: 'james@safecare.com',
             username: 'caregiver2',
-            password: 'password123', // Plain text - User model will hash it
+            password: 'password123',
             role: 'caregiver',
             isActive: true,
             isOnline: false,

@@ -5,9 +5,6 @@ const Assignment = require('../models/Assignment');
 const User = require('../models/User');
 const asyncHandler = require('../middleware/asyncHandler');
 
-// @desc    Get dashboard analytics
-// @route   GET /api/analytics/dashboard
-// @access  Private (Admin/Caregiver)
 const getDashboardAnalytics = asyncHandler(async (req, res) => {
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -34,7 +31,7 @@ const getDashboardAnalytics = asyncHandler(async (req, res) => {
     detectionTime: { $gte: weekAgo }
   }).sort({ detectionTime: -1 }).limit(10);
 
-  // Overdue vitals (residents not checked in last 8 hours)
+  // Overdue vitals
   const eightHoursAgo = new Date(now.getTime() - 8 * 60 * 60 * 1000);
   const overdueVitals = await Resident.aggregate([
     {
@@ -117,9 +114,6 @@ const getDashboardAnalytics = asyncHandler(async (req, res) => {
   });
 });
 
-// @desc    Get vitals trends analysis
-// @route   GET /api/analytics/vitals-trends
-// @access  Private (Admin/Caregiver)
 const getVitalsTrends = asyncHandler(async (req, res) => {
   const { period = '7d', residentId } = req.query;
 
@@ -200,9 +194,6 @@ const getVitalsTrends = asyncHandler(async (req, res) => {
   });
 });
 
-// @desc    Get resident health scores
-// @route   GET /api/analytics/resident-health
-// @access  Private (Admin/Caregiver)
 const getResidentHealthScores = asyncHandler(async (req, res) => {
   const now = new Date();
   const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);

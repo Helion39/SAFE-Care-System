@@ -34,7 +34,6 @@ export function CreateResidentForm({ onCreateResident, onCancel, existingRooms, 
   const [roomCheckTimeout, setRoomCheckTimeout] = useState<NodeJS.Timeout | null>(null);
   const { modalState, showAlert, closeModal } = useModal();
 
-  // Debounced room availability check
   const checkRoomAvailability = useCallback(async (roomNumber: string) => {
     if (!roomNumber.trim()) {
       setRoomCheckStatus('idle');
@@ -64,7 +63,6 @@ export function CreateResidentForm({ onCreateResident, onCancel, existingRooms, 
     }
   }, [isEditing, initialData?.id]);
 
-  // Effect for debounced room checking
   useEffect(() => {
     if (roomCheckTimeout) {
       clearTimeout(roomCheckTimeout);
@@ -73,7 +71,7 @@ export function CreateResidentForm({ onCreateResident, onCancel, existingRooms, 
     if (formData.roomNumber.trim()) {
       const timeout = setTimeout(() => {
         checkRoomAvailability(formData.roomNumber);
-      }, 500); // 500ms debounce
+      }, 500);
       
       setRoomCheckTimeout(timeout);
     } else {

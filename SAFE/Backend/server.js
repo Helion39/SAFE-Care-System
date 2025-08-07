@@ -22,6 +22,7 @@ const incidentRoutes = require('./src/routes/incidents');
 const assignmentRoutes = require('./src/routes/assignments');
 const analyticsRoutes = require('./src/routes/analytics');
 const reportRoutes = require('./src/routes/reports');
+const chatRoutes = require('./routes/chatRoutes');
 
 const app = express();
 const server = createServer(app);
@@ -100,6 +101,7 @@ app.use('/api/incidents', incidentRoutes);
 app.use('/api/assignments', assignmentRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/reports', reportRoutes);
+app.use('/api/chat', chatRoutes);
 
 // Socket.IO connection handling is now managed by SocketManager
 

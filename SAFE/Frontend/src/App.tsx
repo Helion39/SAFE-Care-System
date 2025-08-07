@@ -197,7 +197,7 @@ function StaffLogin() {
       const response = await apiService.createIncident(incidentData);
       if (response.success) {
         setActiveAlerts(prev => [response.data, ...prev]);
-        await loadData(); // Refresh data
+        await loadData();
       }
     } catch (error) {
       console.error('Failed to create incident:', error);
@@ -211,12 +211,11 @@ function StaffLogin() {
       console.log('🔍 Claim response:', response);
       if (response.success) {
         setActiveAlerts(prev => prev.filter(alert => alert.id !== incidentId));
-        await loadData(); // Refresh data
+        await loadData();
         console.log('✅ Incident claimed successfully');
       }
     } catch (error) {
       console.error('❌ Failed to claim incident:', error);
-      // Note: This would need modal implementation in parent component
     }
   };
 
@@ -225,7 +224,7 @@ function StaffLogin() {
       const resolution = isTrueEmergency ? 'true_emergency' : 'false_alarm';
       const response = await apiService.resolveIncident(incidentId, resolution, '', adminAction);
       if (response.success) {
-        await loadData(); // Refresh data
+        await loadData();
       }
     } catch (error) {
       console.error('Failed to resolve incident:', error);
@@ -397,7 +396,7 @@ function StaffLogin() {
   );
 }
 
-// Komponen halaman tidak ditemukan
+// Not Found Page Component
 function NotFoundPage() {
   return (
     <div className="login-page">
@@ -634,7 +633,7 @@ export default function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<NotFoundPage />} />
+        <Route path="/" element={<Navigate to="/family-login" replace />} />
         <Route path="/pp-login" element={<StaffLogin />} />
         <Route path="/family-login" element={<FamilyPortal />} />
         <Route path="*" element={<NotFoundPage />} />

@@ -1,9 +1,6 @@
 const User = require('../models/User');
 const logger = require('../utils/logger');
 
-// @desc    Register user
-// @route   POST /api/auth/register
-// @access  Public (Admin only in production)
 const register = async (req, res, next) => {
   try {
     const { name, email, password, role, username } = req.body;
@@ -56,9 +53,6 @@ const register = async (req, res, next) => {
   }
 };
 
-// @desc    Login user
-// @route   POST /api/auth/login
-// @access  Public
 const login = async (req, res, next) => {
   try {
     const { email, username, password } = req.body;
@@ -154,9 +148,6 @@ const login = async (req, res, next) => {
   }
 };
 
-// @desc    Logout user
-// @route   POST /api/auth/logout
-// @access  Private
 const logout = async (req, res, next) => {
   try {
     // Clear refresh token and set offline status
@@ -177,9 +168,6 @@ const logout = async (req, res, next) => {
   }
 };
 
-// @desc    Get current logged in user
-// @route   GET /api/auth/me
-// @access  Private
 const getMe = async (req, res, next) => {
   try {
     const user = await User.findById(req.user.id);
@@ -204,9 +192,6 @@ const getMe = async (req, res, next) => {
   }
 };
 
-// @desc    Refresh access token
-// @route   POST /api/auth/refresh
-// @access  Public
 const refreshToken = async (req, res, next) => {
   try {
     const { refreshToken } = req.body;
@@ -256,9 +241,6 @@ const refreshToken = async (req, res, next) => {
   }
 };
 
-// @desc    Update user profile
-// @route   PUT /api/auth/profile
-// @access  Private
 const updateProfile = async (req, res, next) => {
   try {
     const { name, email } = req.body;
@@ -296,9 +278,6 @@ const updateProfile = async (req, res, next) => {
   }
 };
 
-// @desc    Change password
-// @route   PUT /api/auth/password
-// @access  Private
 const changePassword = async (req, res, next) => {
   try {
     const { currentPassword, newPassword } = req.body;
@@ -339,9 +318,6 @@ const changePassword = async (req, res, next) => {
   }
 };
 
-// @desc    Family login - find resident by email
-// @route   POST /api/auth/family-login
-// @access  Public
 const familyLogin = async (req, res, next) => {
   try {
     const { email } = req.body;
@@ -401,9 +377,6 @@ const familyLogin = async (req, res, next) => {
   }
 };
 
-// @desc    Family Google login
-// @route   POST /api/auth/family-google-login
-// @access  Public
 const familyGoogleLogin = async (req, res, next) => {
   try {
     const { googleToken } = req.body;
@@ -457,9 +430,6 @@ const familyGoogleLogin = async (req, res, next) => {
   }
 };
 
-// @desc    Get family data by email
-// @route   GET /api/auth/family/data/:email
-// @access  Private
 const getFamilyDataByEmail = async (req, res, next) => {
   try {
     const email = req.params.email;

@@ -83,7 +83,6 @@ passport.use(new GoogleStrategy({
       password: 'google_oauth_' + Date.now(),
       role: 'family',
       googleId: profile.id
-      // Remove assignedResidentId - we use familyEmails system now
     };
     
     console.log('🔍 Creating user with data:', userData);
@@ -143,7 +142,6 @@ router.get('/google/callback',
         name: user.name,
         email: user.email,
         role: user.role
-        // Remove assignedResidentId - we use familyEmails system now
       };
       
       console.log('🔍 OAuth callback - final user payload:', userPayload);
@@ -160,7 +158,7 @@ router.get('/google/callback',
 );
 
 // Protected routes
-router.use(protect); // All routes after this middleware are protected
+router.use(protect);
 
 router.get('/me', getMe);
 router.post('/logout', logout);

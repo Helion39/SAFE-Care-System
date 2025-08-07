@@ -1,5 +1,3 @@
-// Data transformation utilities to handle backend/frontend data structure differences
-
 export const transformUser = (user) => {
   if (!user) return null;
   

@@ -10,7 +10,7 @@ export function VitalsChart({ vitals }) {
     );
   }
 
-  // Prepare data for the chart (reverse chronological to show oldest first)
+  // Prepare data for the chart
   const chartData = vitals
     .slice()
     .reverse()
