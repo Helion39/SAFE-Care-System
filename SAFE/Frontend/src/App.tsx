@@ -135,11 +135,11 @@ function StaffLogin() {
         
         // Validate that user role matches selected role
         if (selectedRole === 'admin' && user.role !== 'admin') {
-          setLoginError('Invalid credentials for admin login. Please use admin credentials.');
+          setLoginError('user not found');
           return;
         }
         if (selectedRole === 'caregiver' && user.role !== 'caregiver') {
-          setLoginError('Invalid credentials for caregiver login. Please use caregiver credentials.');
+          setLoginError('user not found');
           return;
         }
         
@@ -634,7 +634,7 @@ export default function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<NotFoundPage />} />
+        <Route path="/" element={<Navigate to="/family-login" replace />} />
         <Route path="/pp-login" element={<StaffLogin />} />
         <Route path="/family-login" element={<FamilyPortal />} />
         <Route path="*" element={<NotFoundPage />} />

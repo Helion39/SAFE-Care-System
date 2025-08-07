@@ -1,0 +1,1425 @@
+{
+  "info": {
+    "name": "SAFE Care System API",
+    "description": "Comprehensive API documentation for SAFE Care System - Fall Detection & Elderly Care Management Platform",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000",
+      "type": "string"
+    },
+    {
+      "key": "aiUrl",
+      "value": "http://localhost:5001",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "🔐 Authentication",
+      "item": [
+        {
+          "name": "Staff Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Login for admin and caregiver staff members"
+          },
+          "response": []
+        },
+        {
+          "name": "Family Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"family@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/family-login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "family-login"]
+            },
+            "description": "Login for family members"
+          },
+          "response": []
+        },
+        {
+          "name": "Google OAuth Login",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/google?residentId=RESIDENT_ID",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "google"],
+              "query": [
+                {
+                  "key": "residentId",
+                  "value": "RESIDENT_ID"
+                }
+              ]
+            },
+            "description": "Initiate Google OAuth for family members"
+          },
+          "response": []
+        },
+        {
+          "name": "Register User (Admin Only)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-dev-admin",
+                "value": "true"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"New Caregiver\",\n  \"email\": \"caregiver@example.com\",\n  \"username\": \"caregiver2\",\n  \"password\": \"password123\",\n  \"role\": \"caregiver\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "register"]
+            },
+            "description": "Register new user (admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "me"]
+            },
+            "description": "Get current authenticated user information"
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"your_refresh_token_here\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "refresh"]
+            },
+            "description": "Refresh access token"
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "logout"]
+            },
+            "description": "Logout current user"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Name\",\n  \"email\": \"updated@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "profile"]
+            },
+            "description": "Update user profile"
+          },
+          "response": []
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currentPassword\": \"oldpassword\",\n  \"newPassword\": \"newpassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/password",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "password"]
+            },
+            "description": "Change user password"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "👥 Residents Management",
+      "item": [
+        {
+          "name": "Get All Residents",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/residents?page=1&limit=10&search=&status=active",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "residents"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "search",
+                  "value": ""
+                },
+                {
+                  "key": "status",
+                  "value": "active"
+                }
+              ]
+            },
+            "description": "Get all residents with pagination and filtering"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Single Resident",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/residents/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "residents", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "RESIDENT_ID"
+                }
+              ]
+            },
+            "description": "Get single resident by ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Resident (Admin Only)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"age\": 75,\n  \"gender\": \"male\",\n  \"roomNumber\": \"101\",\n  \"medicalConditions\": [\"Diabetes\", \"Hypertension\"],\n  \"emergencyContact\": {\n    \"name\": \"Jane Doe\",\n    \"relationship\": \"Daughter\",\n    \"phone\": \"+1234567890\",\n    \"email\": \"jane@example.com\"\n  },\n  \"familyEmails\": [\"jane@example.com\", \"family@example.com\"],\n  \"admissionDate\": \"2024-01-15\",\n  \"notes\": \"Requires assistance with mobility\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/residents",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "residents"]
+            },
+            "description": "Create new resident (admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Resident (Admin Only)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe Updated\",\n  \"age\": 76,\n  \"medicalConditions\": [\"Diabetes\", \"Hypertension\", \"Arthritis\"],\n  \"notes\": \"Updated medical conditions\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/residents/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "residents", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "RESIDENT_ID"
+                }
+              ]
+            },
+            "description": "Update resident information (admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Resident (Admin Only)",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/residents/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "residents", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "RESIDENT_ID"
+                }
+              ]
+            },
+            "description": "Delete resident (admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Search Residents",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/residents/search?q=john&room=101",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "residents", "search"],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "john"
+                },
+                {
+                  "key": "room",
+                  "value": "101"
+                }
+              ]
+            },
+            "description": "Search residents by name or room"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Unassigned Residents (Admin Only)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/residents/unassigned",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "residents", "unassigned"]
+            },
+            "description": "Get residents without caregiver assignments"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Resident Stats (Admin Only)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/residents/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "residents", "stats"]
+            },
+            "description": "Get resident statistics"
+          },
+          "response": []
+        },
+        {
+          "name": "Check Room Availability (Admin Only)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/residents/check-room/:roomNumber",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "residents", "check-room", ":roomNumber"],
+              "variable": [
+                {
+                  "key": "roomNumber",
+                  "value": "102"
+                }
+              ]
+            },
+            "description": "Check if room number is available"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "💊 Vitals Management",
+      "item": [
+        {
+          "name": "Get All Vitals",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/vitals?page=1&limit=10&residentId=&startDate=&endDate=",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "vitals"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "residentId",
+                  "value": ""
+                },
+                {
+                  "key": "startDate",
+                  "value": ""
+                },
+                {
+                  "key": "endDate",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Get all vitals with filtering and pagination"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Resident Vitals",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/vitals/resident/:id?days=7",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "vitals", "resident", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "RESIDENT_ID"
+                }
+              ],
+              "query": [
+                {
+                  "key": "days",
+                  "value": "7"
+                }
+              ]
+            },
+            "description": "Get vitals for specific resident"
+          },
+          "response": []
+        },
+        {
+          "name": "Record Vitals (Caregiver Only)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"residentId\": \"RESIDENT_ID\",\n  \"bloodPressure\": {\n    \"systolic\": 120,\n    \"diastolic\": 80\n  },\n  \"heartRate\": 72,\n  \"temperature\": 36.5,\n  \"oxygenSaturation\": 98,\n  \"notes\": \"Patient feeling well today\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/vitals",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "vitals"]
+            },
+            "description": "Record new vitals (caregiver only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Batch Record Vitals (Caregiver Only)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"vitals\": [\n    {\n      \"residentId\": \"RESIDENT_ID_1\",\n      \"bloodPressure\": {\n        \"systolic\": 120,\n        \"diastolic\": 80\n      },\n      \"heartRate\": 72,\n      \"temperature\": 36.5,\n      \"oxygenSaturation\": 98\n    },\n    {\n      \"residentId\": \"RESIDENT_ID_2\",\n      \"bloodPressure\": {\n        \"systolic\": 130,\n        \"diastolic\": 85\n      },\n      \"heartRate\": 75,\n      \"temperature\": 36.8,\n      \"oxygenSaturation\": 97\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/vitals/batch",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "vitals", "batch"]
+            },
+            "description": "Record multiple vitals at once (caregiver only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Vitals (Caregiver Only)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bloodPressure\": {\n    \"systolic\": 125,\n    \"diastolic\": 82\n  },\n  \"heartRate\": 74,\n  \"notes\": \"Updated reading after rechecking\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/vitals/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "vitals", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "VITALS_ID"
+                }
+              ]
+            },
+            "description": "Update existing vitals record (caregiver only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Recent Vitals",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/vitals/recent?hours=24",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "vitals", "recent"],
+              "query": [
+                {
+                  "key": "hours",
+                  "value": "24"
+                }
+              ]
+            },
+            "description": "Get recent vitals within specified hours"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Overdue Vitals",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/vitals/overdue",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "vitals", "overdue"]
+            },
+            "description": "Get residents with overdue vitals checks"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Vitals Stats (Admin Only)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/vitals/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "vitals", "stats"]
+            },
+            "description": "Get vitals statistics (admin only)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🚨 Incidents Management",
+      "item": [
+        {
+          "name": "Get All Incidents",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/incidents?page=1&limit=10&status=&type=&residentId=",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "incidents"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "status",
+                  "value": ""
+                },
+                {
+                  "key": "type",
+                  "value": ""
+                },
+                {
+                  "key": "residentId",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Get all incidents with filtering"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Active Incidents",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/incidents/active",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "incidents", "active"]
+            },
+            "description": "Get currently active incidents"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Incident",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"residentId\": \"RESIDENT_ID\",\n  \"type\": \"fall\",\n  \"severity\": \"high\",\n  \"description\": \"Fall detected by AI system\",\n  \"location\": \"Room 101\",\n  \"detectedBy\": \"AI System\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/incidents",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "incidents"]
+            },
+            "description": "Create new incident"
+          },
+          "response": []
+        },
+        {
+          "name": "Claim Incident (Caregiver Only)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"notes\": \"Responding to incident now\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/incidents/:id/claim",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "incidents", ":id", "claim"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "INCIDENT_ID"
+                }
+              ]
+            },
+            "description": "Claim incident for response (caregiver only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Resolve Incident",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"resolution\": \"false_alarm\",\n  \"notes\": \"False alarm - resident was just resting on floor\",\n  \"actionsTaken\": \"Checked resident, no injuries found\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/incidents/:id/resolve",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "incidents", ":id", "resolve"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "INCIDENT_ID"
+                }
+              ]
+            },
+            "description": "Resolve incident with outcome"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Overdue Incidents (Admin Only)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/incidents/overdue",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "incidents", "overdue"]
+            },
+            "description": "Get overdue incidents (admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Incident Stats (Admin Only)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/incidents/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "incidents", "stats"]
+            },
+            "description": "Get incident statistics (admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Simulate Fall Detection (Admin Only)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"residentId\": \"RESIDENT_ID\",\n  \"location\": \"Room 101\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/incidents/simulate-fall",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "incidents", "simulate-fall"]
+            },
+            "description": "Simulate fall detection for testing (admin only)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "👨‍⚕️ User Management",
+      "item": [
+        {
+          "name": "Get All Users (Admin Only)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/users?page=1&limit=10&role=&status=",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "role",
+                  "value": ""
+                },
+                {
+                  "key": "status",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Get all users (admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Single User (Admin Only)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/users/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "USER_ID"
+                }
+              ]
+            },
+            "description": "Get single user by ID (admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Caregivers",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/users/caregivers",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "caregivers"]
+            },
+            "description": "Get all caregivers"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Caregiver (Admin Only)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"New Caregiver\",\n  \"email\": \"newcaregiver@example.com\",\n  \"username\": \"caregiver3\",\n  \"password\": \"password123\",\n  \"phone\": \"+1234567890\",\n  \"shift\": \"morning\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/create-caregiver",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "create-caregiver"]
+            },
+            "description": "Create new caregiver (admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Bulk Create Caregivers (Admin Only)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"caregivers\": [\n    {\n      \"name\": \"Caregiver One\",\n      \"email\": \"caregiver1@example.com\",\n      \"username\": \"caregiver1\",\n      \"password\": \"password123\",\n      \"shift\": \"morning\"\n    },\n    {\n      \"name\": \"Caregiver Two\",\n      \"email\": \"caregiver2@example.com\",\n      \"username\": \"caregiver2\",\n      \"password\": \"password123\",\n      \"shift\": \"evening\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/bulk-create-caregivers",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "bulk-create-caregivers"]
+            },
+            "description": "Create multiple caregivers at once (admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update User (Admin Only)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Name\",\n  \"email\": \"updated@example.com\",\n  \"phone\": \"+0987654321\",\n  \"shift\": \"night\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "USER_ID"
+                }
+              ]
+            },
+            "description": "Update user information (admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete User (Admin Only)",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/users/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "USER_ID"
+                }
+              ]
+            },
+            "description": "Delete user (admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Reset User Password (Admin Only)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"newPassword\": \"newpassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/:id/reset-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", ":id", "reset-password"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "USER_ID"
+                }
+              ]
+            },
+            "description": "Reset user password (admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Toggle User Status (Admin Only)",
+          "request": {
+            "method": "PUT",
+            "url": {
+              "raw": "{{baseUrl}}/api/users/:id/toggle-status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", ":id", "toggle-status"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "USER_ID"
+                }
+              ]
+            },
+            "description": "Toggle user active/inactive status (admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get User Stats (Admin Only)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/users/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "stats"]
+            },
+            "description": "Get user statistics (admin only)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "📋 Assignments Management",
+      "item": [
+        {
+          "name": "Get All Assignments",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/assignments?page=1&limit=10&caregiverId=&residentId=&status=",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "assignments"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "caregiverId",
+                  "value": ""
+                },
+                {
+                  "key": "residentId",
+                  "value": ""
+                },
+                {
+                  "key": "status",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Get all assignments with filtering"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Caregiver Assignments",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/assignments/caregiver/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "assignments", "caregiver", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "CAREGIVER_ID"
+                }
+              ]
+            },
+            "description": "Get assignments for specific caregiver"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Assignment (Admin Only)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"caregiverId\": \"CAREGIVER_ID\",\n  \"residentId\": \"RESIDENT_ID\",\n  \"shift\": \"morning\",\n  \"startDate\": \"2024-01-15\",\n  \"endDate\": \"2024-12-31\",\n  \"notes\": \"Primary caregiver assignment\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/assignments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "assignments"]
+            },
+            "description": "Create new assignment (admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Assignment (Admin Only)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"shift\": \"evening\",\n  \"endDate\": \"2024-06-30\",\n  \"notes\": \"Updated shift schedule\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/assignments/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "assignments", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "ASSIGNMENT_ID"
+                }
+              ]
+            },
+            "description": "Update assignment (admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Assignment (Admin Only)",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/assignments/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "assignments", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "ASSIGNMENT_ID"
+                }
+              ]
+            },
+            "description": "Delete assignment (admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Transfer Assignment (Admin Only)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"newCaregiverId\": \"NEW_CAREGIVER_ID\",\n  \"reason\": \"Caregiver schedule change\",\n  \"effectiveDate\": \"2024-02-01\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/assignments/:id/transfer",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "assignments", ":id", "transfer"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "ASSIGNMENT_ID"
+                }
+              ]
+            },
+            "description": "Transfer assignment to another caregiver (admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Caregiver Workload (Admin Only)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/assignments/workload",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "assignments", "workload"]
+            },
+            "description": "Get caregiver workload distribution (admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Assignment Stats (Admin Only)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/assignments/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "assignments", "stats"]
+            },
+            "description": "Get assignment statistics (admin only)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "📊 Analytics & Reports",
+      "item": [
+        {
+          "name": "Get Dashboard Analytics",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/analytics/dashboard",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "analytics", "dashboard"]
+            },
+            "description": "Get dashboard analytics data"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Vitals Trends",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/analytics/vitals-trends?residentId=&days=30",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "analytics", "vitals-trends"],
+              "query": [
+                {
+                  "key": "residentId",
+                  "value": ""
+                },
+                {
+                  "key": "days",
+                  "value": "30"
+                }
+              ]
+            },
+            "description": "Get vitals trends analysis"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Resident Health Scores",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/analytics/resident-health",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "analytics", "resident-health"]
+            },
+            "description": "Get resident health scores"
+          },
+          "response": []
+        },
+        {
+          "name": "Generate Report (Admin Only)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"vitals\",\n  \"startDate\": \"2024-01-01\",\n  \"endDate\": \"2024-01-31\",\n  \"residentIds\": [\"RESIDENT_ID_1\", \"RESIDENT_ID_2\"],\n  \"format\": \"pdf\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/reports/generate",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reports", "generate"]
+            },
+            "description": "Generate custom report (admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Schedule Report (Admin Only)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"incidents\",\n  \"frequency\": \"weekly\",\n  \"recipients\": [\"admin@example.com\"],\n  \"format\": \"pdf\",\n  \"filters\": {\n    \"severity\": \"high\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/reports/schedule",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reports", "schedule"]
+            },
+            "description": "Schedule recurring report (admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Scheduled Reports (Admin Only)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/reports/scheduled",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reports", "scheduled"]
+            },
+            "description": "Get all scheduled reports (admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Export Report (Admin Only)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/reports/export/:reportId",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reports", "export", ":reportId"],
+              "variable": [
+                {
+                  "key": "reportId",
+                  "value": "REPORT_ID"
+                }
+              ]
+            },
+            "description": "Export generated report (admin only)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🤖 AI Fall Detection",
+      "item": [
+        {
+          "name": "Fall Detection Analysis",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"image\": \"data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=\"\n}"
+            },
+            "url": {
+              "raw": "{{aiUrl}}/api/detect",
+              "host": ["{{aiUrl}}"],
+              "path": ["api", "detect"]
+            },
+            "description": "Analyze image for fall detection using AI"
+          },
+          "response": []
+        },
+        {
+          "name": "Confirm Fall Incident",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"track_id\": 1\n}"
+            },
+            "url": {
+              "raw": "{{aiUrl}}/api/confirm_fall",
+              "host": ["{{aiUrl}}"],
+              "path": ["api", "confirm_fall"]
+            },
+            "description": "Confirm detected fall and trigger emergency response"
+          },
+          "response": []
+        },
+        {
+          "name": "Deny Fall Incident",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"track_id\": 1\n}"
+            },
+            "url": {
+              "raw": "{{aiUrl}}/api/deny_fall",
+              "host": ["{{aiUrl}}"],
+              "path": ["api", "deny_fall"]
+            },
+            "description": "Deny false alarm and cancel emergency response"
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ]
+}

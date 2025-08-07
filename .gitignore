@@ -13,7 +13,9 @@ dist/
 .env.development.local
 .env.test.local
 .env.production.local
-.env.example
+
+# AI service with secrets (use app.py.template instead)
+SAFE/Backend/ai/app.py
 
 # Logs
 npm-debug.log*

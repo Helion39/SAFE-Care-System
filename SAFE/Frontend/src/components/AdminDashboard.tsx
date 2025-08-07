@@ -56,6 +56,21 @@ export function AdminDashboard({ data, setData, onTriggerAlert, onResolveInciden
     onResolveIncident(incidentId, true, adminAction);
   };
 
+  const handleDismissIncident = async (incidentId) => {
+    // Immediately remove from local state for instant UI update
+    setData(prevData => ({
+      ...prevData,
+      incidents: prevData.incidents.filter(incident => incident.id !== incidentId)
+    }));
+    
+    // Call API to persist the change
+    try {
+      await onResolveIncident(incidentId, false, "Dismissed by admin - False alarm");
+    } catch (error) {
+      console.error('Failed to dismiss incident:', error);
+    }
+  };
+
   const getResidentVitals = (residentId) => {
     return data.vitals
       .filter(v => v.resident_id === residentId)
@@ -258,15 +273,27 @@ export function AdminDashboard({ data, setData, onTriggerAlert, onResolveInciden
                               )}
                             </div>
                           </div>
-                          {incident.status === 'claimed' && (
-                            <button
-                              onClick={() => handleConfirmEmergency(incident.id)}
-                              className="btn btn-outline"
-                            >
-                              <Phone style={{ width: '1rem', height: '1rem' }} />
-                              Call Hospital
-                            </button>
-                          )}
+                          <div className="flex gap-2">
+                            {incident.status === 'claimed' && (
+                              <button
+                                onClick={() => handleConfirmEmergency(incident.id)}
+                                className="btn btn-outline"
+                              >
+                                <Phone style={{ width: '1rem', height: '1rem' }} />
+                                Call Hospital
+                              </button>
+                            )}
+                            {incident.status === 'active' && (
+                              <button
+                                onClick={() => handleDismissIncident(incident.id)}
+                                className="btn btn-secondary"
+                                style={{ padding: '0.5rem', minWidth: 'auto' }}
+                                title="Dismiss incident"
+                              >
+                                <X style={{ width: '1rem', height: '1rem' }} />
+                              </button>
+                            )}
+                          </div>
                         </div>
                       </div>
                     );
