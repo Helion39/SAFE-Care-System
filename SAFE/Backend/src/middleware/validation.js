@@ -105,7 +105,8 @@ const vitalsSchemas = {
     systolicBP: Joi.number().integer().min(50).max(300).required(),
     diastolicBP: Joi.number().integer().min(30).max(200).required(),
     heartRate: Joi.number().integer().min(30).max(200).required(),
-    temperature: Joi.number().min(90).max(110).optional(),
+    temperature: Joi.number().optional(), // Temperature in Celsius - no strict limits
+    oxygenSaturation: Joi.number().min(70).max(100).optional(),
     notes: Joi.string().max(500).optional()
   })
 };

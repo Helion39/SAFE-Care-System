@@ -2,3 +2,5 @@ opencv-python
 ultralytics
 cvzone
 twilio
+flask
+flask_cors

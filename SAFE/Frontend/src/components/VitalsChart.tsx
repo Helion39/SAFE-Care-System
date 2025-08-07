@@ -23,6 +23,7 @@ export function VitalsChart({ vitals }) {
       systolic: vital.systolic_bp,
       diastolic: vital.diastolic_bp,
       heartRate: vital.heart_rate,
+      temperature: vital.temperature,
       timestamp: vital.timestamp
     }));
 
@@ -44,6 +45,12 @@ export function VitalsChart({ vitals }) {
             <span style={{ display: 'inline-block', width: '0.75rem', height: '0.75rem', borderRadius: '50%', marginRight: '0.5rem', backgroundColor: '#6b7280' }}></span>
             {`Heart Rate: ${data.heartRate} bpm`}
           </p>
+          {data.temperature && (
+            <p style={{ color: '#16a34a' }}>
+              <span style={{ display: 'inline-block', width: '0.75rem', height: '0.75rem', borderRadius: '50%', marginRight: '0.5rem', backgroundColor: '#16a34a' }}></span>
+              {`Temperature: ${data.temperature}°C`}
+            </p>
+          )}
         </div>
       );
     }
@@ -88,6 +95,14 @@ export function VitalsChart({ vitals }) {
             strokeWidth={2}
             name="Heart Rate (bpm)"
             dot={{ fill: '#6b7280', strokeWidth: 2, r: 4 }}
+          />
+          <Line 
+            type="monotone" 
+            dataKey="temperature" 
+            stroke="#16a34a" 
+            strokeWidth={2}
+            name="Temperature (°C)"
+            dot={{ fill: '#16a34a', strokeWidth: 2, r: 4 }}
           />
         </LineChart>
       </ResponsiveContainer>
