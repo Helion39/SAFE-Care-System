@@ -23,8 +23,6 @@ const assignmentRoutes = require('./src/routes/assignments');
 const analyticsRoutes = require('./src/routes/analytics');
 const reportRoutes = require('./src/routes/reports');
 const chatRoutes = require('./src/routes/chatRoutes');
-const healthAnalysisRoutes = require('./src/routes/healthAnalysisRoutes');
-const familyAccessRoutes = require('./src/routes/familyAccess');
 
 
 const app = express();
@@ -105,8 +103,6 @@ app.use('/api/assignments', assignmentRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/chat', chatRoutes);
-app.use('/api/health-analysis', healthAnalysisRoutes);
-app.use('/api/family', familyAccessRoutes);
 
 // Socket.IO connection handling is now managed by SocketManager
 

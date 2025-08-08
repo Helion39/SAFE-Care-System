@@ -1,5 +1,4 @@
 import { Heart, Activity, User, Home, Clock, FileText, Thermometer } from 'lucide-react';
-import { ChatbotWidget } from './ChatbotWidget';
 
 interface FamilyDashboardProps {
   userData: any;
@@ -30,7 +29,6 @@ export function FamilyDashboard({ userData, data, currentUser, onLogout }: Famil
   const latestVitals = vitals[0];
 
   return (
-    <>
     <div style={{
       backgroundColor: '#f5f9ff',
       minHeight: '100vh',
@@ -295,9 +293,5 @@ export function FamilyDashboard({ userData, data, currentUser, onLogout }: Famil
         </div>
       </div>
     </div>
-    
-    {/* Chatbot Widget */}
-    <ChatbotWidget />
-    </>
   );
 }
