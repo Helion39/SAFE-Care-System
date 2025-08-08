@@ -29,7 +29,7 @@ export function CaregiverDashboard({ data, setData, currentUser, onTriggerAlert,
   const [aiSummary, setAiSummary] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 768);
   
   // Listen for sidebar toggle from navbar
   React.useEffect(() => {
@@ -37,8 +37,21 @@ export function CaregiverDashboard({ data, setData, currentUser, onTriggerAlert,
       setSidebarOpen(prev => !prev);
     };
 
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
+        setSidebarOpen(false);
+      } else {
+        setSidebarOpen(true);
+      }
+    };
+
     window.addEventListener('toggleSidebar', handleToggleSidebar);
-    return () => window.removeEventListener('toggleSidebar', handleToggleSidebar);
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('toggleSidebar', handleToggleSidebar);
+      window.removeEventListener('resize', handleResize);
+    };
   }, []);
 
   // Find assigned resident by looking through assignments data
@@ -251,8 +264,8 @@ export function CaregiverDashboard({ data, setData, currentUser, onTriggerAlert,
         </div>
 
         {/* Main Content */}
-        <div className="transition-all duration-300" style={{ marginLeft: sidebarOpen ? '256px' : '64px', minHeight: 'calc(100vh - 64px)' }}>
-          <div className="p-6">
+        <div className={`transition-all duration-300 ${sidebarOpen ? 'md:ml-64' : 'md:ml-16'}`} style={{ minHeight: 'calc(100vh - 64px)' }}>
+          <div className="p-4 md:p-6">
             <div className="flex flex-col gap-3">
               {/* Incident Response Section - Always visible */}
               {claimedIncidents.length > 0 && (
@@ -296,42 +309,20 @@ export function CaregiverDashboard({ data, setData, currentUser, onTriggerAlert,
               )}
 
               {/* Resident Overview - Always visible */}
-              <div style={{
-                backgroundColor: 'white',
-                borderRadius: '12px',
-                overflow: 'hidden'
-              }}>
-                <div style={{
-                  backgroundColor: '#E3F2FD',
-                  padding: '16px 24px'
-                }}>
-                  <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center'
-                  }}>
-                    <h3 style={{
-                      color: '#1565C0',
-                      fontSize: '16px',
-                      fontWeight: '600',
-                      margin: 0,
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px'
-                    }}>
-                      <User style={{ width: '16px', height: '16px' }} />
+              <div className="bg-white rounded-lg overflow-hidden">
+                <div className="bg-info-light p-4">
+                  <div className="flex justify-between items-center">
+                    <h3 className="text-info text-base font-semibold flex items-center gap-2">
+                      <User className="w-4 h-4" />
                       {assignedResident.name}
                     </h3>
-                    <span style={{
-                      color: '#1565C0',
-                      fontSize: '12px'
-                    }}>
+                    <span className="text-info text-xs">
                       Room {assignedResident.room_number}
                     </span>
                   </div>
                 </div>
-                <div style={{ padding: '24px' }}>
-                  <div className="grid grid-3">
+                <div className="p-6">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                       <div className="mb-1">
                         <strong>Room:</strong> {assignedResident.room_number}
@@ -346,7 +337,7 @@ export function CaregiverDashboard({ data, setData, currentUser, onTriggerAlert,
                       </div>
                       <div>
                         {assignedResident.medical_conditions.map((condition, index) => (
-                          <span key={index} style={{ marginRight: 'var(--space-1)', fontSize: 'var(--text-sm)' }}>
+                          <span key={index} className="mr-1 text-sm">
                             {condition}{index < assignedResident.medical_conditions.length - 1 ? ', ' : ''}
                           </span>
                         ))}
@@ -357,18 +348,18 @@ export function CaregiverDashboard({ data, setData, currentUser, onTriggerAlert,
                         <strong>Latest Vitals:</strong>
                       </div>
                       {latestVitals ? (
-                        <div style={{ fontSize: 'var(--text-sm)' }}>
+                        <div className="text-sm">
                           <div>BP: {latestVitals.systolic_bp}/{latestVitals.diastolic_bp} mmHg</div>
                           <div>HR: {latestVitals.heart_rate} bpm</div>
                           {latestVitals.temperature && (
                             <div>Temp: {latestVitals.temperature}°C</div>
                           )}
-                          <div style={{ fontSize: 'var(--text-xs)', color: 'var(--gray-500)' }}>
+                          <div className="text-xs text-gray-500">
                             {new Date(latestVitals.timestamp).toLocaleString()}
                           </div>
                         </div>
                       ) : (
-                        <div style={{ fontSize: 'var(--text-sm)', color: 'var(--gray-500)' }}>No recent vitals</div>
+                        <div className="text-sm text-gray-500">No recent vitals</div>
                       )}
                     </div>
                   </div>
@@ -378,33 +369,18 @@ export function CaregiverDashboard({ data, setData, currentUser, onTriggerAlert,
               {/* Section-specific content based on sidebar selection */}
               {activeTab === 'overview' && (
                 <div className="space-y-4">
-                  <div className="grid grid-2">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                     {/* Vitals Input */}
-                    <div style={{
-                      backgroundColor: 'white',
-                      borderRadius: '12px',
-                      overflow: 'hidden'
-                    }}>
-                      <div style={{
-                        backgroundColor: '#E3F2FD',
-                        padding: '16px 24px'
-                      }}>
-                        <h3 style={{
-                          color: '#1565C0',
-                          fontSize: '16px',
-                          fontWeight: '600',
-                          margin: 0,
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '8px'
-                        }}>
-                          <Stethoscope style={{ width: '16px', height: '16px' }} />
+                    <div className="bg-white rounded-lg overflow-hidden">
+                      <div className="bg-info-light p-4">
+                        <h3 className="text-info text-base font-semibold flex items-center gap-2">
+                          <Stethoscope className="w-4 h-4" />
                           Log Vital Signs
                         </h3>
                       </div>
-                      <div style={{ padding: '24px' }}>
+                      <div className="p-6">
                         <form onSubmit={handleVitalsSubmit}>
-                          <div className="grid grid-2 mb-2">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-2">
                             <div className="form-group">
                               <label className="label" htmlFor="systolic">Systolic BP</label>
                               <input
@@ -436,7 +412,7 @@ export function CaregiverDashboard({ data, setData, currentUser, onTriggerAlert,
                               />
                             </div>
                           </div>
-                          <div className="grid grid-2 mb-2">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                             <div className="form-group">
                               <label className="label" htmlFor="heartRate">Heart Rate (bpm)</label>
                               <input
@@ -469,7 +445,7 @@ export function CaregiverDashboard({ data, setData, currentUser, onTriggerAlert,
                             </div>
                           </div>
                           <button type="submit" className="btn btn-primary w-full">
-                            <CheckCircle style={{ width: '1rem', height: '1rem' }} />
+                            <CheckCircle className="w-4 h-4" />
                             Record Vitals
                           </button>
                         </form>
@@ -477,56 +453,35 @@ export function CaregiverDashboard({ data, setData, currentUser, onTriggerAlert,
                     </div>
 
                     {/* AI Health Summary */}
-                    <div style={{
-                      backgroundColor: 'white',
-                      borderRadius: '12px',
-                      overflow: 'hidden'
-                    }}>
-                      <div style={{
-                        backgroundColor: '#E3F2FD',
-                        padding: '16px 24px'
-                      }}>
-                        <h3 style={{
-                          color: '#1565C0',
-                          fontSize: '16px',
-                          fontWeight: '600',
-                          margin: 0,
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '8px'
-                        }}>
-                          <Brain style={{ width: '16px', height: '16px' }} />
+                    <div className="bg-white rounded-lg overflow-hidden">
+                      <div className="bg-info-light p-4">
+                        <h3 className="text-info text-base font-semibold flex items-center gap-2">
+                          <Brain className="w-4 h-4" />
                           AI Health Analysis
                         </h3>
                       </div>
-                      <div style={{ padding: '24px' }}>
+                      <div className="p-6">
                         <button
                           onClick={handleGenerateAISummary}
                           disabled={residentVitals.length === 0 || isAnalyzing}
                           className="btn btn-primary w-full"
                         >
-                          <TrendingUp style={{ width: '1rem', height: '1rem' }} />
+                          <TrendingUp className="w-4 h-4" />
                           {isAnalyzing ? 'Analyzing...' : 'Generate AI Health Analysis'}
                         </button>
 
                         {showAISummary && (
-                          <div style={{
-                            padding: 'var(--space-2)',
-                            backgroundColor: 'var(--primary-light)',
-                            borderRadius: 'var(--radius-lg)',
-                            border: '1px solid var(--gray-200)',
-                            marginTop: 'var(--space-2)'
-                          }}>
-                            <h4 className="flex items-center gap-1 mb-1" style={{ fontWeight: '600' }}>
-                              <Brain style={{ width: '1rem', height: '1rem' }} />
+                          <div className="p-3 bg-primary-light rounded-lg border border-gray-200 mt-4">
+                            <h4 className="flex items-center gap-2 mb-2 font-semibold">
+                              <Brain className="w-4 h-4" />
                               AI Analysis Report
                             </h4>
-                            <div style={{ fontSize: 'var(--text-sm)', whiteSpace: 'pre-line' }}>{aiSummary}</div>
+                            <div className="text-sm whitespace-pre-line">{aiSummary}</div>
                           </div>
                         )}
 
                         {residentVitals.length === 0 && (
-                          <p className="text-center mt-2" style={{ fontSize: 'var(--text-sm)', color: 'var(--gray-500)' }}>
+                          <p className="text-center mt-4 text-sm text-gray-500">
                             Record some vital signs to generate AI insights
                           </p>
                         )}
@@ -540,60 +495,30 @@ export function CaregiverDashboard({ data, setData, currentUser, onTriggerAlert,
                 <div className="space-y-4">
                   {/* Vitals Chart */}
                   {residentVitals.length > 0 && (
-                    <div style={{
-                      backgroundColor: 'white',
-                      borderRadius: '12px',
-                      overflow: 'hidden'
-                    }}>
-                      <div style={{
-                        backgroundColor: '#E3F2FD',
-                        padding: '16px 24px'
-                      }}>
-                        <h3 style={{
-                          color: '#1565C0',
-                          fontSize: '16px',
-                          fontWeight: '600',
-                          margin: 0,
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '8px'
-                        }}>
-                          <Activity style={{ width: '16px', height: '16px' }} />
+                    <div className="bg-white rounded-lg overflow-hidden">
+                      <div className="bg-info-light p-4">
+                        <h3 className="text-info text-base font-semibold flex items-center gap-2">
+                          <Activity className="w-4 h-4" />
                           Vital Signs Trends
                         </h3>
                       </div>
-                      <div style={{ padding: '24px' }}>
+                      <div className="p-6">
                         <VitalsChart vitals={residentVitals} />
                       </div>
                     </div>
                   )}
 
                   {/* Recent Vitals History */}
-                  <div style={{
-                    backgroundColor: 'white',
-                    borderRadius: '12px',
-                    overflow: 'hidden'
-                  }}>
-                    <div style={{
-                      backgroundColor: '#E3F2FD',
-                      padding: '16px 24px'
-                    }}>
-                      <h3 style={{
-                        color: '#1565C0',
-                        fontSize: '16px',
-                        fontWeight: '600',
-                        margin: 0,
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px'
-                      }}>
-                        <Calendar style={{ width: '16px', height: '16px' }} />
+                  <div className="bg-white rounded-lg overflow-hidden">
+                    <div className="bg-info-light p-4">
+                      <h3 className="text-info text-base font-semibold flex items-center gap-2">
+                        <Calendar className="w-4 h-4" />
                         Recent Vital Signs
                       </h3>
                     </div>
-                    <div style={{ padding: '0' }}>
+                    <div className="overflow-x-auto">
                       {residentVitals.length > 0 ? (
-                        <table className="table" style={{ margin: 0, border: 'none' }}>
+                        <table className="table w-full" style={{minWidth: '600px'}}>
                           <thead>
                             <tr>
                               <th>Blood Pressure</th>
@@ -606,16 +531,16 @@ export function CaregiverDashboard({ data, setData, currentUser, onTriggerAlert,
                           <tbody>
                             {residentVitals.slice(0, 10).map(vital => (
                               <tr key={vital.id}>
-                                <td style={{ fontWeight: '500' }}>
+                                <td className="font-medium">
                                   {vital.systolic_bp}/{vital.diastolic_bp} mmHg
                                 </td>
-                                <td style={{ fontWeight: '500' }}>
+                                <td className="font-medium">
                                   {vital.heart_rate} bpm
                                 </td>
-                                <td style={{ fontWeight: '500' }}>
+                                <td className="font-medium">
                                   {vital.temperature ? `${vital.temperature}°C` : '--'}
                                 </td>
-                                <td style={{ fontSize: 'var(--text-sm)', color: 'var(--gray-500)' }}>
+                                <td className="text-sm text-gray-500">
                                   {new Date(vital.timestamp).toLocaleString()}
                                 </td>
                                 <td>
@@ -632,9 +557,9 @@ export function CaregiverDashboard({ data, setData, currentUser, onTriggerAlert,
                           </tbody>
                         </table>
                       ) : (
-                        <div className="text-center p-3">
-                          <Activity style={{ width: '3rem', height: '3rem', margin: '0 auto var(--space-2)', color: 'var(--gray-400)' }} />
-                          <p style={{ color: 'var(--gray-500)' }}>No vital signs recorded yet</p>
+                        <div className="text-center p-6">
+                          <Activity className="w-12 h-12 mx-auto mb-2 text-gray-300" />
+                          <p className="text-gray-500">No vital signs recorded yet</p>
                         </div>
                       )}
                     </div>
@@ -643,25 +568,13 @@ export function CaregiverDashboard({ data, setData, currentUser, onTriggerAlert,
               )}
 
               {/* Test Emergency Button */}
-              <div style={{
-                backgroundColor: 'white',
-                borderRadius: '12px',
-                overflow: 'hidden'
-              }}>
-                <div style={{
-                  backgroundColor: '#E3F2FD',
-                  padding: '16px 24px'
-                }}>
-                  <h3 style={{
-                    color: '#1565C0',
-                    fontSize: '16px',
-                    fontWeight: '600',
-                    margin: 0
-                  }}>
+              <div className="bg-white rounded-lg overflow-hidden">
+                <div className="bg-info-light p-4">
+                  <h3 className="text-info text-base font-semibold">
                     Emergency Testing
                   </h3>
                 </div>
-                <div style={{ padding: '24px' }}>
+                <div className="p-6">
                   <button
                     onClick={() => onTriggerAlert(assignedResident.id)}
                     className="btn btn-sm btn-secondary"

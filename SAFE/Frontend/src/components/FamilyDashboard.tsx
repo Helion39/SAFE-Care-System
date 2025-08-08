@@ -31,28 +31,16 @@ export function FamilyDashboard({ userData, data, currentUser, onLogout }: Famil
 
   return (
     <>
-    <div style={{
-      backgroundColor: '#f5f9ff',
-      minHeight: '100vh',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-    }}>
-      <div style={{ padding: '24px' }}>
+    <div className="bg-pastel-background min-h-screen font-sans">
+      <div className="p-6">
         {/* Plain Header Title */}
-        <h1 style={{
-          color: '#1565C0',
-          fontSize: '20px',
-          fontWeight: '600',
-          margin: '0 0 32px 0',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '12px'
-        }}>
-          <User style={{ width: '24px', height: '24px' }} />
+        <h1 className="text-info text-xl font-semibold mb-8 flex items-center gap-3">
+          <User className="w-6 h-6" />
           {residentData.name}'s Care Dashboard
         </h1>
 
         {/* Key Metrics - Admin Dashboard Style */}
-        <div className="grid grid-4" style={{ marginBottom: '32px' }}>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {/* Latest Blood Pressure Metric */}
           <div className="metric-card-refined metric-card-info">
             <div className="metric-label-top">Blood Pressure</div>
@@ -102,65 +90,24 @@ export function FamilyDashboard({ userData, data, currentUser, onLogout }: Famil
         </div>
 
         {/* Medical Conditions */}
-        <div style={{
-          backgroundColor: 'white',
-          borderRadius: '12px',
-          overflow: 'hidden',
-          marginBottom: '32px',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
-        }}>
-          <div style={{
-            backgroundColor: '#E3F2FD',
-            padding: '16px 24px'
-          }}>
-            <h3 style={{
-              color: '#1565C0',
-              fontSize: '16px',
-              fontWeight: '600',
-              margin: 0,
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}>
-              <FileText style={{ width: '16px', height: '16px' }} />
+        <div className="bg-white rounded-lg overflow-hidden mb-8 shadow-sm">
+          <div className="bg-info-light p-4">
+            <h3 className="text-info text-base font-semibold flex items-center gap-2">
+              <FileText className="w-4 h-4" />
               Medical Conditions
             </h3>
           </div>
-          <div style={{ padding: '24px' }}>
-            <div style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: '12px'
-            }}>
+          <div className="p-6">
+            <div className="flex flex-wrap gap-3">
               {(residentData.medicalConditions || residentData.medical_conditions || []).map((condition: string, index: number) => (
-                <span key={index} style={{
-                  backgroundColor: '#E3F2FD',
-                  color: '#1565C0',
-                  padding: '8px 16px',
-                  borderRadius: '20px',
-                  fontSize: '13px',
-                  fontWeight: '500',
-                  border: '1px solid #BBDEFB'
-                }}>
+                <span key={index} className="bg-info-light text-info py-2 px-4 rounded-full text-sm font-medium border border-blue-200">
                   {condition}
                 </span>
               ))}
               {(!residentData.medicalConditions && !residentData.medical_conditions) ||
                 (residentData.medicalConditions || residentData.medical_conditions || []).length === 0 && (
-                  <div style={{
-                    color: '#6c757d',
-                    fontStyle: 'italic',
-                    fontSize: '14px',
-                    textAlign: 'center',
-                    width: '100%',
-                    padding: '20px 0'
-                  }}>
-                    <FileText style={{
-                      width: '48px',
-                      height: '48px',
-                      margin: '0 auto 16px',
-                      color: '#adb5bd'
-                    }} />
+                  <div className="text-gray-500 italic text-sm text-center w-full py-5">
+                    <FileText className="w-12 h-12 mx-auto mb-4 text-gray-300" />
                     No medical conditions recorded
                   </div>
                 )}
@@ -169,92 +116,47 @@ export function FamilyDashboard({ userData, data, currentUser, onLogout }: Famil
         </div>
 
         {/* Recent Vitals History - Compact Mobile View */}
-        <div style={{
-          backgroundColor: 'white',
-          borderRadius: '12px',
-          overflow: 'hidden',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
-        }}>
-          <div style={{
-            backgroundColor: '#E3F2FD',
-            padding: '16px 24px'
-          }}>
-            <h3 style={{
-              color: '#1565C0',
-              fontSize: '16px',
-              fontWeight: '600',
-              margin: 0,
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}>
-              <Activity style={{ width: '16px', height: '16px' }} />
+        <div className="bg-white rounded-lg overflow-hidden shadow-sm">
+          <div className="bg-info-light p-4">
+            <h3 className="text-info text-base font-semibold flex items-center gap-2">
+              <Activity className="w-4 h-4" />
               Recent Vitals History
             </h3>
           </div>
-          <div style={{ padding: '24px' }}>
+          <div className="p-6">
             {vitals.length > 0 ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div className="flex flex-col gap-4">
                 {vitals.slice(0, 3).map((vital: any, index: number) => (
-                  <div key={index} style={{
-                    backgroundColor: 'white',
-                    borderRadius: '8px',
-                    padding: '20px',
-                    border: '1px solid #E3F2FD',
-                    boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
-                  }}>
-                    <div style={{
-                      display: 'grid',
-                      gridTemplateColumns: '1fr 1fr',
-                      gap: '16px',
-                      marginBottom: '12px'
-                    }}>
-                      <div style={{ fontSize: '14px' }}>
-                        <span style={{ fontWeight: '500', color: '#495057' }}>BP: </span>
-                        <span style={{ color: '#1565C0', fontWeight: '600' }}>
+                  <div key={index} className="bg-white rounded-lg p-5 border border-blue-100 shadow-sm">
+                    <div className="grid grid-cols-2 gap-4 mb-3">
+                      <div className="text-sm">
+                        <span className="font-medium text-gray-600">BP: </span>
+                        <span className="text-info font-semibold">
                           {vital.systolicBP || vital.systolic_bp}/{vital.diastolicBP || vital.diastolic_bp}
                         </span>
                       </div>
-                      <div style={{ fontSize: '14px' }}>
-                        <span style={{ fontWeight: '500', color: '#495057' }}>HR: </span>
-                        <span style={{ color: '#1565C0', fontWeight: '600' }}>
+                      <div className="text-sm">
+                        <span className="font-medium text-gray-600">HR: </span>
+                        <span className="text-info font-semibold">
                           {vital.heartRate || vital.heart_rate} bpm
                         </span>
                       </div>
                     </div>
                     {vital.temperature && (
-                      <div style={{ fontSize: '14px', marginBottom: '12px' }}>
-                        <span style={{ fontWeight: '500', color: '#495057' }}>Temp: </span>
-                        <span style={{ color: '#1565C0', fontWeight: '600' }}>
+                      <div className="text-sm mb-3">
+                        <span className="font-medium text-gray-600">Temp: </span>
+                        <span className="text-info font-semibold">
                           {vital.temperature}°C
                         </span>
                       </div>
                     )}
                     {vital.notes && (
-                      <div style={{
-                        fontSize: '12px',
-                        color: '#6c757d',
-                        marginBottom: '12px',
-                        fontStyle: 'italic',
-                        backgroundColor: '#E3F2FD',
-                        padding: '8px 12px',
-                        borderRadius: '6px'
-                      }}>
+                      <div className="text-xs text-gray-500 italic bg-gray-50 p-2 rounded-md mb-3">
                         Notes: {vital.notes}
                       </div>
                     )}
-                    <div style={{
-                      fontSize: '12px',
-                      color: '#6c757d',
-                      textAlign: 'right',
-                      borderTop: '1px solid #e9ecef',
-                      paddingTop: '12px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'flex-end',
-                      gap: '4px'
-                    }}>
-                      <Clock style={{ width: '12px', height: '12px' }} />
+                    <div className="text-xs text-gray-500 text-right border-t pt-3 flex items-center justify-end gap-1">
+                      <Clock className="w-3 h-3" />
                       {new Date(vital.timestamp || vital.createdAt).toLocaleDateString()} at{' '}
                       {new Date(vital.timestamp || vital.createdAt).toLocaleTimeString([], {
                         hour: '2-digit',
@@ -264,30 +166,14 @@ export function FamilyDashboard({ userData, data, currentUser, onLogout }: Famil
                   </div>
                 ))}
                 {vitals.length > 3 && (
-                  <div style={{
-                    textAlign: 'center',
-                    color: '#6c757d',
-                    fontSize: '12px',
-                    paddingTop: '12px',
-                    borderTop: '1px solid #e9ecef'
-                  }}>
+                  <div className="text-center text-gray-500 text-xs pt-3 border-t">
                     Showing 3 of {vitals.length} recent vitals
                   </div>
                 )}
               </div>
             ) : (
-              <div style={{
-                textAlign: 'center',
-                color: '#6c757d',
-                padding: '60px 20px',
-                fontSize: '14px'
-              }}>
-                <Activity style={{
-                  width: '48px',
-                  height: '48px',
-                  margin: '0 auto 16px',
-                  color: '#adb5bd'
-                }} />
+              <div className="text-center text-gray-500 py-16 text-sm">
+                <Activity className="w-12 h-12 mx-auto mb-4 text-gray-300" />
                 No vitals recorded yet
               </div>
             )}
