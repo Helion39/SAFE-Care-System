@@ -275,18 +275,6 @@ class ApiService {
     });
   }
 
-  async generateHealthAnalysis(vitals, residentName, residentAge, medicalConditions) {
-    return this.request('/health-analysis/generate', {
-      method: 'POST',
-      body: JSON.stringify({ 
-        vitals, 
-        residentName, 
-        residentAge, 
-        medicalConditions 
-      }),
-    });
-  }
-
   // ---------------- FAMILY ----------------
   async familyLogin(credentials) {
     const response = await this.request('/auth/family-login', {

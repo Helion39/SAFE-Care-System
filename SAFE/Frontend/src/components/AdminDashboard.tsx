@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { VitalsChart } from './VitalsChart';
 import { UserManagement } from './UserManagement';
 import { ResidentManagement } from './ResidentManagement';
-import { CameraMonitoring } from './CameraMonitoring';
-import { ChatbotWidget } from './ChatbotWidget';
+import { CameraMonitoring } from './CameraMonitoring'; 
 import apiService from '../services/api';
 import { 
   Users, 
@@ -64,7 +63,6 @@ export function AdminDashboard({ data, setData, onTriggerAlert, onResolveInciden
   };
 
   return (
-    <>
     <div className="bg-gray-50" style={{ minHeight: '100vh', paddingTop: '64px' }}>
       {/* Sidebar */}
       <div className={`${sidebarOpen ? 'w-64' : 'w-16'} transition-all duration-300 fixed left-0 flex flex-col z-40`} style={{ backgroundColor: '#E3F2FD', height: '100vh', top: '0', paddingTop: '64px' }}>
@@ -520,9 +518,5 @@ export function AdminDashboard({ data, setData, onTriggerAlert, onResolveInciden
         </div>
       </div>
     </div>
-    
-    {/* Chatbot Widget */}
-    <ChatbotWidget />
-    </>
   );
 }
