@@ -8,6 +8,7 @@ import { FamilyDashboard } from './components/FamilyDashboard';
 import { UnauthorizedPage } from './components/UnauthorizedPage';
 import { Modal } from './components/Modal';
 import { useModal } from './hooks/useModal';
+import { Shield, User, Lock, ArrowLeft, LogIn } from 'lucide-react';
 import apiService from './services/api';
 
 function StaffLogin() {
@@ -38,7 +39,7 @@ function StaffLogin() {
         if (response.success) {
           const user = response.data.user;
           setCurrentUser(user);
-          
+
           // Load data with the user context
           await loadDataForUser(user);
         }
@@ -54,17 +55,17 @@ function StaffLogin() {
   const loadDataForUser = async (user) => {
     try {
       console.log('🔍 Loading data for user:', user?.role, 'with token:', localStorage.getItem('authToken') ? 'Present' : 'Missing');
-      
+
       // Load different data based on user role
       const promises = [];
-      
+
       // All users can access residents and incidents
       promises.push(apiService.getResidents());
       promises.push(apiService.getIncidents());
-      
+
       // Load vitals data for all users
       promises.push(apiService.getVitals());
-      
+
       // Only admins can access all users and assignments
       if (user?.role === 'admin') {
         console.log('🔍 Loading all users and assignments for admin');
@@ -96,7 +97,7 @@ function StaffLogin() {
           },
           {
             id: 2,
-            room_number: "102", 
+            room_number: "102",
             status: "active",
             last_checked: new Date().toISOString()
           },
@@ -126,14 +127,14 @@ function StaffLogin() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoginError('');
-    
+
     try {
       const response = await apiService.login(loginForm);
       console.log('🔍 Login response:', response);
       if (response.success) {
         const user = response.data.user;
         console.log('✅ Setting current user:', user);
-        
+
         // Validate that user role matches selected role
         if (selectedRole === 'admin' && user.role !== 'admin') {
           setLoginError('Invalid credentials for admin login. Please use admin credentials.');
@@ -143,7 +144,7 @@ function StaffLogin() {
           setLoginError('Invalid credentials for caregiver login. Please use caregiver credentials.');
           return;
         }
-        
+
         setCurrentUser(user);
         await loadDataForUser(user);
         setSelectedRole(null);
@@ -241,9 +242,29 @@ function StaffLogin() {
   if (isLoading) {
     return (
       <div className="login-page">
-        <div className="login-card">
-          <h1 className="login-title">SAFE Care System</h1>
-          <p className="login-subtitle">Loading...</p>
+        <div className="login-card" style={{ maxWidth: '450px' }}>
+          <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+            <div style={{
+              margin: '0 auto 0.75rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <img
+                src="/SAFE.png"
+                alt="SAFE Care System"
+                style={{
+                  width: '10rem',
+                  height: '10rem',
+                  objectFit: 'contain'
+                }}
+              />
+            </div>
+            <h1 className="login-title" style={{ color: 'var(--info)' }}>SAFE Care System</h1>
+            <p className="login-subtitle" style={{ fontSize: 'var(--text-base)' }}>
+              Loading...
+            </p>
+          </div>
         </div>
       </div>
     );
@@ -254,23 +275,95 @@ function StaffLogin() {
     if (!selectedRole) {
       return (
         <div className="login-page">
-          <div className="login-card">
-            <h1 className="login-title">SAFE Care System</h1>
-            <p className="login-subtitle">Staff Portal</p>
-            
-            <button 
-              onClick={() => handleRoleSelect('admin')} 
-              className="btn btn-primary w-full mb-2"
-            >
-              Login as Admin
-            </button>
-            
-            <button 
-              onClick={() => handleRoleSelect('caregiver')} 
-              className="btn btn-secondary w-full mb-2"
-            >
-              Login as Caregiver
-            </button>
+          <div className="login-card" style={{ maxWidth: '450px' }}>
+            <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+              <div style={{
+                margin: '0 auto 0.75rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <img
+                  src="/SAFE.png"
+                  alt="SAFE Care System"
+                  style={{
+                    width: '10rem',
+                    height: '10rem',
+                    objectFit: 'contain'
+                  }}
+                />
+              </div>
+              <h1 className="login-title" style={{ color: 'var(--info)' }}>SAFE Care System</h1>
+              <p className="login-subtitle" style={{ fontSize: 'var(--text-base)' }}>
+                Staff Portal
+              </p>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <button
+                onClick={() => handleRoleSelect('admin')}
+                className="btn btn-primary w-full"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.75rem',
+                  padding: '1rem',
+                  backgroundColor: 'var(--pastel-primary)',
+                  color: 'var(--info)',
+                  fontSize: 'var(--text-base)'
+                }}
+              >
+                <Shield style={{ width: '1.2rem', height: '1.2rem' }} />
+                Login as Administrator
+              </button>
+
+              <button
+                onClick={() => handleRoleSelect('caregiver')}
+                className="btn btn-outline w-full"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.75rem',
+                  padding: '1rem',
+                  backgroundColor: 'var(--info-light)',
+                  color: 'var(--info)',
+                  border: '1px solid var(--info)',
+                  fontSize: 'var(--text-base)'
+                }}
+              >
+                <User style={{ width: '1.2rem', height: '1.2rem' }} />
+                Login as Caregiver
+              </button>
+            </div>
+
+            <div style={{
+              textAlign: 'center',
+              marginTop: '2rem',
+              padding: '1.5rem',
+              backgroundColor: 'var(--info-light)',
+              borderRadius: 'var(--radius-lg)',
+              border: '1px solid var(--info)'
+            }}>
+              <h3 style={{
+                fontSize: 'var(--text-base)',
+                color: 'var(--info)',
+                margin: '0 0 1rem 0',
+                fontWeight: '600'
+              }}>Secure Healthcare Access</h3>
+              <div style={{
+                fontSize: 'var(--text-sm)',
+                color: 'var(--gray-600)',
+                textAlign: 'left',
+                lineHeight: '1.6'
+              }}>
+                <p style={{ margin: '0 0 0.5rem 0' }}>• Role-based permissions</p>
+                <p style={{ margin: '0 0 0.5rem 0' }}>• Activity monitoring</p>
+                <p style={{ margin: '0' }}>• Secure patient data access</p>
+              </div>
+            </div>
+
           </div>
         </div>
       );
@@ -279,59 +372,161 @@ function StaffLogin() {
     // Login form screen
     return (
       <div className="login-page">
-        <div className="login-card">
-          <h1 className="login-title">SAFE Care System</h1>
-          <p className="login-subtitle">
-            {selectedRole === 'admin' ? 'Administrator Login' : 'Caregiver Login'}
-          </p>
-          
+        <div className="login-card" style={{ maxWidth: '450px' }}>
+          <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+            <div style={{
+              width: '5rem',
+              height: '5rem',
+              backgroundColor: selectedRole === 'admin' ? '#1565C0' : '#0396D3',
+              borderRadius: '50%',
+              margin: '0 auto 1.5rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              {selectedRole === 'admin' ? (
+                <Shield style={{ width: '2rem', height: '2rem', color: 'white' }} />
+              ) : (
+                <User style={{ width: '2rem', height: '2rem', color: 'white' }} />
+              )}
+            </div>
+            <h1 className="login-title" style={{ color: 'var(--info)' }}>SAFE Care System</h1>
+            <p className="login-subtitle" style={{ fontSize: 'var(--text-base)' }}>
+              {selectedRole === 'admin' ? 'Administrator Login' : 'Caregiver Login'}
+            </p>
+          </div>
+
           <form onSubmit={handleLogin} style={{ width: '100%' }}>
             {loginError && (
-              <div className="alert alert-error mb-2">
+              <div className="alert alert-error mb-2" style={{
+                backgroundColor: 'var(--error-light)',
+                color: 'var(--error)',
+                padding: '0.75rem',
+                borderRadius: 'var(--radius-md)',
+                border: '1px solid rgba(198, 40, 40, 0.2)',
+                marginBottom: '1rem',
+                fontSize: 'var(--text-sm)'
+              }}>
                 {loginError}
               </div>
             )}
-            
-            <div className="form-group">
-              <input
-                type="text"
-                placeholder="Username"
-                value={loginForm.username}
-                onChange={(e) => setLoginForm(prev => ({ ...prev, username: e.target.value }))}
-                className="input"
-                required
-              />
+
+            <div className="form-group" style={{ marginBottom: '1rem' }}>
+              <div style={{ position: 'relative' }}>
+                <User style={{
+                  position: 'absolute',
+                  left: '12px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  width: '1rem',
+                  height: '1rem',
+                  color: 'var(--gray-400)'
+                }} />
+                <input
+                  type="text"
+                  placeholder="Username"
+                  value={loginForm.username}
+                  onChange={(e) => setLoginForm(prev => ({ ...prev, username: e.target.value }))}
+                  className="input"
+                  style={{ paddingLeft: '2.5rem' }}
+                  required
+                />
+              </div>
             </div>
-            
-            <div className="form-group">
-              <input
-                type="password"
-                placeholder="Password"
-                value={loginForm.password}
-                onChange={(e) => setLoginForm(prev => ({ ...prev, password: e.target.value }))}
-                className="input"
-                required
-              />
+
+            <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+              <div style={{ position: 'relative' }}>
+                <Lock style={{
+                  position: 'absolute',
+                  left: '12px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  width: '1rem',
+                  height: '1rem',
+                  color: 'var(--gray-400)'
+                }} />
+                <input
+                  type="password"
+                  placeholder="Password"
+                  value={loginForm.password}
+                  onChange={(e) => setLoginForm(prev => ({ ...prev, password: e.target.value }))}
+                  className="input"
+                  style={{ paddingLeft: '2.5rem' }}
+                  required
+                />
+              </div>
             </div>
-            
-            <div className="flex gap-2 mb-2">
-              <button 
+
+            <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1.5rem' }}>
+              <button
                 type="button"
                 onClick={handleBackToRoleSelection}
-                className="btn btn-secondary"
-                style={{ flex: 1 }}
+                className="btn btn-outline"
+                style={{
+                  flex: 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.5rem',
+                  padding: '0.75rem',
+                  backgroundColor: 'var(--gray-100)',
+                  color: 'var(--gray-700)',
+                  border: '1px solid var(--gray-200)'
+                }}
               >
+                <ArrowLeft style={{ width: '1rem', height: '1rem' }} />
                 Back
               </button>
-              <button 
+              <button
                 type="submit"
                 className="btn btn-primary"
-                style={{ flex: 2 }}
+                style={{
+                  flex: 2,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.5rem',
+                  padding: '0.75rem',
+                  backgroundColor: 'var(--pastel-primary)',
+                  color: 'var(--info)'
+                }}
               >
+                <LogIn style={{ width: '1rem', height: '1rem' }} />
                 Login
               </button>
             </div>
           </form>
+
+          <div style={{
+            textAlign: 'center',
+            padding: '1rem',
+            backgroundColor: 'var(--info-light)',
+            borderRadius: 'var(--radius-lg)',
+            border: '1px solid var(--info)'
+          }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.5rem',
+              marginBottom: '0.5rem'
+            }}>
+              <Shield style={{ width: '1rem', height: '1rem', color: 'var(--info)' }} />
+              <span style={{
+                fontSize: 'var(--text-sm)',
+                color: 'var(--info)',
+                fontWeight: '600'
+              }}>Secure Healthcare Access</span>
+            </div>
+            <div style={{
+              fontSize: 'var(--text-xs)',
+              color: 'var(--gray-600)',
+              lineHeight: '1.4'
+            }}>
+              Role-based permissions • Activity monitoring
+            </div>
+          </div>
+
         </div>
       </div>
     );
@@ -371,16 +566,16 @@ function StaffLogin() {
 
       {/* Main Content */}
       {currentUser.role === 'admin' ? (
-        <AdminDashboard 
-          data={data} 
+        <AdminDashboard
+          data={data}
           setData={setData}
           onTriggerAlert={triggerEmergencyAlert}
           onResolveIncident={resolveIncident}
           onDataChange={loadData}
         />
       ) : (
-        <CaregiverDashboard 
-          data={data} 
+        <CaregiverDashboard
+          data={data}
           setData={setData}
           currentUser={currentUser}
           onTriggerAlert={triggerEmergencyAlert}
@@ -388,7 +583,7 @@ function StaffLogin() {
           onDataChange={loadData}
         />
       )}
-      
+
       <Modal
         isOpen={modalState.isOpen}
         onClose={closeModal}
@@ -497,7 +692,7 @@ function FamilyPortal() {
   const loadFamilyData = async (user) => {
     try {
       console.log('🔍 Family user email:', user.email);
-      
+
       const [residentsRes, incidentsRes, vitalsRes, usersRes] = await Promise.all([
         apiService.getResidents(),
         apiService.getIncidents(),
@@ -507,7 +702,7 @@ function FamilyPortal() {
 
       const allResidents = residentsRes?.data || [];
       console.log('🔍 Available residents:', allResidents.map(r => ({ id: r._id || r.id, name: r.name, familyEmails: r.familyEmails })));
-      
+
       // Find resident by email in familyEmails array
       const linkedResident = allResidents.find((r: any) => {
         if (r.familyEmails && Array.isArray(r.familyEmails)) {
@@ -519,7 +714,7 @@ function FamilyPortal() {
       if (linkedResident) {
         const residentObjectId = linkedResident._id || linkedResident.id;
         console.log('✅ Found linked resident:', { id: residentObjectId, name: linkedResident.name, email: user.email });
-        
+
         // Filter data for this resident ObjectId only
         const residentVitals = (vitalsRes?.data || []).filter((v: any) => {
           const vResidentId = v.resident_id || v.residentId;
@@ -625,14 +820,14 @@ function FamilyPortal() {
 
       {/* Main Content */}
       <div className="container mx-auto px-6 py-6" style={{ paddingTop: '88px' }}>
-        <FamilyDashboard 
+        <FamilyDashboard
           userData={currentUser}
-          data={data} 
+          data={data}
           currentUser={currentUser}
           onLogout={handleFamilyLogout}
         />
       </div>
-      
+
       <Modal
         isOpen={familyModalState.isOpen}
         onClose={closeFamilyModal}

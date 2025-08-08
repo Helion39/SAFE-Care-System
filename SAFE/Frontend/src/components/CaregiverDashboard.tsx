@@ -30,7 +30,7 @@ export function CaregiverDashboard({ data, setData, currentUser, onTriggerAlert,
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
   const [sidebarOpen, setSidebarOpen] = useState(true);
-
+  
   // Listen for sidebar toggle from navbar
   React.useEffect(() => {
     const handleToggleSidebar = () => {
