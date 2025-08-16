@@ -545,16 +545,16 @@ function StaffLogin() {
       ))}
 
       {/* Header */}
-      <nav className="bg-pastel-white border-b border-gray-200 px-6 py-2 fixed top-0 left-0 right-0 z-50" style={{ height: '64px' }}>
+      <nav className="bg-pastel-white border-b border-gray-200 px-4 sm:px-6 py-2 fixed top-0 left-0 right-0 z-50" style={{ height: '64px' }}>
         <div className="flex justify-between items-center h-full">
-          <div className="flex items-center gap-3">
-            <span className="text-lg font-bold text-info">SAFE Care System</span>
+          <div className="flex items-center gap-2 sm:gap-3">
+            <span className="text-md sm:text-lg font-bold text-info">SAFE Care</span>
             <span className={`badge ${currentUser.role === 'admin' ? 'badge-primary' : 'badge-secondary'}`}>
-              {currentUser.role === 'admin' ? 'Administrator' : 'Caregiver'}
+              {currentUser.role === 'admin' ? 'Admin' : 'Caregiver'}
             </span>
           </div>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-600">
+          <div className="flex items-center gap-2 md:gap-4">
+            <span className="hidden md:inline text-sm text-gray-600">
               Welcome, {currentUser.name}
             </span>
             <button onClick={handleLogout} className="btn btn-secondary text-sm px-3 py-1">
@@ -801,14 +801,14 @@ function FamilyPortal() {
   return (
     <div className="min-h-screen bg-pastel-background">
       {/* Header */}
-      <nav className="bg-pastel-white border-b border-gray-200 px-6 py-2 fixed top-0 left-0 right-0 z-50" style={{ height: '64px' }}>
+      <nav className="bg-pastel-white border-b border-gray-200 px-4 sm:px-6 py-2 fixed top-0 left-0 right-0 z-50" style={{ height: '64px' }}>
         <div className="flex justify-between items-center h-full">
-          <div className="flex items-center gap-3">
-            <span className="text-lg font-bold text-info">SAFE Care System</span>
+          <div className="flex items-center gap-2 sm:gap-3">
+            <span className="text-md sm:text-lg font-bold text-info">SAFE Care</span>
             <span className="badge badge-info">Family Portal</span>
           </div>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-600">
+          <div className="flex items-center gap-2 md:gap-4">
+            <span className="hidden md:inline text-sm text-gray-600">
               Welcome, {currentUser.name}
             </span>
             <button onClick={handleFamilyLogout} className="btn btn-secondary text-sm px-3 py-1">

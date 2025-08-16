@@ -24,7 +24,7 @@ import {
 export function AdminDashboard({ data, setData, onTriggerAlert, onResolveIncident, onDataChange }) {
   const [selectedResident, setSelectedResident] = useState(null);
   const [activeTab, setActiveTab] = useState('residents');
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 768);
 
   // Listen for sidebar toggle from navbar
   useEffect(() => {
@@ -32,8 +32,21 @@ export function AdminDashboard({ data, setData, onTriggerAlert, onResolveInciden
       setSidebarOpen(prev => !prev);
     };
 
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
+        setSidebarOpen(false);
+      } else {
+        setSidebarOpen(true);
+      }
+    };
+
     window.addEventListener('toggleSidebar', handleToggleSidebar);
-    return () => window.removeEventListener('toggleSidebar', handleToggleSidebar);
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('toggleSidebar', handleToggleSidebar);
+      window.removeEventListener('resize', handleResize);
+    };
   }, []);
 
   // Tambahkan useEffect berikut:
@@ -180,8 +193,8 @@ export function AdminDashboard({ data, setData, onTriggerAlert, onResolveInciden
       </div>
 
       {/* Main Content */}
-      <div className="transition-all duration-300" style={{ marginLeft: sidebarOpen ? '256px' : '64px', minHeight: 'calc(100vh - 64px)' }}>
-        <div className="p-6">
+      <div className={`transition-all duration-300 ${sidebarOpen ? 'md:ml-64' : 'md:ml-16'}`} style={{ minHeight: 'calc(100vh - 64px)' }}>
+        <div className="p-4 md:p-6">
           <div className="flex flex-col gap-3">
 
 
@@ -231,7 +244,7 @@ export function AdminDashboard({ data, setData, onTriggerAlert, onResolveInciden
             {/* Active Incidents */}
             {activeIncidents.length > 0 && (
               <div className="card">
-                <div className="card-header" style={{ color: 'var(--error)' }}>
+                <div className="card-header text-error">
                   <AlertTriangle />
                   Active Emergency Incidents
                 </div>
@@ -240,33 +253,33 @@ export function AdminDashboard({ data, setData, onTriggerAlert, onResolveInciden
                     const caregiver = data.users.find(u => u.id === incident.claimed_by);
                     return (
                       <div key={incident.id} className="alert alert-error">
-                        <div className="flex justify-between items-center">
-                          <div>
+                        <div className="flex flex-wrap justify-between items-center gap-2">
+                          <div className="flex-grow">
                             <div className="flex items-center gap-2 mb-1">
                               <span className={`badge ${incident.status === 'claimed' ? 'badge-warning' : 'badge-error'}`}>
                                 {incident.status === 'claimed' ? 'BEING HANDLED' : 'AWAITING RESPONSE'}
                               </span>
-                              <span style={{ fontWeight: '600' }}>{incident.resident_name}</span>
-                              <span style={{ fontSize: 'var(--text-sm)', color: 'var(--gray-500)' }}>
+                              <span className="font-semibold">{incident.resident_name}</span>
+                              <span className="text-sm text-gray-500">
                                 Room {incident.room_number}
                               </span>
                             </div>
-                            <div style={{ fontSize: 'var(--text-sm)', color: 'var(--gray-500)' }}>
+                            <div className="text-sm text-gray-500">
                               Detected: {new Date(incident.detection_time).toLocaleString()}
                               {caregiver && (
-                                <span style={{ marginLeft: 'var(--space-2)' }}>
+                                <span className="ml-2">
                                   Claimed by: {caregiver.name}
                                 </span>
                               )}
                             </div>
                           </div>
-                          <div className="flex gap-2">
+                          <div className="flex gap-2 flex-shrink-0">
                             {incident.status === 'claimed' && (
                               <button
                                 onClick={() => handleConfirmEmergency(incident.id)}
-                                className="btn btn-outline"
+                                className="btn btn-outline btn-sm"
                               >
-                                <Phone style={{ width: '1rem', height: '1rem' }} />
+                                <Phone className="w-4 h-4" />
                                 Call Hospital
                               </button>
                             )}
@@ -288,15 +301,9 @@ export function AdminDashboard({ data, setData, onTriggerAlert, onResolveInciden
                                 }
                               }}
                               title="Close this incident"
-                              style={{ cursor: 'pointer' }}
+                              className="cursor-pointer"
                             >
-                              <X 
-                                style={{ 
-                                  width: '1.5rem', 
-                                  height: '1.5rem', 
-                                  color: '#dc2626'
-                                }}
-                              />
+                              <X className="w-6 h-6 text-red-600" />
                             </span>
                           </div>
                         </div>
@@ -347,38 +354,19 @@ export function AdminDashboard({ data, setData, onTriggerAlert, onResolveInciden
             )}
 
             {activeTab === 'incidents' && (
-              <div style={{ 
-                backgroundColor: 'white', 
-                borderRadius: '12px', 
-                overflow: 'hidden'
-              }}>
-                <div style={{ 
-                  backgroundColor: '#E3F2FD', 
-                  padding: '16px 24px'
-                }}>
-                  <div style={{ 
-                    display: 'flex', 
-                    justifyContent: 'space-between', 
-                    alignItems: 'center' 
-                  }}>
-                    <h3 style={{ 
-                      color: '#1565C0', 
-                      fontSize: '16px', 
-                      fontWeight: '600', 
-                      margin: 0 
-                    }}>
+              <div className="bg-white rounded-lg overflow-hidden">
+                <div className="bg-info-light p-4">
+                  <div className="flex justify-between items-center">
+                    <h3 className="text-info text-base font-semibold">
                       Incident History
                     </h3>
-                    <span style={{ 
-                      color: '#1565C0', 
-                      fontSize: '12px' 
-                    }}>
+                    <span className="text-info text-xs">
                       Last updated: 2 minutes ago
                     </span>
                   </div>
                 </div>
-                <div style={{ padding: '0' }}>
-                  <table className="table" style={{ margin: 0, border: 'none' }}>
+                <div className="overflow-x-auto">
+                  <table className="table w-full" style={{minWidth: '600px'}}>
                   <thead>
                     <tr>
                       <th>Date/Time</th>
@@ -402,7 +390,7 @@ export function AdminDashboard({ data, setData, onTriggerAlert, onResolveInciden
                             <td>
                               <div>
                                 <div>{incident.resident_name}</div>
-                                <div style={{ fontSize: 'var(--text-sm)', color: 'var(--gray-500)' }}>
+                                <div className="text-sm text-gray-500">
                                   Room {incident.room_number}
                                 </div>
                               </div>
@@ -427,7 +415,7 @@ export function AdminDashboard({ data, setData, onTriggerAlert, onResolveInciden
                             <td>
                               {responseTime && (
                                 <span className="flex items-center gap-1">
-                                  <Clock style={{ width: '0.75rem', height: '0.75rem' }} />
+                                  <Clock className="w-3 h-3" />
                                   {responseTime}m
                                 </span>
                               )}
@@ -444,53 +432,24 @@ export function AdminDashboard({ data, setData, onTriggerAlert, onResolveInciden
             {activeTab === 'status' && (
               <div className="space-y-6">
                 {/* Vitals Analytics */}
-                <div style={{ 
-                  backgroundColor: 'white', 
-                  borderRadius: '12px', 
-                  overflow: 'hidden'
-                }}>
-                  <div style={{ 
-                    backgroundColor: '#E3F2FD', 
-                    padding: '16px 24px'
-                  }}>
-                    <div style={{ 
-                      display: 'flex', 
-                      justifyContent: 'space-between', 
-                      alignItems: 'center' 
-                    }}>
-                      <h3 style={{ 
-                        color: '#1565C0', 
-                        fontSize: '16px', 
-                        fontWeight: '600', 
-                        margin: 0 
-                      }}>
+                <div className="bg-white rounded-lg overflow-hidden">
+                  <div className="bg-info-light p-4">
+                    <div className="flex justify-between items-center">
+                      <h3 className="text-info text-base font-semibold">
                         Resident Vitals Overview
                       </h3>
-                      <span style={{ 
-                        color: '#1565C0', 
-                        fontSize: '12px' 
-                      }}>
+                      <span className="text-info text-xs">
                         Showing 4 of {data.residents.length} residents
                       </span>
                     </div>
                   </div>
-                  <div style={{ padding: '24px' }}>
-                    <div className="grid grid-2">
+                  <div className="p-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                       {data.residents.slice(0, 4).map(resident => {
                         const vitals = getResidentVitals(resident.id);
                         return (
-                          <div key={resident.id} style={{ 
-                            backgroundColor: '#f5f9ff', 
-                            borderRadius: '8px', 
-                            padding: '16px',
-                            marginBottom: '16px'
-                          }}>
-                            <div style={{ 
-                              color: '#1565C0', 
-                              fontSize: '14px', 
-                              fontWeight: '600', 
-                              marginBottom: '12px' 
-                            }}>
+                          <div key={resident.id} className="bg-gray-50 rounded-lg p-4">
+                            <div className="text-info font-semibold text-sm mb-3">
                               {resident.name} - Vital Signs
                             </div>
                             <VitalsChart vitals={vitals} />
@@ -499,8 +458,8 @@ export function AdminDashboard({ data, setData, onTriggerAlert, onResolveInciden
                       })}
                     </div>
                     {data.residents.length > 4 && (
-                      <div style={{ textAlign: 'center', marginTop: '16px' }}>
-                        <p style={{ fontSize: '12px', color: '#9AA0A6' }}>
+                      <div className="text-center mt-4">
+                        <p className="text-xs text-gray-500">
                           View individual resident pages for complete vitals history.
                         </p>
                       </div>
